@@ -219,8 +219,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
-        stat, message = EpicsMoveable.doStatus(self)
 
+        status_msg = self._get_status_message()
+        if status_msg:
+            return status.ERROR, status_msg
+
+        stat, message = EpicsMoveable.doStatus(self)
         if stat in [status.WARN, status.ERROR]:
             return stat, message
 
