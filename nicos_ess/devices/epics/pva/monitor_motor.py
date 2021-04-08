@@ -59,6 +59,13 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
+        'errorseveritypv': Param('Optional PV with error severity.',
+                                 mandatory=False, settable=False,
+                                 userparam=False),
+        'errorstatuspv': Param('Optional PV with error status.',
+                               mandatory=False, settable=False,
+                               userparam=False),
+
     }
 
     parameter_overrides = {
@@ -123,6 +130,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if self.reseterrorpv:
             pvs.add('reseterrorpv')
 
+        if self.errorseveritypv:
+            pvs.add('errorseveritypv')
+
+        if self.errorstatuspv:
+            pvs.add('errorstatuspv')
+
         return pvs
 
     def _get_status_parameters(self):
@@ -186,7 +199,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
             # Adjust user limits
             self.userlimits = (
-            self.userlimits[0] + diff, self.userlimits[1] + diff)
+                self.userlimits[0] + diff, self.userlimits[1] + diff)
 
             self.log.info('The new user limits are: ' + str(self.userlimits))
 
@@ -220,9 +233,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
     def doStatus(self, maxage=0):
 
-        status_msg = self._get_status_message()
-        if status_msg:
-            return status.ERROR, status_msg
+        error_status, error_msg = self._get_status_message()
+        if error_msg:
+            return error_status, error_msg
 
         stat, message = EpicsMoveable.doStatus(self)
         if stat in [status.WARN, status.ERROR]:
@@ -258,10 +271,14 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         :return: The status message if it exists, otherwise an empty string.
         """
+        error_status = ''
         if not self.errormsgpv:
-            return ''
-
-        return self._get_pv('errormsgpv', as_string=True)
+            return error_status, ''
+        error_msg = self._get_pv('errormsgpv', as_string=True)
+        error_severity = self._get_pv('errorseveritypv', as_string=True)
+        if error_severity:
+            error_status = self._get_pv('errorstatuspv', as_string=True)
+        return error_status, error_msg
 
     def doStop(self):
         self._put_pv('stop', 1, False)
