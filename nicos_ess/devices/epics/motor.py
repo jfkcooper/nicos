@@ -59,6 +59,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
+        'errorseveritypv': Param('Optional PV with error severity.',
+                                 type=pvname, mandatory=False, settable=False,
+                                 userparam=False),
+        'errorstatuspv': Param('Optional PV with error status.',
+                               type=pvname, mandatory=False, settable=False,
+                               userparam=False),
         'reference_direction': Param('Reference run direction',
                                      type=oneof('forward', 'reverse'),
                                      default='forward', settable=False,
@@ -117,6 +123,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
         if self.reseterrorpv:
             pvs.add('reseterrorpv')
+
+        if self.errorseveritypv:
+            pvs.add('errorseveritypv')
+
+        if self.errorstatuspv:
+            pvs.add('errorstatuspv')
 
         return pvs
 
@@ -206,6 +218,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         if general_epics_status == status.ERROR:
             return status.ERROR, message or 'Unknown problem in record'
 
+        error_status, error_msg = self._get_status_message()
+        if error_msg:
+            return error_status, error_msg
+
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
@@ -236,10 +252,16 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
         :return: The status message if it exists, otherwise an empty string.
         """
+        error_status = ''
         if not self.errormsgpv:
-            return ''
-
-        return self._get_pv('errormsgpv', as_string=True)
+            return error_status, ''
+        error_msg = self._get_pv('errormsgpv', as_string=True)
+        if not self.error_severity or not self.error_status:
+            return error_status, error_msg
+        error_severity = self._get_pv('errorseveritypv', as_string=True)
+        if error_severity:
+            error_status = self._get_pv('errorstatuspv', as_string=True)
+        return error_status, error_msg
 
     def doStop(self):
         self._put_pv('stop', 1, False)
