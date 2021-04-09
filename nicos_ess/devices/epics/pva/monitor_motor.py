@@ -60,10 +60,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
         'errorseveritypv': Param('Optional PV with error severity.',
-                                 mandatory=False, settable=False,
+                                 type=pvname, mandatory=False, settable=False,
                                  userparam=False),
         'errorstatuspv': Param('Optional PV with error status.',
-                               mandatory=False, settable=False,
+                               type=pvname, mandatory=False, settable=False,
                                userparam=False),
 
     }
