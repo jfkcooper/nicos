@@ -275,6 +275,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if not self.errormsgpv:
             return error_status, ''
         error_msg = self._get_pv('errormsgpv', as_string=True)
+        if not self.error_severity or not self.error_status:
+            return error_status, error_msg
         error_severity = self._get_pv('errorseveritypv', as_string=True)
         if error_severity:
             error_status = self._get_pv('errorstatuspv', as_string=True)
