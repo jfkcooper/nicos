@@ -219,7 +219,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             return status.ERROR, message or 'Unknown problem in record'
 
         error_status, error_msg = self._get_status_message()
-        if error_msg:
+        if error_status:
             return error_status, error_msg
 
         done_moving = self._get_pv('donemoving')

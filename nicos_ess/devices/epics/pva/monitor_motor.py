@@ -234,7 +234,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     def doStatus(self, maxage=0):
 
         error_status, error_msg = self._get_status_message()
-        if error_msg:
+        if error_status:
             return error_status, error_msg
 
         stat, message = EpicsMoveable.doStatus(self)
