@@ -10,8 +10,8 @@ devices = dict(
         errormsgpv='SES-SCAN:MC-MCU-001:m1-MsgTxt',
         errorbitpv='SES-SCAN:MC-MCU-001:m1-Err',
         reseterrorpv='SES-SCAN:MC-MCU-001:m1-ErrRst',
-        errorseveritypv='SES-SCAN:MC-MCU-001:m1-SEVR',
-        errorstatuspv='SES-SCAN:MC-MCU-001:m1-STAT',
+        errorseveritypv='SES-SCAN:MC-MCU-001:m1.SEVR',
+        errorstatuspv='SES-SCAN:MC-MCU-001:m1.STAT',
     ),
     mY=device(
         'nicos_ess.devices.epics.pva.EpicsMotor',
@@ -22,8 +22,8 @@ devices = dict(
         errormsgpv='SES-SCAN:MC-MCU-001:m2-MsgTxt',
         errorbitpv='SES-SCAN:MC-MCU-001:m2-Err',
         reseterrorpv='SES-SCAN:MC-MCU-001:m2-ErrRst',
-        errorseveritypv='SES-SCAN:MC-MCU-001:m2-SEVR',
-        errorstatuspv='SES-SCAN:MC-MCU-001:m2-STAT',
+        errorseveritypv='SES-SCAN:MC-MCU-001:m2.SEVR',
+        errorstatuspv='SES-SCAN:MC-MCU-001:m2.STAT',
     ),
     mZ=device(
         'nicos_ess.devices.epics.pva.EpicsMotor',
@@ -34,7 +34,7 @@ devices = dict(
         errormsgpv='SES-SCAN:MC-MCU-001:m3-MsgTxt',
         errorbitpv='SES-SCAN:MC-MCU-001:m3-Err',
         reseterrorpv='SES-SCAN:MC-MCU-001:m3-ErrRst',
-        errorseveritypv='SES-SCAN:MC-MCU-001:m3-SEVR',
-        errorstatuspv='SES-SCAN:MC-MCU-001:m3-STAT',
+        errorseveritypv='SES-SCAN:MC-MCU-001:m3.SEVR',
+        errorstatuspv='SES-SCAN:MC-MCU-001:m3.STAT',
     ),
 )
