@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="InstSetGroupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -49,7 +49,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEdit_2"/>
+          <widget class="QLineEdit" name="apYBox"/>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_8">
@@ -89,7 +89,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Pos X = </string>
+            <string>Pos Y = </string>
            </property>
           </widget>
          </item>
@@ -101,14 +101,17 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEdit">
+          <widget class="QLineEdit" name="apXBox">
            <property name="layoutDirection">
             <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QLineEdit" name="lineEdit_4"/>
+          <widget class="QLineEdit" name="apHBox"/>
          </item>
          <item row="1" column="2">
           <widget class="QLabel" name="label_3">
@@ -118,7 +121,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLineEdit" name="lineEdit_3"/>
+          <widget class="QLineEdit" name="apWBox"/>
          </item>
         </layout>
        </widget>
@@ -170,7 +173,7 @@
           </spacer>
          </item>
          <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEdit_9">
+          <widget class="QLineEdit" name="offsetBox">
            <property name="layoutDirection">
             <enum>Qt::LeftToRight</enum>
            </property>
@@ -212,7 +215,7 @@
     </widget>
    </item>
    <item row="0" column="2">
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="SampleSetGroupBox">
      <property name="title">
       <string>Sample Settings</string>
      </property>
@@ -299,7 +302,7 @@
           </spacer>
          </item>
          <item row="3" column="3">
-          <widget class="QLineEdit" name="lineEdit_11">
+          <widget class="QLineEdit" name="refPosYBox">
            <property name="layoutDirection">
             <enum>Qt::RightToLeft</enum>
            </property>
@@ -326,7 +329,7 @@
           </spacer>
          </item>
          <item row="2" column="3">
-          <widget class="QLineEdit" name="lineEdit_10">
+          <widget class="QLineEdit" name="refPosXBox">
            <property name="layoutDirection">
             <enum>Qt::RightToLeft</enum>
            </property>
@@ -431,6 +434,19 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>apXBox</tabstop>
+  <tabstop>apYBox</tabstop>
+  <tabstop>apWBox</tabstop>
+  <tabstop>apHBox</tabstop>
+  <tabstop>offsetBox</tabstop>
+  <tabstop>bulkUpdateButton</tabstop>
+  <tabstop>comboBox</tabstop>
+  <tabstop>textBrowser</tabstop>
+  <tabstop>refPosXBox</tabstop>
+  <tabstop>refPosYBox</tabstop>
+  <tabstop>bulkUpdateButton_2</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
