@@ -15,9 +15,10 @@ class LokiScriptModel(QAbstractTableModel):
 
     @table_data.setter
     def table_data(self, new_data):
-        if not self._is_data_dimension_valid(new_data):
+        if not self._is_data_shape_valid(new_data):
             raise AttributeError(
-                f"Attribute must be a 2D list of shape (_, {len(self._header_data)})"
+                'Data loaded from file had incorrect shape. '
+                f'It must be a 2D list of shape (_, {len(self._header_data)})'
             )
 
         # Extend the list with empty rows if value has less than n_rows
