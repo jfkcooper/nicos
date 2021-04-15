@@ -44,7 +44,8 @@ class LokiScriptModel(QAbstractTableModel):
     def table_data(self, new_data):
         if not self._is_data_dimension_valid(new_data):
             raise AttributeError(
-                f"Attribute must be a 2D list of shape (_, {len(self._header_data)})"
+                f"Attribute must be a 2D list of shape"
+                f" (_, {len(self._header_data)})"
             )
 
         # Extend the list with empty rows if value has less than n_rows
@@ -112,7 +113,7 @@ class LokiScriptModel(QAbstractTableModel):
         return True
 
     def update_data_from_clipboard(
-        self, copied_data, top_left_index, hidden_columns=None):
+            self, copied_data, top_left_index, hidden_columns=None):
         # Copied data is tabular so insert at top-left most position
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
@@ -124,7 +125,8 @@ class LokiScriptModel(QAbstractTableModel):
                     if current_row >= len(self._table_data):
                         self.create_empty_row(current_row)
 
-                    if hidden_columns is not None and current_column in hidden_columns:
+                    if hidden_columns is not None \
+                            and current_column in hidden_columns:
                         continue
                     self._table_data[current_row][current_column] = value
 
