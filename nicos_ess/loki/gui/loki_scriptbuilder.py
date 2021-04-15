@@ -164,7 +164,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         self.model.table_data = table_data
 
-    def _fill_elements(self, row, indices, length):
+    @staticmethod
+    def _fill_elements(row, indices, length):
         """Returns a list with row elements placed in the given indices.
         """
         if len(row) == length:
