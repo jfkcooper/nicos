@@ -76,7 +76,8 @@ def _do_simultaneous(row_values, sans_duration_type):
 
 
 class TransFirst:
-    def generate_script(self, labeled_data, trans_duration_type,
+    @staticmethod
+    def generate_script(labeled_data, trans_duration_type,
                         sans_duration_type):
         template = ""
         for row_values in labeled_data:
@@ -90,7 +91,8 @@ class TransFirst:
 
 
 class SansFirst:
-    def generate_script(self, labeled_data, trans_duration_type,
+    @staticmethod
+    def generate_script(labeled_data, trans_duration_type,
                         sans_duration_type):
         template = ""
         for row_values in labeled_data:
@@ -104,7 +106,8 @@ class SansFirst:
 
 
 class TransThenSans:
-    def generate_script(self, labeled_data, trans_duration_type,
+    @staticmethod
+    def generate_script(labeled_data, trans_duration_type,
                         sans_duration_type):
         template = ""
         for row_values in labeled_data:
@@ -115,7 +118,8 @@ class TransThenSans:
 
 
 class SansThenTrans:
-    def generate_script(self, labeled_data, trans_duration_type,
+    @staticmethod
+    def generate_script(labeled_data, trans_duration_type,
                         sans_duration_type):
         template = ""
         for row_values in labeled_data:
@@ -126,7 +130,8 @@ class SansThenTrans:
 
 
 class Simultaneous:
-    def generate_script(self, labeled_data, sans_duration_type):
+    @staticmethod
+    def generate_script(labeled_data, sans_duration_type):
         template = ""
         for row_values in labeled_data:
             template += _do_simultaneous(row_values, sans_duration_type)
