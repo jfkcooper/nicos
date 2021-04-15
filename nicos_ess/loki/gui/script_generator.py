@@ -19,7 +19,7 @@ def _get_sample(name, thickness):
 
 def _do_trans(row_values, trans_duration_type):
     template = (
-        f"# Sample = {row_values['sample']} \n"
+        f"# Sample = {row_values['sample']}\n"
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
         f"{_get_position(row_values['position'])}\n"
         f"do_trans({row_values['trans_duration']}, "
@@ -29,7 +29,7 @@ def _do_trans(row_values, trans_duration_type):
 
 def _do_sans(row_values, sans_duration_type):
     template = (
-        f"# Sample = {row_values['sample']} \n"
+        f"# Sample = {row_values['sample']}\n"
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
         f"{_get_position(row_values['position'])}\n"
         f"do_sans({row_values['sans_duration']}, "
@@ -39,7 +39,7 @@ def _do_sans(row_values, sans_duration_type):
 
 def _do_simultaneous(row_values, sans_duration_type):
     template = (
-        f"# Sample = {row_values['sample']} \n"
+        f"# Sample = {row_values['sample']}\n"
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
         f"{_get_position(row_values['position'])}\n"
         f"do_sans_simultaneous({row_values['sans_duration']}, "
@@ -48,8 +48,8 @@ def _do_simultaneous(row_values, sans_duration_type):
 
 
 class TransFirst:
-    def generate_script(
-        self, labeled_data, trans_duration_type, sans_duration_type):
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
         template = ""
         for row_values in labeled_data:
             template += _do_trans(row_values, trans_duration_type)
@@ -62,8 +62,8 @@ class TransFirst:
 
 
 class SansFirst:
-    def generate_script(
-        self, labeled_data, trans_duration_type, sans_duration_type):
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
         template = ""
         for row_values in labeled_data:
             template += _do_sans(row_values, sans_duration_type)
@@ -76,8 +76,8 @@ class SansFirst:
 
 
 class TransThenSans:
-    def generate_script(
-        self, labeled_data, trans_duration_type, sans_duration_type):
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
         template = ""
         for row_values in labeled_data:
             template += _do_trans(row_values, trans_duration_type)
@@ -87,8 +87,8 @@ class TransThenSans:
 
 
 class SansThenTrans:
-    def generate_script(
-        self, labeled_data, trans_duration_type, sans_duration_type):
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
         template = ""
         for row_values in labeled_data:
             template += _do_sans(row_values, sans_duration_type)
@@ -98,8 +98,8 @@ class SansThenTrans:
 
 
 class Simultaneous:
-    def generate_script(
-        self, labeled_data, trans_duration_type, sans_duration_type):
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
         template = ""
         for row_values in labeled_data:
             template += _do_simultaneous(row_values, sans_duration_type)
@@ -108,7 +108,6 @@ class Simultaneous:
 
 
 class ScriptGenerator:
-
     @classmethod
     def from_trans_order(cls, trans_order):
         if trans_order == TransOrder.TRANSFIRST:
