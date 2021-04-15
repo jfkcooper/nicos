@@ -126,8 +126,7 @@ class SansThenTrans:
 
 
 class Simultaneous:
-    def generate_script(self, labeled_data, trans_duration_type,
-                        sans_duration_type):
+    def generate_script(self, labeled_data, sans_duration_type):
         template = ""
         for row_values in labeled_data:
             template += _do_simultaneous(row_values, sans_duration_type)
