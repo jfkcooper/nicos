@@ -9,63 +9,117 @@ class TransOrder(Enum):
     SIMULTANEOUS = 4
 
 
-class ScriptGenerator:
-    def generate_script(
-        self,
-        labeled_data,
-        trans_order,
-        trans_duration_type,
-        sans_duration_type):
+def _get_position(value):
+    return f"set_position({value})"
 
+
+def _get_sample(name, thickness):
+    return f"set_sample('{name}', {thickness})"
+
+
+def _do_trans(row_values, trans_duration_type):
+    template = (
+        f"# Sample = {row_values['sample']}\n"
+        f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
+        f"{_get_position(row_values['position'])}\n"
+        f"do_trans({row_values['trans_duration']}, "
+        f"'{trans_duration_type}')\n")
+    return template
+
+
+def _do_sans(row_values, sans_duration_type):
+    template = (
+        f"# Sample = {row_values['sample']}\n"
+        f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
+        f"{_get_position(row_values['position'])}\n"
+        f"do_sans({row_values['sans_duration']}, "
+        f"'{sans_duration_type}')\n")
+    return template
+
+
+def _do_simultaneous(row_values, sans_duration_type):
+    template = (
+        f"# Sample = {row_values['sample']}\n"
+        f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
+        f"{_get_position(row_values['position'])}\n"
+        f"do_sans_simultaneous({row_values['sans_duration']}, "
+        f"'{sans_duration_type}')\n")
+    return template
+
+
+class TransFirst:
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
         template = ""
+        for row_values in labeled_data:
+            template += _do_trans(row_values, trans_duration_type)
+            template += "\n"
+
+        for row_values in labeled_data:
+            template += _do_sans(row_values, sans_duration_type)
+            template += "\n"
+        return template
+
+
+class SansFirst:
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
+        template = ""
+        for row_values in labeled_data:
+            template += _do_sans(row_values, sans_duration_type)
+            template += "\n"
+
+        for row_values in labeled_data:
+            template += _do_trans(row_values, trans_duration_type)
+            template += "\n"
+        return template
+
+
+class TransThenSans:
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
+        template = ""
+        for row_values in labeled_data:
+            template += _do_trans(row_values, trans_duration_type)
+            template += _do_sans(row_values, sans_duration_type)
+            template += "\n"
+        return template
+
+
+class SansThenTrans:
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
+        template = ""
+        for row_values in labeled_data:
+            template += _do_sans(row_values, sans_duration_type)
+            template += _do_trans(row_values, trans_duration_type)
+            template += "\n"
+        return template
+
+
+class Simultaneous:
+    def generate_script(self, labeled_data, trans_duration_type,
+                        sans_duration_type):
+        template = ""
+        for row_values in labeled_data:
+            template += _do_simultaneous(row_values, sans_duration_type)
+            template += "\n"
+        return template
+
+
+class ScriptGenerator:
+    @classmethod
+    def from_trans_order(cls, trans_order):
         if trans_order == TransOrder.TRANSFIRST:
-            for row_values in labeled_data:
-                template += self._do_trans(row_values, trans_duration_type)
-
-            for row_values in labeled_data:
-                template += self._do_sans(row_values, sans_duration_type)
+            return TransFirst()
         elif trans_order == TransOrder.SANSFIRST:
-            for row_values in labeled_data:
-                template += self._do_sans(row_values, sans_duration_type)
-
-            for row_values in labeled_data:
-                template += self._do_trans(row_values, trans_duration_type)
+            return SansFirst()
         elif trans_order == TransOrder.TRANSTHENSANS:
-            for row_values in labeled_data:
-                template += self._do_trans(row_values, trans_duration_type)
-                template += self._do_sans(row_values, sans_duration_type)
-
+            return TransThenSans()
         elif trans_order == TransOrder.SANSTHENTRANS:
-            for row_values in labeled_data:
-                template += self._do_sans(row_values, sans_duration_type)
-                template += self._do_trans(row_values, trans_duration_type)
+            return SansThenTrans()
         elif trans_order == TransOrder.SIMULTANEOUS:
-            for row_values in labeled_data:
-                template += self._do_sans(row_values, sans_duration_type)
+            return Simultaneous()
         else:
             raise NotImplementedError(
                 f"Unspecified trans order {trans_order.name}")
-
-        return template
-
-    def _do_trans(self, row_values, trans_duration_type):
-        template = (
-            f"{self._get_position(row_values['position'])}\n"
-            f"{self._get_sample(row_values['sample'], row_values['thickness'])}\n"
-            f"do_trans({row_values['trans_duration']}, "
-            f"'{trans_duration_type}')\n")
-        return template
-
-    def _do_sans(self, row_values, sans_duration_type):
-        template = (
-            f"{self._get_position(row_values['position'])}\n"
-            f"{self._get_sample(row_values['sample'], row_values['thickness'])}\n"
-            f"do_sans({row_values['sans_duration']}, "
-            f"'{sans_duration_type}')\n")
-        return template
-
-    def _get_position(self, value):
-        return f"set_position({value})"
-
-    def _get_sample(self, name, thickness):
-        return f"set_sample('{name}', {thickness})"
