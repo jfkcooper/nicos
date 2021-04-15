@@ -24,7 +24,7 @@
 #
 # *****************************************************************************
 
-"""LoKI Experiment Configuration dialog."""
+"""LoKI Script Builder Panel."""
 
 import os.path as osp
 from collections import OrderedDict
