@@ -47,7 +47,7 @@ class LokiScriptModel(QAbstractTableModel):
         return len(self._table_data)
 
     def columnCount(self, index):
-        return len(self._table_data[0])
+        return len(self._header_data)
 
     def create_empty_row(self, position):
         self._table_data.insert(position, [''] * len(self._header_data))
@@ -90,7 +90,7 @@ class LokiScriptModel(QAbstractTableModel):
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
             for value in row_data:
-                if top_left_index[1] + col_index < len(self._table_data[0]):
+                if top_left_index[1] + col_index < len(self._header_data):
                     current_column = top_left_index[1] + col_index
                     current_row = top_left_index[0] + row_index
                     col_index += 1
