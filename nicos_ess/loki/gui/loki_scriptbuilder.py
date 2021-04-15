@@ -367,9 +367,9 @@ class LokiScriptBuilderPanel(LokiPanelBase):
                         'SIMULTANEOUS mode. SANS duration will be used in '
                         'the script.')
 
-        template = ScriptGenerator().generate_script(
+        _trans_order = self._available_trans_options[self.comboTransOrder.currentText()]
+        template = ScriptGenerator.from_trans_order(_trans_order).generate_script(
             labeled_data,
-            self._available_trans_options[self.comboTransOrder.currentText()],
             self.comboTransDurationType.currentText(),
             self.comboSansDurationType.currentText())
 
