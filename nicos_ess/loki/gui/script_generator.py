@@ -9,24 +9,6 @@ class TransOrder(Enum):
     SIMULTANEOUS = 4
 
 
-def _do_trans(row_values, trans_duration_type):
-    template = (
-        f"{_get_position(row_values['position'])}\n"
-        f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
-        f"do_trans({row_values['trans_duration']}, "
-        f"'{trans_duration_type}')\n")
-    return template
-
-
-def _do_sans(row_values, sans_duration_type):
-    template = (
-        f"{_get_position(row_values['position'])}\n"
-        f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
-        f"do_sans({row_values['sans_duration']}, "
-        f"'{sans_duration_type}')\n")
-    return template
-
-
 def _get_position(value):
     return f"set_position({value})"
 
@@ -35,10 +17,31 @@ def _get_sample(name, thickness):
     return f"set_sample('{name}', {thickness})"
 
 
+def _do_trans(row_values, trans_duration_type):
+    template = (
+        f"# Sample = {row_values['sample']} \n"
+        f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
+        f"{_get_position(row_values['position'])}\n"
+        f"do_trans({row_values['trans_duration']}, "
+        f"'{trans_duration_type}')\n")
+    return template
+
+
+def _do_sans(row_values, sans_duration_type):
+    template = (
+        f"# Sample = {row_values['sample']} \n"
+        f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
+        f"{_get_position(row_values['position'])}\n"
+        f"do_sans({row_values['sans_duration']}, "
+        f"'{sans_duration_type}')\n")
+    return template
+
+
 def _do_simultaneous(row_values, sans_duration_type):
     template = (
-        f"{_get_position(row_values['position'])}\n"
+        f"# Sample = {row_values['sample']} \n"
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
+        f"{_get_position(row_values['position'])}\n"
         f"do_sans_simultaneous({row_values['sans_duration']}, "
         f"'{sans_duration_type}')\n")
     return template
@@ -50,9 +53,11 @@ class TransFirst:
         template = ""
         for row_values in labeled_data:
             template += _do_trans(row_values, trans_duration_type)
+            template += "\n"
 
         for row_values in labeled_data:
             template += _do_sans(row_values, sans_duration_type)
+            template += "\n"
         return template
 
 
@@ -62,9 +67,11 @@ class SansFirst:
         template = ""
         for row_values in labeled_data:
             template += _do_sans(row_values, sans_duration_type)
+            template += "\n"
 
         for row_values in labeled_data:
             template += _do_trans(row_values, trans_duration_type)
+            template += "\n"
         return template
 
 
@@ -75,6 +82,7 @@ class TransThenSans:
         for row_values in labeled_data:
             template += _do_trans(row_values, trans_duration_type)
             template += _do_sans(row_values, sans_duration_type)
+            template += "\n"
         return template
 
 
@@ -85,6 +93,7 @@ class SansThenTrans:
         for row_values in labeled_data:
             template += _do_sans(row_values, sans_duration_type)
             template += _do_trans(row_values, trans_duration_type)
+            template += "\n"
         return template
 
 
@@ -94,6 +103,7 @@ class Simultaneous:
         template = ""
         for row_values in labeled_data:
             template += _do_simultaneous(row_values, sans_duration_type)
+            template += "\n"
         return template
 
 
