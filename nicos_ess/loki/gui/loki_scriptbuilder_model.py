@@ -153,7 +153,8 @@ class LokiScriptModel(QAbstractTableModel):
         self.table_data = self.empty_table(
             len(self._table_data), len(self._header_data))
 
-    def empty_table(self, rows, columns):
+    @staticmethod
+    def empty_table(rows, columns):
         return [[""] * columns for _ in range(rows)]
 
     @property
