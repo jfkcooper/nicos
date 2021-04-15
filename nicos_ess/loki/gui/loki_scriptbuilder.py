@@ -21,7 +21,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
     _available_trans_options = OrderedDict({
         'All TRANS First': TransOrder.TRANSFIRST,
         'All SANS First': TransOrder.SANSFIRST,
-        'TRANS then SANS':TransOrder.TRANSTHENSANS,
+        'TRANS then SANS': TransOrder.TRANSTHENSANS,
         'SANS then TRANS': TransOrder.SANSTHENTRANS,
         'Simultaneous': TransOrder.SIMULTANEOUS
     })
@@ -130,8 +130,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         filename = QFileDialog.getOpenFileName(
             self,
             'Open table',
-            osp.expanduser('~') if self.last_save_location is None \
-                else self.last_save_location,
+            osp.expanduser('~') if self.last_save_location is None
+            else self.last_save_location,
             'Table Files (*.txt *.csv)')[0]
 
         if not filename:
@@ -148,7 +148,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self._fill_table(headers_from_file, data)
 
         for optional in set(headers_from_file).intersection(
-            set(self.optional_columns.keys())):
+                set(self.optional_columns.keys())):
             self.optional_columns[optional][1].setChecked(True)
 
     def _fill_table(self, headers, data):
@@ -185,8 +185,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         filename = QFileDialog.getSaveFileName(
             self,
             'Save table',
-            osp.expanduser('~') if self.last_save_location is None \
-                else self.last_save_location,
+            osp.expanduser('~') if self.last_save_location is None
+            else self.last_save_location,
             'Table files (*.txt *.csv)',
             initialFilter='*.txt;;*.csv')[0]
 
@@ -249,14 +249,14 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         if lowest is not None:
             self.tableView.model().insertRow(lowest)
         elif self.model.num_rows == 0:
-           self.tableView.model().insertRow(0)
+            self.tableView.model().insertRow(0)
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
         if highest is not None:
             self.tableView.model().insertRow(highest + 1)
         elif self.model.num_rows == 0:
-           self.tableView.model().insertRow(0)
+            self.tableView.model().insertRow(0)
 
     def _get_selected_rows_limits(self):
         lowest = None
@@ -362,20 +362,22 @@ class LokiScriptBuilderPanel(LokiPanelBase):
     def on_generateScriptButton_clicked(self):
         labeled_data = self._extract_labeled_data()
 
-        if self._available_trans_options[self.comboTransOrder.currentText()] ==\
-            TransOrder.SIMULTANEOUS:
-                if not all([data['sans_duration'] == data['trans_duration']
-                            for data in labeled_data]):
-                    self.showError(
+        if self._available_trans_options[self.comboTransOrder.currentText()]\
+                == TransOrder.SIMULTANEOUS:
+            if not all([data['sans_duration'] == data['trans_duration']
+                        for data in labeled_data]):
+                self.showError(
                         'Different SANS and TRANS duration specified in '
                         'SIMULTANEOUS mode. SANS duration will be used in '
-                        'the script.')
+                        'the script.'
+                )
 
-        _trans_order = self._available_trans_options[self.comboTransOrder.currentText()]
-        template = ScriptGenerator.from_trans_order(_trans_order).generate_script(
-            labeled_data,
-            self.comboTransDurationType.currentText(),
-            self.comboSansDurationType.currentText())
+        _trans_order = self._available_trans_options[
+            self.comboTransOrder.currentText()]
+        template = ScriptGenerator.from_trans_order(_trans_order).\
+            generate_script(labeled_data,
+                            self.comboTransDurationType.currentText(),
+                            self.comboSansDurationType.currentText())
 
         self.mainwindow.codeGenerated.emit(template)
 
@@ -396,7 +398,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
     def _on_duration_type_changed(self, column_name, value):
         column_number = self.columns_in_order.index(column_name)
         self._set_column_title(column_number,
-            f'{self.permanent_columns[column_name]}\n({value})')
+                               f'{self.permanent_columns[column_name]}'
+                               f'\n({value})')
 
     def _set_column_title(self, index, title):
         self.model.setHeaderData(index, Qt.Horizontal, title)
