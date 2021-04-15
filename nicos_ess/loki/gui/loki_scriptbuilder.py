@@ -33,7 +33,6 @@ class LokiScriptBuilderPanel(LokiPanelBase):
                )
 
         self.window = parent
-
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
         self.permanent_columns = {
@@ -62,7 +61,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self.permanent_columns[name]
             if name in self.permanent_columns
             else self.optional_columns[name][0]
-            for name in self.columns_in_order]
+            for name in self.columns_in_order
+        ]
 
         self.model = LokiScriptModel(headers)
         self.tableView.setModel(self.model)
@@ -153,11 +153,11 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
     def _fill_table(self, headers, data):
         # corresponding indices of elements in headers_from_file list to headers
-        indices = [i for i, e in enumerate(self.columns_in_order)
-                   if e in headers]
+        indices = [index for index, element in
+                   enumerate(self.columns_in_order) if element in headers]
 
         table_data = []
-        for idx, row in enumerate(data):
+        for index, row in enumerate(data):
             # create appropriate length list to fill the table row
             row = self._fill_elements(row, indices, len(self.columns_in_order))
             table_data.append(row)
@@ -193,6 +193,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         if not filename:
             return
+        # TODO: This is not general enough.
         if not filename.endswith(('.txt', '.csv')):
             filename = filename + '.csv'
 
@@ -205,8 +206,9 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self.showError(f'Cannot write table contents to {filename}:\n{ex}')
 
     def is_data_in_hidden_columns(self):
-        optional_indices = [i for i, e in enumerate(self.columns_in_order)
-                            if e in self.optional_columns.keys()]
+        optional_indices = [index for index, element in
+                            enumerate(self.columns_in_order)
+                            if element in self.optional_columns.keys()]
         # Transform table_data to allow easy access to columns like data[0]
         data = list(zip(*self.model.table_data))
         return any(
