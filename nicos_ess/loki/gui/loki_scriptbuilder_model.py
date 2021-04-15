@@ -28,11 +28,13 @@ class LokiScriptModel(QAbstractTableModel):
         self._table_data = new_data
         self.layoutChanged.emit()
 
-    def _is_data_dimension_valid(self, data):
-        if not isinstance(data, list) and not all(
-            [isinstance(val, list) and len(val) == len(self._header_data)
-             for val in data]):
+    def _is_data_shape_valid(self, data):
+        if not isinstance(data, list) or not all(
+                [isinstance(val, list) for val in data]):
             return False
+        if max([len(val) for val in data]) > len(self._header_data):
+            return False
+
         return True
 
     def data(self, index, role):
