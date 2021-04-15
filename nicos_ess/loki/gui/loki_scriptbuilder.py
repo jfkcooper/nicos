@@ -127,29 +127,31 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
     @pyqtSlot()
     def on_loadTableButton_clicked(self):
-        filename = QFileDialog.getOpenFileName(
-            self,
-            'Open table',
-            osp.expanduser('~') if self.last_save_location is None \
-                else self.last_save_location,
-            'Table Files (*.txt *.csv)')[0]
+        try:
+            filename = QFileDialog.getOpenFileName(
+                self,
+                'Open table',
+                osp.expanduser('~') if self.last_save_location is None \
+                    else self.last_save_location,
+                'Table Files (*.txt *.csv)')[0]
 
-        if not filename:
-            return
+            if not filename:
+                return
 
-        data = load_table_from_csv(filename)
-        headers_from_file = data.pop(0)
+            data = load_table_from_csv(filename)
+            headers_from_file = data.pop(0)
 
-        if not set(headers_from_file).issubset(set(self.columns_in_order)):
-            self.showError(f'{filename} is not compatible with the table')
-            return
-        # Clear existing table before populating from file
-        self.on_clearTableButton_clicked()
-        self._fill_table(headers_from_file, data)
+            if not set(headers_from_file).issubset(set(self.columns_in_order)):
+                raise Exception('headers in file not compatible with the table')
+            # Clear existing table before populating from file
+            self.on_clearTableButton_clicked()
+            self._fill_table(headers_from_file, data)
 
-        for optional in set(headers_from_file).intersection(
-            set(self.optional_columns.keys())):
-            self.optional_columns[optional][1].setChecked(True)
+            for optional in set(headers_from_file).intersection(
+                set(self.optional_columns.keys())):
+                self.optional_columns[optional][1].setChecked(True)
+        except Exception as error:
+            self.showError(f'Could not load {filename}:  {error}')
 
     def _fill_table(self, headers, data):
         # corresponding indices of elements in headers_from_file list to headers
