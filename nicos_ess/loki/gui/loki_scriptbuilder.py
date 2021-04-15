@@ -185,7 +185,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
                    enumerate(self.columns_in_order) if element in headers]
 
         table_data = []
-        for index, row in enumerate(data):
+        for row in data:
             # create appropriate length list to fill the table row
             row = self._fill_elements(row, indices, len(self.columns_in_order))
             table_data.append(row)
