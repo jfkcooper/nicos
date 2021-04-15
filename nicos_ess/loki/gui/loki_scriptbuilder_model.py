@@ -1,3 +1,30 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#
+#   Matt Clarke <matt.clarke@ess.eu>
+#
+# *****************************************************************************
+
+"""LoKI Script Model."""
+
 from nicos.guisupport.qt import QAbstractTableModel, QModelIndex, Qt
 
 
@@ -17,7 +44,8 @@ class LokiScriptModel(QAbstractTableModel):
     def table_data(self, new_data):
         if not self._is_data_dimension_valid(new_data):
             raise AttributeError(
-                f"Attribute must be a 2D list of shape (_, {len(self._header_data)})"
+                f"Attribute must be a 2D list of shape"
+                f" (_, {len(self._header_data)})"
             )
 
         # Extend the list with empty rows if value has less than n_rows
@@ -85,7 +113,7 @@ class LokiScriptModel(QAbstractTableModel):
         return True
 
     def update_data_from_clipboard(
-        self, copied_data, top_left_index, hidden_columns=None):
+            self, copied_data, top_left_index, hidden_columns=None):
         # Copied data is tabular so insert at top-left most position
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
@@ -97,7 +125,8 @@ class LokiScriptModel(QAbstractTableModel):
                     if current_row >= len(self._table_data):
                         self.create_empty_row(current_row)
 
-                    if hidden_columns is not None and current_column in hidden_columns:
+                    if hidden_columns is not None \
+                            and current_column in hidden_columns:
                         continue
                     self._table_data[current_row][current_column] = value
 
