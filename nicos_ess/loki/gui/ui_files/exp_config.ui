@@ -14,413 +14,423 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <spacer name="verticalSpacer_3">
+   <item row="0" column="1">
+    <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="whatLbl_2">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-       <underline>false</underline>
-      </font>
-     </property>
-     <property name="text">
-      <string>Instrument Configuration</string>
-     </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="Line" name="line">
-     <property name="windowModality">
-      <enum>Qt::NonModal</enum>
-     </property>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+      <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+     <property name="title">
+      <string>Instrument Settings</string>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLabel" name="label_11">
-     <property name="font">
-      <font>
-       <italic>false</italic>
-      </font>
+     <property name="flat">
+      <bool>true</bool>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>Aperture:</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::AutoText</enum>
-     </property>
-     <property name="wordWrap">
+     <property name="checkable">
       <bool>false</bool>
      </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
-     <property name="indent">
-      <number>0</number>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="title">
+         <string>Aperture</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_2"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Height = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Width = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Pos X = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Pos X = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_4"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_3"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QPushButton" name="bulkUpdateButton">
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="title">
+         <string>Detector</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Offset = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>132</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_9">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>225</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="0">
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>13</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="3" column="1">
-    <layout class="QGridLayout" name="gridLayout_2">
-     <property name="leftMargin">
-      <number>62</number>
+   <item row="0" column="2">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Sample Settings</string>
      </property>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_16">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="8" colspan="2">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="5">
-      <widget class="QLabel" name="label_13">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Pos Y =</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="QLabel" name="label_15">
-       <property name="text">
-        <string>Height =</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="apXBox">
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="8">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_17">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_14">
-       <property name="text">
-        <string>Width =</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="6">
-      <widget class="QLineEdit" name="apYBox">
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="text">
-        <string>Pos X =</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="6">
-      <widget class="QLineEdit" name="apHBox">
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>20.0</string>
-       </property>
-       <property name="frame">
-        <bool>true</bool>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="apWBox">
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>20.0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="7">
-      <widget class="QLabel" name="label_18">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="7">
-      <widget class="QLabel" name="label_19">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+     <property name="flat">
+      <bool>true</bool>
      </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Detector:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <property name="leftMargin">
-      <number>60</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Offset = </string>
-       </property>
-       <property name="margin">
-        <number>0</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="apXBox_2">
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_10">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item row="7" column="0" rowspan="2">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>477</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="7" column="2">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>443</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="8" column="2">
-    <widget class="QPushButton" name="applyButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Apply</string>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="2">
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>13</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0">
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="title">
+         <string>Sample Changer</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="1" colspan="2">
+          <widget class="QComboBox" name="comboBox"/>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Reference Pos Y = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="4">
+          <widget class="QLabel" name="label_22">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="5">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>74</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_21">
+           <property name="text">
+            <string>Reference Pos X = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>169</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="3">
+          <widget class="QLineEdit" name="lineEdit_11">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="4">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>169</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLineEdit" name="lineEdit_10">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3" colspan="2">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>128</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="5">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>74</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>Changer type: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="5">
+          <widget class="QTextBrowser" name="textBrowser">
+           <property name="html">
+            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:15px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Open Sans','Arial','sans-serif'; font-size:14px; color:#000000; background-color:#ffffff;&quot;&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus mollis vulputate ante et sollicitudin. Vestibulum blandit diam euismod metus pharetra, eget sagittis ligula finibus. In nisl elit, cursus non neque nec, tempor vehicula nunc. Praesent consectetur placerat urna, sit amet interdum leo iaculis at. Nulla facilisi. Curabitur pulvinar mauris tortor, non auctor urna placerat at. In nisi mauris, sollicitudin ut tempus eget, efficitur id nisi. Nunc vel blandit urna, non finibus dolor. Nulla ultricies odio a orci mollis, nec vehicula tortor porta. Vivamus ultricies augue felis, in sagittis nibh sodales eu.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:15px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Open Sans','Arial','sans-serif'; font-size:14px; color:#000000; background-color:#ffffff;&quot;&gt;Quisque et gravida nulla. Maecenas justo nisl, malesuada id nulla ut, cursus cursus est. Nunc fringilla, urna eu ultricies vestibulum, magna libero porttitor lacus, rhoncus mollis felis ex in massa. Duis sed blandit nisl. Suspendisse eu nibh quis odio iaculis hendrerit. Aliquam quis venenatis mauris. In porta est neque. Sed dapibus lectus libero, a pellentesque mauris facilisis et. Pellentesque tincidunt dui vitae neque luctus faucibus. Sed sit amet vehicula metus. Nunc elementum fermentum fermentum. Etiam ac leo pulvinar, tempus ante sed, rhoncus felis. Donec nec suscipit tortor, eu sagittis mauris.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:15px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Open Sans','Arial','sans-serif'; font-size:14px; color:#000000; background-color:#ffffff;&quot;&gt;Ut consequat elementum convallis. Vivamus luctus luctus pellentesque. Vivamus fringilla nunc lacinia urna tempus, quis commodo urna tristique. In at tincidunt ligula, ac consectetur odio. Donec vel massa libero. Aliquam pretium ligula vel interdum posuere. Aliquam in eleifend ante. Suspendisse potenti. Maecenas vehicula eros at velit luctus, ut commodo nisl hendrerit. Nam non justo eu arcu consectetur eleifend. Ut porttitor egestas massa at aliquet. Donec commodo non dolor eget aliquam.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="5">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>74</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <spacer name="verticalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>198</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QPushButton" name="bulkUpdateButton_2">
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>apXBox</tabstop>
-  <tabstop>apYBox</tabstop>
-  <tabstop>apWBox</tabstop>
-  <tabstop>apHBox</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>
