@@ -138,7 +138,7 @@ class Simultaneous:
 class ScriptGenerator:
     @classmethod
     def from_trans_order(cls, trans_order):
-        order_attributes = {
+        classes_by_trans_order = {
             TransOrder.TRANSFIRST: TransFirst,
             TransOrder.SANSFIRST: SansFirst,
             TransOrder.TRANSTHENSANS: TransThenSans,
