@@ -29,10 +29,11 @@
 import os.path as osp
 from collections import OrderedDict
 from functools import partial
+from itertools import groupby
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
+    QKeySequence, QShortcut, Qt, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
@@ -93,7 +94,6 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         self.model = LokiScriptModel(headers)
         self.tableView.setModel(self.model)
-        self.tableView.setSelectionMode(QTableView.ContiguousSelection)
 
         for name, details in self.optional_columns.items():
             _, checkbox = details
@@ -310,6 +310,12 @@ class LokiScriptBuilderPanel(LokiPanelBase):
     def _handle_copy_cells(self):
         indices = [(index.row(), index.column())
                    for index in self.tableView.selectedIndexes()]
+        if len(set(
+            [len(list(group))
+             for _, group in groupby(indices, lambda x: x[0])])) != 1:
+            # Can only select one continuous region to copy
+            return
+
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
 
