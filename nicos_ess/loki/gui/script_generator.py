@@ -138,16 +138,15 @@ class Simultaneous:
 class ScriptGenerator:
     @classmethod
     def from_trans_order(cls, trans_order):
-        if trans_order == TransOrder.TRANSFIRST:
-            return TransFirst()
-        elif trans_order == TransOrder.SANSFIRST:
-            return SansFirst()
-        elif trans_order == TransOrder.TRANSTHENSANS:
-            return TransThenSans()
-        elif trans_order == TransOrder.SANSTHENTRANS:
-            return SansThenTrans()
-        elif trans_order == TransOrder.SIMULTANEOUS:
-            return Simultaneous()
+        classes_by_trans_order = {
+            TransOrder.TRANSFIRST: TransFirst,
+            TransOrder.SANSFIRST: SansFirst,
+            TransOrder.TRANSTHENSANS: TransThenSans,
+            TransOrder.SANSTHENTRANS: SansThenTrans,
+            TransOrder.SIMULTANEOUS: Simultaneous
+        }
+        if trans_order in classes_by_trans_order:
+            return classes_by_trans_order[trans_order]()
         else:
             raise NotImplementedError(
                 f"Unspecified trans order {trans_order.name}")
