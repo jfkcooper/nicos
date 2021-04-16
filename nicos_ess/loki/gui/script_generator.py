@@ -145,8 +145,8 @@ class ScriptGenerator:
             TransOrder.SANSTHENTRANS: SansThenTrans,
             TransOrder.SIMULTANEOUS: Simultaneous
         }
-        if trans_order in order_attributes.keys():
-            return order_attributes[trans_order]()
+        if trans_order in classes_by_trans_order:
+            return classes_by_trans_order[trans_order]()
         else:
             raise NotImplementedError(
                 f"Unspecified trans order {trans_order.name}")
