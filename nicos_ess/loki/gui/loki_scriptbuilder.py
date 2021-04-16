@@ -29,11 +29,10 @@
 import os.path as osp
 from collections import OrderedDict
 from functools import partial
-from itertools import groupby
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, pyqtSlot, QTableView
+    QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
