@@ -310,14 +310,29 @@ class LokiScriptBuilderPanel(LokiPanelBase):
     def _handle_copy_cells(self):
         indices = [(index.row(), index.column())
                    for index in self.tableView.selectedIndexes()]
-        if len(set(
-            [len(list(group))
-             for _, group in groupby(indices, lambda x: x[0])])) != 1:
+
+        if not self._is_contiguous_selection(indices):
             # Can only select one continuous region to copy
+            self.showError("Multi-selection is not allowed during copying data")
             return
 
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
+
+    def _is_contiguous_selection(self, indices):
+        # group the indices with respect to row index
+        selected_rows, row_groups = zip(
+            *[(key, list(group))
+              for key, group in groupby(sorted(indices), lambda x: x[0])])
+        # Check if rows are contiguous (2, 3, 4) etc.
+        are_rows_contiguous = all(
+            [i - j == 1
+             for i, j in zip(selected_rows[1:], selected_rows[:-1])])
+        # column indices for each selected row.
+        # Should be same for each row. Thus set should have one element only
+        selected_columns_for_rows = set(
+            [list(zip(*group))[1] for group in row_groups])
+        return are_rows_contiguous and len(selected_columns_for_rows) == 1
 
     def _extract_selected_data(self):
         selected_indices = []
@@ -337,6 +352,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         if not indices:
             return
+
+        if not self._is_contiguous_selection(indices):
+            self.showError(
+                "Multi-selection. Data will be pasted in contiguous region")
 
         top_left = indices[0]
 
