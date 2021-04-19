@@ -79,13 +79,20 @@ class TransFirst:
     def generate_script(self, labeled_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_trans(row_values, trans_duration_type)
-            template += "\n"
+        trans_count = 0
+        sans_count = 0
+        for _ in range(trans_times + sans_times):
+            if trans_count < trans_times:
+                for row_values in labeled_data:
+                    template += _do_trans(row_values, trans_duration_type)
+                    template += "\n"
+                trans_count += 1
 
-        for row_values in labeled_data:
-            template += _do_sans(row_values, sans_duration_type)
-            template += "\n"
+            if sans_count < sans_times:
+                for row_values in labeled_data:
+                    template += _do_sans(row_values, sans_duration_type)
+                    template += "\n"
+                sans_count += 1
         return template
 
 
@@ -93,13 +100,19 @@ class SansFirst:
     def generate_script(self, labeled_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_sans(row_values, sans_duration_type)
-            template += "\n"
-
-        for row_values in labeled_data:
-            template += _do_trans(row_values, trans_duration_type)
-            template += "\n"
+        trans_count = 0
+        sans_count = 0
+        for _ in range(trans_times + sans_times):
+            if sans_count < sans_times:
+                for row_values in labeled_data:
+                    template += _do_sans(row_values, sans_duration_type)
+                    template += "\n"
+                sans_count += 1
+            if trans_count < trans_times:
+                for row_values in labeled_data:
+                    template += _do_trans(row_values, trans_duration_type)
+                    template += "\n"
+                trans_count += 1
         return template
 
 
@@ -107,10 +120,18 @@ class TransThenSans:
     def generate_script(self, labeled_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_trans(row_values, trans_duration_type)
-            template += _do_sans(row_values, sans_duration_type)
-            template += "\n"
+        trans_count = 0
+        sans_count = 0
+        for _ in range(trans_times + sans_times):
+            for row_values in labeled_data:
+                if trans_count < trans_times:
+                    template += _do_trans(row_values, trans_duration_type)
+                if sans_count < sans_times:
+                    template += _do_sans(row_values, trans_duration_type)
+                template += "\n"
+
+            trans_count += 1
+            sans_count += 1
         return template
 
 
@@ -118,10 +139,18 @@ class SansThenTrans:
     def generate_script(self, labeled_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_sans(row_values, sans_duration_type)
-            template += _do_trans(row_values, trans_duration_type)
-            template += "\n"
+        trans_count = 0
+        sans_count = 0
+        for _ in range(trans_times + sans_times):
+            for row_values in labeled_data:
+                if sans_count < sans_times:
+                    template += _do_sans(row_values, sans_duration_type)
+                if trans_count < trans_times:
+                    template += _do_trans(row_values, trans_duration_type)
+                template += "\n"
+
+            trans_count += 1
+            sans_count += 1
         return template
 
 
