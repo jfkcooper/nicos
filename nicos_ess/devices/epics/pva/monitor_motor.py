@@ -299,9 +299,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if not self.errorseveritypv or not self.errorstatuspv:
             return ""
         error_severity = self._get_pv('errorseveritypv', as_string=True)
-        if error_severity == "INVALID":
+        if error_severity == "INVALID_ALARM":
             error_status = self._get_pv('errorstatuspv', as_string=True)
-            if error_status == "COMM":
+            if error_status == "COMM_ALARM":
                 error_msg = self._get_pv('errormsgpv', as_string=True)
                 return f"MSG: \"{error_msg}\", STATUS: {error_status}, " \
                        f"SEVERITY: {error_severity}"
