@@ -239,7 +239,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         elif stat == status.ERROR:
             # Not using error message status for now.
             # Only retrieving the message itself.
-            _, error_msg = self._get_status_message()
+            error_msg = self._get_status_message()
             return stat, error_msg
 
         done_moving = self._get_pv('donemoving')
