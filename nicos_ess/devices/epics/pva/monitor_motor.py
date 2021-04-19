@@ -296,15 +296,17 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         :return: returns communication error message if there is no connection,
         otherwise returns an empty string.
         """
+        _COMM_STAT = "COMM"
+        _INVALID_SEVR = "INVALID"
         if not self.errorseveritypv or not self.errorstatuspv:
             return ""
         error_severity = self._get_pv('errorseveritypv', as_string=True)
-        if error_severity == "INVALID_ALARM":
+        if error_severity == _INVALID_SEVR:
             error_status = self._get_pv('errorstatuspv', as_string=True)
-            if error_status == "COMM_ALARM":
+            if error_status == _COMM_STAT:
                 error_msg = self._get_pv('errormsgpv', as_string=True)
-                return f"MSG: \"{error_msg}\", STATUS: {error_status}, " \
-                       f"SEVERITY: {error_severity}"
+                return f"MSG: \"{error_msg}\", STATUS: {_COMM_STAT}, " \
+                       f"SEVERITY: {_INVALID_SEVR}"
             else:
                 return ""
 
