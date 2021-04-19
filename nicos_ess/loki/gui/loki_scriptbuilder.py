@@ -313,7 +313,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         if not self._is_contiguous_selection(indices):
             # Can only select one continuous region to copy
-            self.showError("Multi-selection is not allowed during copying data")
+            self.showError("Selected data must be contiguous")
             return
 
         selected_data = self._extract_selected_data()
