@@ -232,6 +232,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
+        # Before anything, check IOC and controller communication status.
+        comm_fail_stat = self._check_ioc_controller_communication()
+        if comm_fail_stat:
+            return status.ERROR, comm_fail_stat
 
         stat, message = EpicsMoveable.doStatus(self)
         if stat == status.ERROR:
@@ -284,6 +288,29 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                    f"SEVERITY: {error_severity}"
         else:
             return error_msg
+
+    def _check_ioc_controller_communication(self):
+        """
+        Check if there is communication between the IOC and controller.
+
+        :return: returns communication error message if there is no connection,
+        otherwise returns an empty string.
+        """
+        if not self.errorseveritypv or not self.errorstatuspv:
+            return ""
+        error_severity = self._get_pv('errorseveritypv', as_string=True)
+        if error_severity == "INVALID":
+            error_status = self._get_pv('errorstatuspv', as_string=True)
+            if error_status == "COMM":
+                error_msg = self._get_pv('errormsgpv', as_string=True)
+                return f"MSG: \"{error_msg}\", STATUS: {error_status}, " \
+                       f"SEVERITY: {error_severity}"
+            else:
+                return ""
+
+
+
+
 
     def doStop(self):
         self._put_pv('stop', 1, False)
