@@ -354,8 +354,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             return
 
         if not self._is_contiguous_selection(indices):
-            self.showError(
-                "Selected region must be contiguous")
+            self.showError("Selected region must be contiguous")
             return
 
         top_left = indices[0]
