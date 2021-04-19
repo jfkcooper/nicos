@@ -234,13 +234,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     def doStatus(self, maxage=0):
 
         stat, message = EpicsMoveable.doStatus(self)
-        if stat == status.WARN:
-            return stat, message
-        elif stat == status.ERROR:
-            # Not using error message status for now.
-            # Only retrieving the message itself.
+        if stat == status.ERROR:
             error_msg = self._get_status_message()
             return stat, error_msg
+        elif stat == status.WARN:
+            return stat, message
+
 
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
@@ -281,7 +280,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         error_severity = self._get_pv('errorseveritypv', as_string=True)
         if error_severity:
             error_status = self._get_pv('errorstatuspv', as_string=True)
-            return f"MSG: {error_msg}, STAT: {error_status}, " \
+            return f"MSG: \"{error_msg}\", STATUS: {error_status}, " \
                    f"SEVERITY: {error_severity}"
         else:
             return error_msg

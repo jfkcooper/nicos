@@ -257,7 +257,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         error_severity = self._get_pv('errorseveritypv', as_string=True)
         if error_severity:
             error_status = self._get_pv('errorstatuspv', as_string=True)
-            return f"MSG: {error_msg}, STAT: {error_status}, " \
+            return f"MSG: \"{error_msg}\", STATUS: {error_status}, " \
                    f"SEVERITY: {error_severity}"
         else:
             return error_msg
