@@ -218,10 +218,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         if general_epics_status == status.ERROR:
             return status.ERROR, message or 'Unknown problem in record'
 
-        error_status, error_msg = self._get_status_message()
-        if error_status:
-            return error_status, error_msg
-
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
@@ -260,11 +256,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             return error_status, error_msg
         error_severity = self._get_pv('errorseveritypv', as_string=True)
         if error_severity:
-            error_status_str = self._get_pv('errorstatuspv', as_string=True)
-            if error_status_str == 'NO_ALARM':
-                error_status = status.OK
-            else:
-                error_status = status.ERROR
+            error_status = self._get_pv('errorstatuspv', as_string=True)
         return error_status, error_msg
 
     def doStop(self):

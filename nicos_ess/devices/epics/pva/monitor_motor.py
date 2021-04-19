@@ -233,13 +233,13 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
     def doStatus(self, maxage=0):
 
-        error_status, error_msg = self._get_status_message()
-        if error_status:
-            return error_status, error_msg
-
         stat, message = EpicsMoveable.doStatus(self)
-        if stat in [status.WARN, status.ERROR]:
+        if stat == stat.WARN:
             return stat, message
+        elif stat == stat.ERROR:
+            # Not using error status message for now.
+            _, error_msg = self._get_status_message()
+            return stat, error_msg
 
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
@@ -269,7 +269,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         """
         Get the status message from the motor if the PV exists.
 
-        :return: The status message if it exists, otherwise an empty string.
+        :return: returns status of the message if it exists, otherwise an
+        empty string.
+        Also returns the message if it exists, otherwise an empty string.
         """
         error_status = ''
         if not self.errormsgpv:
@@ -279,11 +281,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             return error_status, error_msg
         error_severity = self._get_pv('errorseveritypv', as_string=True)
         if error_severity:
-            error_status_str = self._get_pv('errorstatuspv', as_string=True)
-            if error_status_str == 'NO_ALARM':
-                error_status = status.OK
-            else:
-                error_status = status.ERROR
+            error_status = self._get_pv('errorstatuspv', as_string=True)
         return error_status, error_msg
 
     def doStop(self):
