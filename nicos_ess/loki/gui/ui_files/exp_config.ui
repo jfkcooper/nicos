@@ -39,7 +39,7 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0" colspan="2">
+         <item row="9" column="0" colspan="2">
           <widget class="QLabel" name="refXLabel">
            <property name="text">
             <string>Reference Cell Pos X = </string>
@@ -69,7 +69,7 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="3">
+         <item row="10" column="3">
           <widget class="QLabel" name="lbl7">
            <property name="text">
             <string>mm</string>
@@ -122,7 +122,7 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="4">
+         <item row="10" column="4">
           <spacer name="hSpacer6">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -138,17 +138,29 @@
            </property>
           </spacer>
          </item>
-         <item row="9" column="2" alignment="Qt::AlignHCenter">
+         <item row="10" column="2" alignment="Qt::AlignHCenter">
           <widget class="QLineEdit" name="refPosYBox">
            <property name="layoutDirection">
             <enum>Qt::RightToLeft</enum>
            </property>
           </widget>
          </item>
-         <item row="9" column="0" colspan="2">
+         <item row="10" column="0" colspan="2">
           <widget class="QLabel" name="refYLabel">
            <property name="text">
             <string>Reference Cell Pos Y = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="font">
+            <font>
+             <italic>true</italic>
+            </font>
+           </property>
+           <property name="text">
+            <string>Properties (Read-Only)</string>
            </property>
           </widget>
          </item>
@@ -168,7 +180,7 @@
            </property>
           </spacer>
          </item>
-         <item row="8" column="2" alignment="Qt::AlignHCenter">
+         <item row="9" column="2" alignment="Qt::AlignHCenter">
           <widget class="QLineEdit" name="refPosXBox">
            <property name="layoutDirection">
             <enum>Qt::RightToLeft</enum>
@@ -194,7 +206,7 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="3">
+         <item row="9" column="3">
           <widget class="QLabel" name="lbl6">
            <property name="text">
             <string>mm</string>
@@ -250,7 +262,7 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="4">
+         <item row="9" column="4">
           <spacer name="hSpacer5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -281,6 +293,18 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="font">
+            <font>
+             <italic>true</italic>
+            </font>
+           </property>
+           <property name="text">
+            <string>Calculate Offset</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -473,24 +497,40 @@
          <bool>true</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="2" alignment="Qt::AlignTop">
-          <widget class="QLabel" name="lbl5">
-           <property name="text">
-            <string>mm</string>
+         <item row="0" column="0">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-          </widget>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
-         <item row="0" column="0" alignment="Qt::AlignTop">
+         <item row="1" column="0" alignment="Qt::AlignTop">
           <widget class="QLabel" name="offsetLabel">
            <property name="text">
             <string>Offset = </string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" alignment="Qt::AlignTop">
+         <item row="1" column="1" alignment="Qt::AlignTop">
           <widget class="QLineEdit" name="offsetBox">
            <property name="layoutDirection">
             <enum>Qt::LeftToRight</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" alignment="Qt::AlignTop">
+          <widget class="QLabel" name="lbl5">
+           <property name="text">
+            <string>mm</string>
            </property>
           </widget>
          </item>
