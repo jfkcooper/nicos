@@ -117,7 +117,7 @@ class LokiScriptModel(QAbstractTableModel):
         # Copied data is tabular so insert at top-left most position
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
-            for value in row_data:
+            while len(row_data):
                 if top_left_index[1] + col_index < len(self._header_data):
                     current_column = top_left_index[1] + col_index
                     current_row = top_left_index[0] + row_index
@@ -128,7 +128,9 @@ class LokiScriptModel(QAbstractTableModel):
                     if hidden_columns is not None \
                             and current_column in hidden_columns:
                         continue
-                    self._table_data[current_row][current_column] = value
+                    self._table_data[current_row][current_column] = row_data.pop(0)
+                else:
+                    break
 
         self.layoutChanged.emit()
 
