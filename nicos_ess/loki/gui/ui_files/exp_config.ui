@@ -23,22 +23,6 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
-      <item row="2" column="3">
-       <spacer name="vSpacer5">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>198</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="1" column="0">
        <widget class="QGroupBox" name="changerGroupBox">
         <property name="title">
@@ -48,6 +32,36 @@
          <bool>true</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <widget class="QLabel" name="changerLabel">
+           <property name="text">
+            <string>Select Environment</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="2">
+          <widget class="QLabel" name="refXLabel">
+           <property name="text">
+            <string>Reference Cell Pos X = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2" alignment="Qt::AlignHCenter">
+          <widget class="QLineEdit" name="lineEdit_5">
+           <property name="acceptDrops">
+            <bool>false</bool>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
@@ -55,10 +69,10 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_2">
+         <item row="9" column="3">
+          <widget class="QLabel" name="lbl7">
            <property name="text">
-            <string>Cell Type:</string>
+            <string>mm</string>
            </property>
           </widget>
          </item>
@@ -78,10 +92,26 @@
            </property>
           </spacer>
          </item>
-         <item row="8" column="3">
-          <widget class="QLineEdit" name="refPosXBox">
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+         <item row="5" column="2" alignment="Qt::AlignHCenter">
+          <widget class="QLineEdit" name="lineEdit_4">
+           <property name="acceptDrops">
+            <bool>false</bool>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Cell Type:</string>
            </property>
           </widget>
          </item>
@@ -93,103 +123,32 @@
           </widget>
          </item>
          <item row="9" column="4">
-          <widget class="QLabel" name="lbl7">
-           <property name="text">
-            <string>mm</string>
+          <spacer name="hSpacer6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Rotate Samples:</string>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
            </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="changerLabel">
-           <property name="text">
-            <string>Select Environment</string>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>74</width>
+             <height>20</height>
+            </size>
            </property>
-          </widget>
+          </spacer>
          </item>
-         <item row="9" column="3">
+         <item row="9" column="2" alignment="Qt::AlignHCenter">
           <widget class="QLineEdit" name="refPosYBox">
            <property name="layoutDirection">
             <enum>Qt::RightToLeft</enum>
            </property>
           </widget>
          </item>
-         <item row="4" column="1" colspan="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_3">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Pressure Control:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" colspan="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_2">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0" colspan="2">
-          <spacer name="hSpacer3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>169</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="9" column="2">
+         <item row="9" column="0" colspan="2">
           <widget class="QLabel" name="refYLabel">
            <property name="text">
             <string>Reference Cell Pos Y = </string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="2">
-          <widget class="QLabel" name="refXLabel">
-           <property name="text">
-            <string>Reference Cell Pos X = </string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="4">
-          <widget class="QLabel" name="lbl6">
-           <property name="text">
-            <string>mm</string>
            </property>
           </widget>
          </item>
@@ -204,12 +163,19 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>13</height>
+             <height>38</height>
             </size>
            </property>
           </spacer>
          </item>
-         <item row="2" column="1" colspan="2" alignment="Qt::AlignHCenter">
+         <item row="8" column="2" alignment="Qt::AlignHCenter">
+          <widget class="QLineEdit" name="refPosXBox">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" alignment="Qt::AlignHCenter">
           <widget class="QLineEdit" name="lineEdit">
            <property name="acceptDrops">
             <bool>false</bool>
@@ -228,26 +194,63 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <spacer name="hSpacer1">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+         <item row="8" column="3">
+          <widget class="QLabel" name="lbl6">
+           <property name="text">
+            <string>mm</string>
            </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Pressure Control:</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>128</width>
-             <height>20</height>
-            </size>
+          </widget>
+         </item>
+         <item row="3" column="2" alignment="Qt::AlignHCenter">
+          <widget class="QLineEdit" name="lineEdit_2">
+           <property name="acceptDrops">
+            <bool>false</bool>
            </property>
-          </spacer>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2" alignment="Qt::AlignHCenter">
+          <widget class="QLineEdit" name="lineEdit_3">
+           <property name="acceptDrops">
+            <bool>false</bool>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
          <item row="0" column="1" colspan="2">
           <widget class="QComboBox" name="changerComboBox"/>
          </item>
-         <item row="8" column="5">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Rotate Samples:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="4">
           <spacer name="hSpacer5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -263,21 +266,8 @@
            </property>
           </spacer>
          </item>
-         <item row="9" column="0" colspan="2">
-          <spacer name="hSpacer4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>169</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="9" column="5">
-          <spacer name="hSpacer6">
+         <item row="0" column="3" colspan="2">
+          <spacer name="hSpacer1">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -286,52 +276,13 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>74</width>
+             <width>128</width>
              <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
-         <item row="6" column="1" colspan="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_5">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1" colspan="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_4">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="sampleSetApply">
-        <property name="text">
-         <string>Apply</string>
-        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -349,6 +300,35 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="2" column="3">
+       <spacer name="vSpacer5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>198</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="3">
+       <widget class="QPushButton" name="sampleSetApply">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -371,61 +351,21 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="4" column="2">
-       <widget class="QPushButton" name="instSetApply">
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <spacer name="vSpacer3">
+      <item row="0" column="0">
+       <spacer name="vSpacer1">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>17</width>
-          <height>222</height>
+          <width>20</width>
+          <height>13</height>
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QGroupBox" name="detGroupBox">
-        <property name="title">
-         <string>Detector</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="2">
-          <widget class="QLabel" name="lbl5">
-           <property name="text">
-            <string>mm</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="offsetLabel">
-           <property name="text">
-            <string>Offset = </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="offsetBox">
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </item>
       <item row="1" column="0" colspan="2">
        <widget class="QGroupBox" name="aptGroupBox">
@@ -436,20 +376,10 @@
          <bool>true</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="2">
-          <widget class="QLabel" name="lbl1">
+         <item row="2" column="0">
+          <widget class="QLabel" name="apWLabel">
            <property name="text">
-            <string>mm</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="apHBox"/>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="lbl2">
-           <property name="text">
-            <string>mm</string>
+            <string>Width = </string>
            </property>
           </widget>
          </item>
@@ -457,16 +387,6 @@
           <widget class="QLabel" name="apHLabel">
            <property name="text">
             <string>Height = </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="apXBox">
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -484,22 +404,12 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="lbl3">
+         <item row="0" column="2">
+          <widget class="QLabel" name="lbl1">
            <property name="text">
             <string>mm</string>
            </property>
           </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="apWLabel">
-           <property name="text">
-            <string>Width = </string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="apWBox"/>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="apYLabel">
@@ -508,14 +418,87 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="lbl3">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="apHBox"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="lbl2">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="apWBox"/>
+         </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="apYBox"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="apXBox">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
       </item>
-      <item row="0" column="0">
-       <spacer name="vSpacer1">
+      <item row="4" column="2">
+       <widget class="QPushButton" name="instSetApply">
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QGroupBox" name="detGroupBox">
+        <property name="title">
+         <string>Detector</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="2" alignment="Qt::AlignTop">
+          <widget class="QLabel" name="lbl5">
+           <property name="text">
+            <string>mm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" alignment="Qt::AlignTop">
+          <widget class="QLabel" name="offsetLabel">
+           <property name="text">
+            <string>Offset = </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" alignment="Qt::AlignTop">
+          <widget class="QLineEdit" name="offsetBox">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <spacer name="vSpacer3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -524,8 +507,8 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
-          <height>13</height>
+          <width>17</width>
+          <height>222</height>
          </size>
         </property>
        </spacer>
