@@ -33,7 +33,7 @@ class LokiScriptModel(QAbstractTableModel):
         super().__init__()
 
         self._header_data = header_data
-        self._num_rows = num_rows
+        self._default_num_rows = num_rows
         self._table_data = self.empty_table(num_rows, len(header_data))
 
     @property
@@ -42,10 +42,11 @@ class LokiScriptModel(QAbstractTableModel):
 
     @table_data.setter
     def table_data(self, new_data):
-        # Extend the list with empty rows if new data has less rows
-        if len(new_data) < self._num_rows:
+        # Extend the list with empty rows if new data has less rows than the
+        # default
+        if len(new_data) < self._default_num_rows:
             new_data.extend(self.empty_table(
-                    self._num_rows - len(new_data), len(self._header_data)))
+                self._default_num_rows - len(new_data), len(self._header_data)))
         self._table_data = new_data
         self.layoutChanged.emit()
 
