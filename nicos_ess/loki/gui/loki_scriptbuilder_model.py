@@ -19,6 +19,7 @@
 #
 # Module authors:
 #
+#   Ebad Kamil <Ebad.Kamil@ess.eu>
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
@@ -112,23 +113,23 @@ class LokiScriptModel(QAbstractTableModel):
             self.headerDataChanged.emit(orientation, section, section)
         return True
 
-    def update_data_from_clipboard(
-            self, copied_data, top_left_index, hidden_columns=None):
+    def update_data_from_clipboard(self, copied_data, top_left_index,
+                                   hidden_columns=None):
         # Copied data is tabular so insert at top-left most position
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
+            current_row = top_left_index[0] + row_index
+            if current_row >= len(self._table_data):
+                self.create_empty_row(current_row)
+
             while len(row_data):
                 if top_left_index[1] + col_index < len(self._header_data):
                     current_column = top_left_index[1] + col_index
-                    current_row = top_left_index[0] + row_index
                     col_index += 1
-                    if current_row >= len(self._table_data):
-                        self.create_empty_row(current_row)
-
-                    if hidden_columns is not None \
-                            and current_column in hidden_columns:
+                    if hidden_columns and current_column in hidden_columns:
                         continue
-                    self._table_data[current_row][current_column] = row_data.pop(0)
+                    self._table_data[current_row][
+                        current_column] = row_data.pop(0)
                 else:
                     break
 
