@@ -246,18 +246,21 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         Get the status message from the motor if the PV exists.
 
-        :return: The status message if it exists, otherwise an empty string.
+        :return: returns message to display, otherwise an
+        empty string.
         """
-        error_status = ''
         if not self.errormsgpv:
-            return error_status, ''
+            return ''
         error_msg = self._get_pv('errormsgpv', as_string=True)
         if not self.errorseveritypv or not self.errorstatuspv:
-            return error_status, error_msg
+            return error_msg
         error_severity = self._get_pv('errorseveritypv', as_string=True)
         if error_severity:
             error_status = self._get_pv('errorstatuspv', as_string=True)
-        return error_status, error_msg
+            return f"MSG: {error_msg}, STAT: {error_status}, " \
+                   f"SEVERITY: {error_severity}"
+        else:
+            return error_msg
 
     def doStop(self):
         self._put_pv('stop', 1, False)
