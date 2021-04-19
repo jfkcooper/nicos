@@ -29,11 +29,10 @@
 import os.path as osp
 from collections import OrderedDict
 from functools import partial
-from itertools import groupby
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, pyqtSlot
+    QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
@@ -94,6 +93,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         self.model = LokiScriptModel(headers)
         self.tableView.setModel(self.model)
+        self.tableView.setSelectionMode(QTableView.ContiguousSelection)
 
         for name, details in self.optional_columns.items():
             _, checkbox = details
@@ -311,28 +311,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         indices = [(index.row(), index.column())
                    for index in self.tableView.selectedIndexes()]
 
-        if not self._is_contiguous_selection(indices):
-            # Can only select one continuous region to copy
-            self.showError("Selected data must be contiguous")
-            return
-
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
-
-    def _is_contiguous_selection(self, indices):
-        # group the indices with respect to row index
-        selected_rows, row_groups = zip(
-            *[(key, list(group))
-              for key, group in groupby(sorted(indices), lambda x: x[0])])
-        # Check if rows are contiguous (2, 3, 4) etc.
-        are_rows_contiguous = all(
-            [i - j == 1
-             for i, j in zip(selected_rows[1:], selected_rows[:-1])])
-        # column indices for each selected row.
-        # Should be same for each row. Thus set should have one element only
-        selected_columns_for_rows = set(
-            [list(zip(*group))[1] for group in row_groups])
-        return are_rows_contiguous and len(selected_columns_for_rows) == 1
 
     def _extract_selected_data(self):
         selected_indices = []
@@ -352,11 +332,6 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         if not indices:
             return
-
-        if not self._is_contiguous_selection(indices):
-            self.showError("Selected region must be contiguous")
-            return
-
         top_left = indices[0]
 
         clipboard_text = QApplication.instance().clipboard().text()
