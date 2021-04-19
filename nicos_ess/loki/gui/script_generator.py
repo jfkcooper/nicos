@@ -86,13 +86,14 @@ class TransFirst:
                 for row_values in labeled_data:
                     template += _do_trans(row_values, trans_duration_type)
                     template += "\n"
-                trans_count += 1
 
             if sans_count < sans_times:
                 for row_values in labeled_data:
                     template += _do_sans(row_values, sans_duration_type)
                     template += "\n"
-                sans_count += 1
+
+            trans_count += 1
+            sans_count += 1
         return template
 
 
@@ -107,12 +108,14 @@ class SansFirst:
                 for row_values in labeled_data:
                     template += _do_sans(row_values, sans_duration_type)
                     template += "\n"
-                sans_count += 1
+
             if trans_count < trans_times:
                 for row_values in labeled_data:
                     template += _do_trans(row_values, trans_duration_type)
                     template += "\n"
-                trans_count += 1
+
+            trans_count += 1
+            sans_count += 1
         return template
 
 
@@ -158,9 +161,10 @@ class Simultaneous:
     def generate_script(self, labeled_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_simultaneous(row_values, sans_duration_type)
-            template += "\n"
+        for _ in range(sans_times):
+            for row_values in labeled_data:
+                template += _do_simultaneous(row_values, sans_duration_type)
+                template += "\n"
         return template
 
 
