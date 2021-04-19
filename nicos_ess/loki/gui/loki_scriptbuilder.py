@@ -406,7 +406,9 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         template = ScriptGenerator.from_trans_order(_trans_order).\
             generate_script(labeled_data,
                             self.comboTransDurationType.currentText(),
-                            self.comboSansDurationType.currentText())
+                            self.comboSansDurationType.currentText(),
+                            self.sbTransTimes.value(),
+                            self.sbSansTimes.value())
 
         self.mainwindow.codeGenerated.emit(template)
 
