@@ -19,6 +19,7 @@
 #
 # Module authors:
 #
+#   Ebad Kamil <Ebad.Kamil@ess.eu>
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
