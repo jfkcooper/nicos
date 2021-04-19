@@ -279,7 +279,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             return error_status, error_msg
         error_severity = self._get_pv('errorseveritypv', as_string=True)
         if error_severity:
-            error_status = self._get_pv('errorstatuspv', as_string=True)
+            error_status_str = self._get_pv('errorstatuspv', as_string=True)
+            if error_status_str == 'NO_ALARM':
+                error_status = status.OK
+            else:
+                error_status = status.ERROR
         return error_status, error_msg
 
     def doStop(self):
