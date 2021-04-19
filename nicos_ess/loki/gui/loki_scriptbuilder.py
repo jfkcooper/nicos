@@ -355,7 +355,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         if not self._is_contiguous_selection(indices):
             self.showError(
-                "Multi-selection. Data will be pasted in contiguous region")
+                "Selected region must be contiguous")
+            return
 
         top_left = indices[0]
 
