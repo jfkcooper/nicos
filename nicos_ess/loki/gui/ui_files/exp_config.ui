@@ -47,7 +47,7 @@
           </widget>
          </item>
          <item row="6" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_5">
+          <widget class="QLineEdit" name="pressControlBox">
            <property name="acceptDrops">
             <bool>false</bool>
            </property>
@@ -63,7 +63,7 @@
           </widget>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="canTempLabel">
            <property name="text">
             <string>Temperature Control:</string>
            </property>
@@ -93,7 +93,7 @@
           </spacer>
          </item>
          <item row="5" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_4">
+          <widget class="QLineEdit" name="tempControlBox">
            <property name="acceptDrops">
             <bool>false</bool>
            </property>
@@ -109,14 +109,14 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="cellTypeLabel">
            <property name="text">
             <string>Cell Type:</string>
            </property>
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="numCellsLabel">
            <property name="text">
             <string>Number of Cells:</string>
            </property>
@@ -176,7 +176,7 @@
           </widget>
          </item>
          <item row="2" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit">
+          <widget class="QLineEdit" name="numCellBox">
            <property name="acceptDrops">
             <bool>false</bool>
            </property>
@@ -202,14 +202,14 @@
           </widget>
          </item>
          <item row="6" column="0">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="canPressureLabel">
            <property name="text">
             <string>Pressure Control:</string>
            </property>
           </widget>
          </item>
          <item row="3" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_2">
+          <widget class="QLineEdit" name="cellTypeBox">
            <property name="acceptDrops">
             <bool>false</bool>
            </property>
@@ -225,7 +225,7 @@
           </widget>
          </item>
          <item row="4" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="lineEdit_3">
+          <widget class="QLineEdit" name="canRotateBox">
            <property name="acceptDrops">
             <bool>false</bool>
            </property>
@@ -244,7 +244,7 @@
           <widget class="QComboBox" name="changerComboBox"/>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="canRotateLabel">
            <property name="text">
             <string>Rotate Samples:</string>
            </property>
