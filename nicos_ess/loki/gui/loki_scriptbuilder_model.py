@@ -42,27 +42,12 @@ class LokiScriptModel(QAbstractTableModel):
 
     @table_data.setter
     def table_data(self, new_data):
-        if not self._is_data_shape_valid(new_data):
-            raise AttributeError(
-                'Data loaded from file had incorrect shape. '
-                f'It must be a 2D list of shape (_, {len(self._header_data)})'
-            )
-
-        # Extend the list with empty rows if value has less than n_rows
+        # Extend the list with empty rows if new data has less rows
         if len(new_data) < self._num_rows:
             new_data.extend(self.empty_table(
                     self._num_rows - len(new_data), len(self._header_data)))
         self._table_data = new_data
         self.layoutChanged.emit()
-
-    def _is_data_shape_valid(self, data):
-        if not isinstance(data, list) or not all(
-                [isinstance(val, list) for val in data]):
-            return False
-        if max([len(val) for val in data]) > len(self._header_data):
-            return False
-
-        return True
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
