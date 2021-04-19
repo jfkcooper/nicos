@@ -125,8 +125,7 @@ class LokiScriptModel(QAbstractTableModel):
                     if current_row >= len(self._table_data):
                         self.create_empty_row(current_row)
 
-                    if hidden_columns is not None \
-                            and current_column in hidden_columns:
+                    if hidden_columns and current_column in hidden_columns:
                         continue
                     self._table_data[current_row][current_column] = row_data.pop(0)
                 else:
