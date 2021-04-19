@@ -170,7 +170,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             headers_from_file = data.pop(0)
 
             if not set(headers_from_file).issubset(set(self.columns_in_order)):
-                raise Exception('headers in file not compatible with the table')
+                raise AttributeError('incorrect headers in file')
             # Clear existing table before populating from file
             self.on_clearTableButton_clicked()
             self._fill_table(headers_from_file, data)
