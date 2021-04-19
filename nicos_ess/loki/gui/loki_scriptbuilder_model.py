@@ -64,7 +64,7 @@ class LokiScriptModel(QAbstractTableModel):
         return True
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             return self._table_data[index.row()][index.column()]
 
     def setData(self, index, value, role):
