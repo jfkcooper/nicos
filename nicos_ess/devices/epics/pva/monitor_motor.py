@@ -237,7 +237,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if stat == status.WARN:
             return stat, message
         elif stat == status.ERROR:
-            # Not using error status message for now.
+            # Not using error message status for now.
+            # Only retrieving the message itself.
             _, error_msg = self._get_status_message()
             return stat, error_msg
 
