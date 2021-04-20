@@ -46,10 +46,52 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
         self.initialise_connection_status_listeners()
+        self.initialise_environments()
 
-    def _initialise_environments(self):
-        self._add_environment(('Tumbler Sample Changer', '4', 'Titanium', 'Yes',
-                              'No', 'No'))
+    def initialise_environments(self):
+        self.add_environment(
+            {
+                'name': 'Tumbler Sample Changer',
+                'number_of_cells': 4,
+                'cell_type': 'Titanium',
+                'can_rotate_samples': 'Yes',
+                'has_temperature_control': 'No',
+                'has_pressure_control': 'No'
+            }
+        )
+
+        self.add_environment(
+            {
+                'name': 'Peltier Sample Changer',
+                'number_of_cells': 12,
+                'cell_type': 'Copper',
+                'can_rotate_samples': 'No',
+                'has_temperature_control': 'Yes',
+                'has_pressure_control': 'No'
+            }
+        )
+
+        self.add_environment(
+            {
+                'name': 'Tumbler Sample Changer',
+                'number_of_cells': 4,
+                'cell_type': 'Titanium',
+                'can_rotate_samples': 'Yes',
+                'has_temperature_control': 'No',
+                'has_pressure_control': 'No'
+            }
+        )
+
+        self.add_environment(
+            {
+                'name': 'Dome Cell Sample Changer',
+                'number_of_cells': 4,
+                'cell_type': 'Aluminium/Titanium',
+                'can_rotate_samples': 'No',
+                'has_temperature_control': 'Yes',
+                'has_pressure_control': 'Yes'
+            }
+        )
 
     def setViewOnly(self, viewonly):
         pass
