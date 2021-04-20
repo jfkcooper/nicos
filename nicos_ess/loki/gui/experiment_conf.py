@@ -49,6 +49,8 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.initialise_environments()
 
         self.envComboBox.addItems(self.get_environment_names())
+        # Start with a "no item", ie, empty selection.
+        self.envComboBox.setCurrentIndex(-1)
 
     def initialise_environments(self):
         self.add_environment(
