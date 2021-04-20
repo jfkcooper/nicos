@@ -81,6 +81,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'offset': Override(volatile=True, chatty=False),
         'abslimits': Override(volatile=True),
     }
+    # Severity and message status when connection between IOC and controller is
+    # lost.
+    COMM_STAT = "COMM"
+    INVALID_SEVR = "INVALID"
 
     # Fields of the motor record for which an interaction via Channel Access
     # is required.
@@ -274,17 +278,15 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         :return: returns communication error message if there is no connection,
         otherwise returns an empty string.
         """
-        _COMM_STAT = "COMM"
-        _INVALID_SEVR = "INVALID"
         if not self.error_severity_pv or not self.error_status_pv:
             return ""
         error_severity = self._get_pv('error_severity_pv', as_string=True)
-        if error_severity == _INVALID_SEVR:
+        if error_severity == self.INVALID_SEVR:
             error_status = self._get_pv('error_status_pv', as_string=True)
-            if error_status == _COMM_STAT:
+            if error_status == self.COMM_STAT:
                 error_msg = self._get_pv('errormsgpv', as_string=True)
-                return f"MSG: \"{error_msg}\", STATUS: {_COMM_STAT}, " \
-                       f"SEVERITY: {_INVALID_SEVR}"
+                return f"MSG: \"{error_msg}\", STATUS: {self.COMM_STAT}, " \
+                       f"SEVERITY: {self.INVALID_SEVR}"
             else:
                 return ""
 
