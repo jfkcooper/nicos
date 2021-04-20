@@ -107,7 +107,7 @@ class LokiScriptModel(QAbstractTableModel):
     def update_data_from_clipboard(self, copied_data, top_left_index,
                                    hidden_columns=None):
         # Copied data is tabular so insert at top-left most position
-        for row_index, row_data in enumerate(copied_data):
+        for row_index, row_data in enumerate(copy.deepcopy(copied_data)):
             col_index = 0
             current_row = top_left_index[0] + row_index
             if current_row >= len(self._table_data):
