@@ -4,24 +4,21 @@ import pytest
 
 from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 
+
 NUM_ROWS = 20
 
-HEADERS = [
-            "COLUMN_1",
-            "COLUMN_2",
-            "COLUMN_3",
-            "COLUMN_4",
-            "COLUMN_5",
-            "COLUMN_6",]
+HEADERS = ["COLUMN_1", "COLUMN_2", "COLUMN_3",
+           "COLUMN_4", "COLUMN_5", "COLUMN_6"]
 
-DATA = [["1", "2", "3", "4", "5", "6"],
-        ["7", "8", "9", "10", "11", "12"],
-        ["13", "14", "15", "16", "17", "18"],
-        ["19", "20", "21", "22", "23", "24"]]
+DATA = [["00", "01", "02", "03", "04", "05"],
+        ["10", "11", "12", "13", "14", "15"],
+        ["20", "21", "22", "23", "24", "25"],
+        ["30", "31", "32", "33", "34", "35"],
+        ["40", "41", "42", "43", "44", "45"]]
 
-CLIPBOARD_DATA = [["a", "b", "c", "d", "i", "j", "k", "l"],
-                 ["e", "f", "g", "h", "i", "j", "k", "l"],
-                 ["i", "j", "k", "l", "i", "j", "k", "l"]]
+CLIPBOARD_DATA = [["a", "b", "c",],
+                  ["e", "f", "g",],
+                  ["i", "j", "k",]]
 
 
 def create_empty_list(rows, columns):
@@ -66,16 +63,16 @@ class TestLokiScriptModel:
         self.model.update_data_from_clipboard(
             copy.deepcopy(CLIPBOARD_DATA), top_left)
 
-        # Convert to numpy arrays for easy access to slicing
+        # Convert to numpy arrays for easy slicing
         table_data_np = np.array(self.model.table_data, dtype=np.str_)
         clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
 
-        clipboard_data_shape = clipboard_data_np.shape
+        clip_data_shape = clipboard_data_np.shape
         table_data_shape = table_data_np.shape
 
         # May be use np.testing.array_equal
-        assert table_data_np[top_left[0]:clipboard_data_shape[0],
-                             top_left[1]:clipboard_data_shape[1]].tolist() ==\
+        assert table_data_np[top_left[0]:clip_data_shape[0],
+                             top_left[1]:clip_data_shape[1]].tolist() ==\
                clipboard_data_np[:table_data_shape[0],
                                  :table_data_shape[1]].tolist()
 
