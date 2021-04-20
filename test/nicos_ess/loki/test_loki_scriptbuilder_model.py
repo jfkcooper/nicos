@@ -36,10 +36,11 @@ class TestLokiScriptModel:
         self.model.table_data = copy.deepcopy(DATA)
 
     def test_initialization_done_correctly(self):
-
+        # check shape of the table_data
         assert len(self.model.table_data) == NUM_ROWS
         assert all(
             [len(data) == len(HEADERS) for data in self.model.table_data])
+        # check if (NUM_ROWS - len(DATA)) number of empty rows are created
         assert self.model.table_data == DATA + create_empty_list(
             NUM_ROWS - len(DATA), len(HEADERS))
 
@@ -47,11 +48,13 @@ class TestLokiScriptModel:
         position = 2
         self.model.insertRow(position)
         assert len(self.model.table_data) == NUM_ROWS + 1
+
         assert self.model.table_data[position-1] == DATA[position-1]
         assert self.model.table_data[position] == [""] * len(HEADERS)
         assert self.model.table_data[position+1] == DATA[position]
 
     def test_data_selected_for_selected_indices(self):
+        # TODO: Improve this test
         selected_indices = [(0, 0), (0, 1), (0, 2),
                             (1, 0), (1, 1), (1, 2)]
         selected_data = self.model.select_data(selected_indices)
@@ -63,12 +66,14 @@ class TestLokiScriptModel:
         self.model.update_data_from_clipboard(
             copy.deepcopy(CLIPBOARD_DATA), top_left)
 
+        # Convert to numpy arrays for easy access to slicing
         table_data_np = np.array(self.model.table_data, dtype=np.str_)
         clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
 
         clipboard_data_shape = clipboard_data_np.shape
         table_data_shape = table_data_np.shape
 
+        # May be use np.testing.array_equal
         assert table_data_np[top_left[0]:clipboard_data_shape[0],
                              top_left[1]:clipboard_data_shape[1]].tolist() ==\
                clipboard_data_np[:table_data_shape[0],
