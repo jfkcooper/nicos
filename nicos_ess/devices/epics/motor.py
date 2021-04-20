@@ -23,6 +23,7 @@
 #
 # *****************************************************************************
 
+from nicos import session
 from nicos.core import Override, Param, oneof, pvname, status
 from nicos.core.device import requires
 from nicos.core.errors import ConfigurationError
@@ -266,8 +267,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         error_severity = self._get_pv('error_severity_pv', as_string=True)
         if error_severity:
             error_status = self._get_pv('error_status_pv', as_string=True)
-            return f'MSG: "{error_msg}", STATUS: {error_status}, ' \
-                   f'SEVERITY: {error_severity}'
+            session.log.error(f'EPICS MESSAGE: "{error_msg}", '
+                              f'STATUS: {error_status}, '
+                              f'SEVERITY: {error_severity}')
+            return f'EPICS MESSAGE: "{error_msg}"'
         else:
             return error_msg
 
@@ -285,8 +288,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             error_status = self._get_pv('error_status_pv', as_string=True)
             if error_status == self.COMM_STAT:
                 error_msg = self._get_pv('errormsgpv', as_string=True)
-                return f'MSG: "{error_msg}", STATUS: {self.COMM_STAT}, ' \
-                       f'SEVERITY: {self.INVALID_SEVR}'
+                session.log.error(f'EPICS MESSAGE: "{error_msg}", '
+                                  f'STATUS: {self.COMM_STAT}, '
+                                  f'SEVERITY: {self.INVALID_SEVR}')
+                return f'EPICS MESSAGE: "{error_msg}"'
             else:
                 return ""
 
