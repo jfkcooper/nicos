@@ -48,6 +48,8 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.initialise_connection_status_listeners()
         self.initialise_environments()
 
+        self.envComboBox.addItems(self.get_environment_names())
+
     def initialise_environments(self):
         self.add_environment(
             {
@@ -59,7 +61,6 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 'has_pressure_control': 'No'
             }
         )
-
         self.add_environment(
             {
                 'name': 'Peltier Sample Changer',
@@ -70,7 +71,6 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 'has_pressure_control': 'No'
             }
         )
-
         self.add_environment(
             {
                 'name': 'Tumbler Sample Changer',
