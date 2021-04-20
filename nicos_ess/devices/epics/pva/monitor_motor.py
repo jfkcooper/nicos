@@ -290,10 +290,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         error_severity = self._get_pv('error_severity_pv', as_string=True)
         if error_severity:
             error_status = self._get_pv('error_status_pv', as_string=True)
-            session.log.error(f'EPICS MESSAGE: "{error_msg}", '
-                              f'STATUS: {error_status}, '
-                              f'SEVERITY: {error_severity}')
-            return f'EPICS MESSAGE: "{error_msg}"'
+            session.log.error([f'EPICS ERROR MESSAGE: "{error_msg}"',
+                               f'EPICS ERROR MESSAGE STATUS: {error_status}',
+                               f'EPICS ERROR SEVERITY: {error_severity}'])
+            return f'EPICS ERROR: "{error_msg}"'
         else:
             return error_msg
 
@@ -307,16 +307,16 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if not self.error_severity_pv or not self.error_status_pv:
             return ""
         error_severity = self._get_pv('error_severity_pv', as_string=True)
-        if error_severity == self.INVALID_SEVR:
-            error_status = self._get_pv('error_status_pv', as_string=True)
-            if error_status == self.COMM_STAT:
-                error_msg = self._get_pv('errormsgpv', as_string=True)
-                session.log.error(f'EPICS MESSAGE: "{error_msg}", '
-                                  f'STATUS: {self.COMM_STAT}, '
-                                  f'SEVERITY: {self.INVALID_SEVR}')
-                return f'EPICS MESSAGE: "{error_msg}"'
-            else:
-                return ""
+        error_status = self._get_pv('error_status_pv', as_string=True)
+        if error_severity == self.INVALID_SEVR and \
+                error_status == self.COMM_STAT:
+            error_msg = self._get_pv('errormsgpv', as_string=True)
+            session.log.error([f'EPICS ERROR MESSAGE: "{error_msg}"',
+                               f'EPICS ERROR MESSAGE STATUS: {self.COMM_STAT}',
+                               f'EPICS ERROR SEVERITY: {self.INVALID_SEVR}'])
+            return f'EPICS ERROR: "{error_msg}"'
+        else:
+            return ""
 
 
 
