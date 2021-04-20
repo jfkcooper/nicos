@@ -25,7 +25,6 @@
 """LoKI Experiment Configuration dialog."""
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QFrame
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
@@ -96,13 +95,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
     def _activate_environment_settings(self):
         # Fill the read-only fields.
-        for environment in self.environment_list:
-            if environment.name == self.envComboBox.currentText():
-                self.numCellBox.setText(environment.number_of_cells)
-                self.cellTypeBox.setText(environment.cell_type)
-                self.canRotateBox.setText(environment.can_rotate_samples)
-                self.tempControlBox.setText(environment.has_temperature_control)
-                self.pressControlBox.setText(environment.has_pressure_control)
+        self._map_environment_fields_to_properties()
 
         # Enable sample environments
         self.propertiesGroupBox.setVisible(True)
@@ -111,3 +104,12 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
         # Set focus to reference cell x-position
         self.refPosXBox.setFocus()
+
+    def _map_environment_fields_to_properties(self):
+        for environment in self.environment_list:
+            if environment.name == self.envComboBox.currentText():
+                self.numCellBox.setText(environment.number_of_cells)
+                self.cellTypeBox.setText(environment.cell_type)
+                self.canRotateBox.setText(environment.can_rotate_samples)
+                self.tempControlBox.setText(environment.has_temperature_control)
+                self.pressControlBox.setText(environment.has_pressure_control)
