@@ -24,7 +24,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="1" column="0">
-       <widget class="QGroupBox" name="changerGroupBox">
+       <widget class="QGroupBox" name="envGroupBox">
         <property name="title">
          <string>Sample Environment</string>
         </property>
@@ -33,7 +33,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
-          <widget class="QLabel" name="changerLabel">
+          <widget class="QLabel" name="envLabel">
            <property name="text">
             <string>Select Environment</string>
            </property>
@@ -253,7 +253,7 @@
           </widget>
          </item>
          <item row="0" column="1" colspan="2">
-          <widget class="QComboBox" name="changerComboBox"/>
+          <widget class="QComboBox" name="envComboBox"/>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="canRotateLabel">
@@ -572,7 +572,7 @@
   <tabstop>apHBox</tabstop>
   <tabstop>offsetBox</tabstop>
   <tabstop>instSetApply</tabstop>
-  <tabstop>changerComboBox</tabstop>
+  <tabstop>envComboBox</tabstop>
   <tabstop>refPosXBox</tabstop>
   <tabstop>refPosYBox</tabstop>
   <tabstop>sampleSetApply</tabstop>

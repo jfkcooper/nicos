@@ -29,20 +29,27 @@ from nicos.guisupport.qt import QFrame
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
+from nicos_ess.loki.gui.sample_environment import SampleEnvironmentBase
 
 
-class LokiExperimentPanel(LokiPanelBase):
+class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
     panelName = 'LoKI Instrument Setup'
 
     def __init__(self, parent, client, options):
         LokiPanelBase.__init__(self, parent, client, options)
+        SampleEnvironmentBase.__init__(self)
         loadUi(self, findResource('nicos_ess/loki/gui/ui_files/exp_config.ui'))
-        
+
+        self.window = parent
         self.experiment_frame = QFrame(self)
 
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
         self.initialise_connection_status_listeners()
+
+    def _initialise_environments(self):
+        self._add_environment(('Tumbler Sample Changer', '4', 'Titanium', 'Yes',
+                              'No', 'No'))
 
     def setViewOnly(self, viewonly):
         pass
