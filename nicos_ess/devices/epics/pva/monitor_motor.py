@@ -118,6 +118,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     COMM_STAT = "COMM"
     INVALID_SEVR = "INVALID"
 
+    # EPICS PV error dictionary keys used internally in this class.
+    SEVR = "SEVERITY"
+    STAT = "STATUS"
+    MSG_TXT = "MESSAGE TEXT"
+
     def _get_pv_parameters(self):
         """
         Implementation of inherited method to automatically account for fields
