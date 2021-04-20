@@ -289,8 +289,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         error_severity = self._get_pv('error_severity_pv', as_string=True)
         if error_severity:
             error_status = self._get_pv('error_status_pv', as_string=True)
-            return f"MSG: \"{error_msg}\", STATUS: {error_status}, " \
-                   f"SEVERITY: {error_severity}"
+            return f'MSG: "{error_msg}", STATUS: {error_status}, ' \
+                   f'SEVERITY: {error_severity}'
         else:
             return error_msg
 
@@ -308,8 +308,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             error_status = self._get_pv('error_status_pv', as_string=True)
             if error_status == self.COMM_STAT:
                 error_msg = self._get_pv('errormsgpv', as_string=True)
-                return f"MSG: \"{error_msg}\", STATUS: {self.COMM_STAT}, " \
-                       f"SEVERITY: {self.INVALID_SEVR}"
+                return f'MSG: "{error_msg}", STATUS: {self.COMM_STAT}, ' \
+                       f'SEVERITY: {self.INVALID_SEVR}'
             else:
                 return ""
 
