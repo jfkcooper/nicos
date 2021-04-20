@@ -9,7 +9,7 @@ devices = dict(
               errormsgpv='LabS-ESSIIP:MC-MCU-01:m1-MsgTxt',
               errorbitpv='LabS-ESSIIP:MC-MCU-01:m1-Err',
               reseterrorpv='LabS-ESSIIP:MC-MCU-01:m1-ErrRst',
-              errorseveritypv='LabS-ESSIIP:MC-MCU-01:m1.SEVR',
-              errorstatuspv='LabS-ESSIIP:MC-MCU-01:m1.STAT',
+              error_severity_pv='LabS-ESSIIP:MC-MCU-01:m1.SEVR',
+              error_status_pv='LabS-ESSIIP:MC-MCU-01:m1.STAT',
               ),
 )

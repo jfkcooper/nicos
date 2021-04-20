@@ -59,10 +59,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
-        'errorseveritypv': Param('Optional PV with error severity.',
+        'error_severity_pv': Param('Optional PV with error severity.',
                                  type=pvname, mandatory=False, settable=False,
                                  userparam=False),
-        'errorstatuspv': Param('Optional PV with error status.',
+        'error_status_pv': Param('Optional PV with error status.',
                                type=pvname, mandatory=False, settable=False,
                                userparam=False),
         'reference_direction': Param('Reference run direction',
@@ -124,11 +124,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         if self.reseterrorpv:
             pvs.add('reseterrorpv')
 
-        if self.errorseveritypv:
-            pvs.add('errorseveritypv')
+        if self.error_severity_pv:
+            pvs.add('error_severity_pv')
 
-        if self.errorstatuspv:
-            pvs.add('errorstatuspv')
+        if self.error_status_pv:
+            pvs.add('error_status_pv')
 
         return pvs
 
@@ -257,11 +257,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         if not self.errormsgpv:
             return ''
         error_msg = self._get_pv('errormsgpv', as_string=True)
-        if not self.errorseveritypv or not self.errorstatuspv:
+        if not self.error_severity_pv or not self.error_status_pv:
             return error_msg
-        error_severity = self._get_pv('errorseveritypv', as_string=True)
+        error_severity = self._get_pv('error_severity_pv', as_string=True)
         if error_severity:
-            error_status = self._get_pv('errorstatuspv', as_string=True)
+            error_status = self._get_pv('error_status_pv', as_string=True)
             return f"MSG: \"{error_msg}\", STATUS: {error_status}, " \
                    f"SEVERITY: {error_severity}"
         else:
@@ -276,11 +276,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         _COMM_STAT = "COMM"
         _INVALID_SEVR = "INVALID"
-        if not self.errorseveritypv or not self.errorstatuspv:
+        if not self.error_severity_pv or not self.error_status_pv:
             return ""
-        error_severity = self._get_pv('errorseveritypv', as_string=True)
+        error_severity = self._get_pv('error_severity_pv', as_string=True)
         if error_severity == _INVALID_SEVR:
-            error_status = self._get_pv('errorstatuspv', as_string=True)
+            error_status = self._get_pv('error_status_pv', as_string=True)
             if error_status == _COMM_STAT:
                 error_msg = self._get_pv('errormsgpv', as_string=True)
                 return f"MSG: \"{error_msg}\", STATUS: {_COMM_STAT}, " \
