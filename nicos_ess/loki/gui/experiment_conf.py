@@ -41,7 +41,6 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         loadUi(self, findResource('nicos_ess/loki/gui/ui_files/exp_config.ui'))
 
         self.window = parent
-        self.experiment_frame = QFrame(self)
 
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
@@ -51,6 +50,14 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.envComboBox.addItems(self.get_environment_names())
         # Start with a "no item", ie, empty selection.
         self.envComboBox.setCurrentIndex(-1)
+
+        # Hide read-only properties and hide and disable reference cell
+        # positions until a sample environment is chosen by the user.
+        self.propertiesGroupBox.setVisible(False)
+        self.refPosGroupBox.setVisible(False)
+        self.refPosGroupBox.setEnabled(False)  # this is an extra safety measure
+
+        self.envComboBox.activated.connect(self._activate_environment_settings)
 
     def initialise_environments(self):
         self.add_environment(
@@ -75,17 +82,6 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         )
         self.add_environment(
             {
-                'name': 'Tumbler Sample Changer',
-                'number_of_cells': 4,
-                'cell_type': 'Titanium',
-                'can_rotate_samples': 'Yes',
-                'has_temperature_control': 'No',
-                'has_pressure_control': 'No'
-            }
-        )
-
-        self.add_environment(
-            {
                 'name': 'Dome Cell Sample Changer',
                 'number_of_cells': 4,
                 'cell_type': 'Aluminium/Titanium',
@@ -97,3 +93,12 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
     def setViewOnly(self, viewonly):
         pass
+
+    def _activate_environment_settings(self):
+        # Enable sample environments
+        self.propertiesGroupBox.setVisible(True)
+        self.refPosGroupBox.setVisible(True)
+        self.refPosGroupBox.setEnabled(True)
+
+        # Set focus to reference cell position
+        self.refPosXBox.setFocus()
