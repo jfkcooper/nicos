@@ -573,6 +573,11 @@
   <tabstop>offsetBox</tabstop>
   <tabstop>instSetApply</tabstop>
   <tabstop>envComboBox</tabstop>
+  <tabstop>numCellBox</tabstop>
+  <tabstop>cellTypeBox</tabstop>
+  <tabstop>canRotateBox</tabstop>
+  <tabstop>tempControlBox</tabstop>
+  <tabstop>pressControlBox</tabstop>
   <tabstop>refPosXBox</tabstop>
   <tabstop>refPosYBox</tabstop>
   <tabstop>sampleSetApply</tabstop>
