@@ -34,7 +34,7 @@ class LokiScriptModel(QAbstractTableModel):
         super().__init__()
 
         self._header_data = header_data
-        self._num_rows = num_rows
+        self._default_num_rows = num_rows
         self._table_data = self.empty_table(num_rows, len(header_data))
 
     @property
@@ -43,25 +43,13 @@ class LokiScriptModel(QAbstractTableModel):
 
     @table_data.setter
     def table_data(self, new_data):
-        if not self._is_data_dimension_valid(new_data):
-            raise AttributeError(
-                f"Attribute must be a 2D list of shape"
-                f" (_, {len(self._header_data)})"
-            )
-
-        # Extend the list with empty rows if value has less than n_rows
-        if len(new_data) < self._num_rows:
+        # Extend the list with empty rows if new data has less rows than the
+        # default
+        if len(new_data) < self._default_num_rows:
             new_data.extend(self.empty_table(
-                    self._num_rows - len(new_data), len(self._header_data)))
+                self._default_num_rows - len(new_data), len(self._header_data)))
         self._table_data = new_data
         self.layoutChanged.emit()
-
-    def _is_data_dimension_valid(self, data):
-        if not isinstance(data, list) and not all(
-            [isinstance(val, list) and len(val) == len(self._header_data)
-             for val in data]):
-            return False
-        return True
 
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:
