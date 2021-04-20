@@ -67,14 +67,13 @@ class TestLokiScriptModel:
         table_data_np = np.array(self.model.table_data, dtype=np.str_)
         clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
 
-        clip_data_shape = clipboard_data_np.shape
-        table_data_shape = table_data_np.shape
-
+        clip_shape = clipboard_data_np.shape
+        table_shape = table_data_np.shape
         # May be use np.testing.array_equal
-        assert table_data_np[top_left[0]:clip_data_shape[0],
-                             top_left[1]:clip_data_shape[1]].tolist() ==\
-               clipboard_data_np[:table_data_shape[0],
-                                 :table_data_shape[1]].tolist()
+        # TODO: Simplify and correct it.
+        assert table_data_np[top_left[0]:top_left[0]+clip_shape[0],
+                             top_left[1]:top_left[1]+clip_shape[1]].tolist() ==\
+               clipboard_data_np[:,:table_shape[1]-top_left[1]].tolist()
 
     def test_extra_rows_created_when_clipboard_data_pasted_at_bottom_row(self):
         bottom_left = (NUM_ROWS - 1, 0)
