@@ -63,7 +63,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.add_environment(
             {
                 'name': 'Tumbler Sample Changer',
-                'number_of_cells': 4,
+                'number_of_cells': '4',
                 'cell_type': 'Titanium',
                 'can_rotate_samples': 'Yes',
                 'has_temperature_control': 'No',
@@ -73,7 +73,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.add_environment(
             {
                 'name': 'Peltier Sample Changer',
-                'number_of_cells': 12,
+                'number_of_cells': '12',
                 'cell_type': 'Copper',
                 'can_rotate_samples': 'No',
                 'has_temperature_control': 'Yes',
@@ -83,7 +83,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.add_environment(
             {
                 'name': 'Dome Cell Sample Changer',
-                'number_of_cells': 4,
+                'number_of_cells': '4',
                 'cell_type': 'Aluminium/Titanium',
                 'can_rotate_samples': 'No',
                 'has_temperature_control': 'Yes',
@@ -95,10 +95,19 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         pass
 
     def _activate_environment_settings(self):
+        # Fill the read-only fields.
+        for environment in self.environment_list:
+            if environment.name == self.envComboBox.currentText():
+                self.numCellBox.setText(environment.number_of_cells)
+                self.cellTypeBox.setText(environment.cell_type)
+                self.canRotateBox.setText(environment.can_rotate_samples)
+                self.tempControlBox.setText(environment.has_temperature_control)
+                self.pressControlBox.setText(environment.has_pressure_control)
+
         # Enable sample environments
         self.propertiesGroupBox.setVisible(True)
         self.refPosGroupBox.setVisible(True)
         self.refPosGroupBox.setEnabled(True)
 
-        # Set focus to reference cell position
+        # Set focus to reference cell x-position
         self.refPosXBox.setFocus()
