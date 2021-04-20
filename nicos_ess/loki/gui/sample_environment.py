@@ -45,12 +45,7 @@ class SampleEnvironmentBase:
         self.Environment = namedtuple('Environment', self.field_names)
 
     def add_environment(self, fields):
-        if not fields:
-            raise ValueError('An non-empty dictionary of read-only properties'
-                             'is required.')
-        if not isinstance(fields, dict):
-            raise ValueError('The properties should be a dictionary.')
-
+        self._validate(fields)
         self.environment_list.append(self.Environment(**fields))
 
     def get_environments(self):
@@ -69,3 +64,18 @@ class SampleEnvironmentBase:
     def get_environment_names(self):
         env_names = [env.name for env in self.environment_list]
         return env_names
+
+    @staticmethod
+    def _validate(fields):
+        if not fields:
+            raise ValueError('An non-empty dictionary of read-only properties'
+                             'is required.')
+
+        if not isinstance(fields, dict):
+            raise ValueError('The properties should be a non-empty dictionary.')
+
+        for values in fields.values():
+            if not isinstance(values, str):
+                raise ValueError('A read-only property of an'
+                                 ' Environment should be a string.')
+
