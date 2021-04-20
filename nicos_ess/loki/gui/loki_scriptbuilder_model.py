@@ -26,6 +26,8 @@
 
 """LoKI Script Model."""
 
+import copy
+
 from nicos.guisupport.qt import QAbstractTableModel, QModelIndex, Qt
 
 
@@ -45,10 +47,11 @@ class LokiScriptModel(QAbstractTableModel):
     def table_data(self, new_data):
         # Extend the list with empty rows if new data has less rows than the
         # default
-        if len(new_data) < self._default_num_rows:
-            new_data.extend(self.empty_table(
-                self._default_num_rows - len(new_data), len(self._header_data)))
-        self._table_data = new_data
+        data = copy.deepcopy(new_data)
+        if len(data) < self._default_num_rows:
+            data.extend(self.empty_table(
+                self._default_num_rows - len(data), len(self._header_data)))
+        self._table_data = data
         self.layoutChanged.emit()
 
     def data(self, index, role):
