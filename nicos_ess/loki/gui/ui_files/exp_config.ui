@@ -22,293 +22,7 @@
      <property name="flat">
       <bool>true</bool>
      </property>
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="1" column="0">
-       <widget class="QGroupBox" name="envGroupBox">
-        <property name="title">
-         <string>Sample Environment</string>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <widget class="QLabel" name="envLabel">
-           <property name="text">
-            <string>Select Environment</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0" colspan="2">
-          <widget class="QLabel" name="refXLabel">
-           <property name="text">
-            <string>Reference Cell Pos X = </string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="pressControlBox">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="canTempLabel">
-           <property name="text">
-            <string>Temperature Control:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="3">
-          <widget class="QLabel" name="lbl7">
-           <property name="text">
-            <string>mm</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="5">
-          <spacer name="hSpacer2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>74</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="5" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="tempControlBox">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="cellTypeLabel">
-           <property name="text">
-            <string>Cell Type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="numCellsLabel">
-           <property name="text">
-            <string>Number of Cells:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="4">
-          <spacer name="hSpacer6">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>74</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="10" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="refPosYBox">
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0" colspan="2">
-          <widget class="QLabel" name="refYLabel">
-           <property name="text">
-            <string>Reference Cell Pos Y = </string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label">
-           <property name="font">
-            <font>
-             <italic>true</italic>
-            </font>
-           </property>
-           <property name="text">
-            <string>Properties (Read-Only)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <spacer name="vSpacer4_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>38</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="9" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="refPosXBox">
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="numCellBox">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="3">
-          <widget class="QLabel" name="lbl6">
-           <property name="text">
-            <string>mm</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="canPressureLabel">
-           <property name="text">
-            <string>Pressure Control:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="cellTypeBox">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2" alignment="Qt::AlignHCenter">
-          <widget class="QLineEdit" name="canRotateBox">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QComboBox" name="envComboBox"/>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="canRotateLabel">
-           <property name="text">
-            <string>Rotate Samples:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="4">
-          <spacer name="hSpacer5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>74</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="3" colspan="2">
-          <spacer name="hSpacer1">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>128</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="font">
-            <font>
-             <italic>true</italic>
-            </font>
-           </property>
-           <property name="text">
-            <string>Calculate Offset</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
+     <layout class="QGridLayout" name="gridLayout_8">
       <item row="0" column="0">
        <spacer name="vSpacer4">
         <property name="orientation">
@@ -352,6 +66,292 @@
         <property name="text">
          <string>Apply</string>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QGroupBox" name="envGroupBox">
+        <property name="title">
+         <string>Sample Environment</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="0">
+          <widget class="QLabel" name="envLabel">
+           <property name="text">
+            <string>Select Environment</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="envComboBox"/>
+         </item>
+         <item row="0" column="2">
+          <spacer name="hSpacer1">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>128</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1">
+          <spacer name="vSpacer4_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>13</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QGroupBox" name="propertiesGroupBox">
+           <property name="title">
+            <string>Properties (Read-Only)</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <widget class="QLabel" name="numCellsLabel">
+              <property name="text">
+               <string>Number of Cells:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="numCellBox">
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="placeholderText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="cellTypeLabel">
+              <property name="text">
+               <string>Cell Type:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="cellTypeBox">
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="canRotateLabel">
+              <property name="text">
+               <string>Rotate Samples:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="canRotateBox">
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="canTempLabel">
+              <property name="text">
+               <string>Temperature Control:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="tempControlBox">
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="canPressureLabel">
+              <property name="text">
+               <string>Pressure Control:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="pressControlBox">
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <spacer name="hSpacer2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>74</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="0">
+          <spacer name="vSpacer4_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>13</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QGroupBox" name="refPosGroupBox">
+           <property name="title">
+            <string>Calculate Offset</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="1" alignment="Qt::AlignHCenter">
+             <widget class="QLineEdit" name="refPosXBox">
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" alignment="Qt::AlignTop">
+             <widget class="QLabel" name="refYLabel">
+              <property name="text">
+               <string>Reference Cell Pos Y = </string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="refXLabel">
+              <property name="text">
+               <string>Reference Cell Pos X = </string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" alignment="Qt::AlignTop">
+             <widget class="QLabel" name="lbl7">
+              <property name="text">
+               <string>mm</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="lbl6">
+              <property name="text">
+               <string>mm</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" alignment="Qt::AlignHCenter|Qt::AlignTop">
+             <widget class="QLineEdit" name="refPosYBox">
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <spacer name="hSpacer5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>74</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -452,7 +452,7 @@
          <item row="3" column="1">
           <widget class="QLineEdit" name="apHBox"/>
          </item>
-         <item row="1" column="2">
+         <item row="1" column="2" alignment="Qt::AlignTop">
           <widget class="QLabel" name="lbl2">
            <property name="text">
             <string>mm</string>
