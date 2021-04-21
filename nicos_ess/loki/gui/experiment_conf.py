@@ -66,6 +66,10 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.apHBox.textChanged.connect(self.set_apt_height)
         self.offsetBox.textChanged.connect(self.set_det_offset)
 
+        # Listen to changes in environments
+        self.refPosXBox.textChanged.connect(self.set_ref_pos_x)
+        self.refPosYBox.textChanged.connect(self.set_ref_pos_y)
+
         # Disable apply buttons in both settings until an action taken by the
         # user.
         self.sampleSetApply.setEnabled(False)
@@ -129,39 +133,66 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 self.pressControlBox.setText(environment.has_pressure_control)
 
     def set_det_offset(self, value):
-        self._set_instrument_settings(value)
+        value_type = 'det_offset'
+        self._set_instrument_settings(value, value_type)
 
     def set_apt_pos_x(self, value):
-        self._set_instrument_settings(value)
+        value_type = 'apt_pos_x'
+        self._set_instrument_settings(value, value_type)
 
     def set_apt_pos_y(self, value):
-        self._set_instrument_settings(value)
+        value_type = 'apt_pos_y'
+        self._set_instrument_settings(value, value_type)
 
     def set_apt_width(self, value):
-        self._set_instrument_settings(value)
+        value_type = 'apt_width'
+        self._set_instrument_settings(value, value_type)
 
     def set_apt_height(self, value):
-        self._set_instrument_settings(value)
+        value_type = 'apt_height'
+        self._set_instrument_settings(value, value_type)
 
-    def _set_instrument_settings(self, value):
+    def set_ref_pos_x(self, value):
+        value_type = 'ref_pos_x'
+        self._set_instrument_settings(value, value_type)
+
+    def set_ref_pos_y(self, value):
+        value_type = 'ref_pos_y'
+        self._set_instrument_settings(value, value_type)
+
+    def _set_instrument_settings(self, value, value_type):
         if not value:
             return
-        self._validate_instrument_settings(value)
+        map_value_type_to_settings = {
+            'sample': ['ref_pos_x', 'ref_pos_y'],
+            'instrument': ['apt_pos_x', 'apt_pos_y',
+                           'apt_width', 'apt_height', 'det_offset']
+        }
+        # Get settings type from value type
+        for key, values in map_value_type_to_settings.items():
+            if value_type in values:
+                settings_type = key
+                # Validate wrt settings type
+                self._validate_instrument_settings(value, settings_type)
 
-    def _validate_instrument_settings(self, value):
+    def _validate_instrument_settings(self, value, settings_type):
         # The entered value to any of the settings should be float-able.
         # If not, this is caught by the Python runtime during casting
         # and raises an error. We would like to warn to user without raising.
+        map_settings_type_to_apply = {
+            'sample': self.sampleSetApply.setEnabled,
+            'instrument': self.instSetApply.setEnabled
+        }
         try:
             float(value)
             # Enable apply button upon validation here to prevent repetition
             # of the code and/or misbehaviour due to multiple edits.
-            self.instSetApply.setEnabled(True)
+            map_settings_type_to_apply[settings_type](True)
             return
         except ValueError:
             QMessageBox.warning(self, 'Error', 'Please enter valid values '
                                                'for all input fields.')
             # We immediately disable apply button if any one the setting has
             # an invalid value.
-            self.instSetApply.setEnabled(False)
+            map_settings_type_to_apply[settings_type](False)
 
