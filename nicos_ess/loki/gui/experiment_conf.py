@@ -75,6 +75,9 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.sampleSetApply.setEnabled(False)
         self.instSetApply.setEnabled(False)
 
+        self.invalid_sample_settings = []
+        self.invalid_instrument_settings = []
+
     def initialise_environments(self):
         self.add_environment(
             {
@@ -173,26 +176,32 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
             if value_type in values:
                 settings_type = key
                 # Validate wrt settings type
-                self._validate_instrument_settings(value, settings_type)
+                self._validate_instrument_settings(value, value_type,
+                                                   settings_type)
 
-    def _validate_instrument_settings(self, value, settings_type):
+    def _validate_instrument_settings(self, value, value_type, settings_type):
         # The entered value to any of the settings should be float-able.
         # If not, this is caught by the Python runtime during casting
         # and raises an error. We would like to warn to user without raising.
-        map_settings_type_to_apply = {
-            'sample': self.sampleSetApply.setEnabled,
-            'instrument': self.instSetApply.setEnabled
+        map_settings = {
+            'sample': (self.sampleSetApply.setEnabled,
+                       self.invalid_sample_settings),
+            'instrument': (self.instSetApply.setEnabled,
+                           self.invalid_instrument_settings)
         }
         try:
             float(value)
+            if value_type in map_settings[settings_type][1]:
+                map_settings[settings_type][1].remove(value_type)
             # Enable apply button upon validation here to prevent repetition
             # of the code and/or misbehaviour due to multiple edits.
-            map_settings_type_to_apply[settings_type](True)
+            if len(map_settings[settings_type][1]) == 0:
+                map_settings[settings_type][0](True)
             return
         except ValueError:
-            QMessageBox.warning(self, 'Error', 'Please enter valid values '
-                                               'for all input fields.')
-            # We immediately disable apply button if any one the setting has
-            # an invalid value.
-            map_settings_type_to_apply[settings_type](False)
+            if value_type not in map_settings[settings_type][1]:
+                QMessageBox.warning(self, 'Error', 'Please enter valid values '
+                                                   'for all input fields.')
+                map_settings[settings_type][1].append(value_type)
+            map_settings[settings_type][0](False)
 
