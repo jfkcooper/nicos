@@ -58,6 +58,13 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
         self.envComboBox.activated.connect(self._activate_environment_settings)
 
+        # Listen to changes in Aperture and Detector Offset values
+        self.apXBox.textChanged.connect(self.set_apt_pos_x)
+        self.apYBox.textChanged.connect(self.set_apt_pos_y)
+        self.apWBox.textChanged.connect(self.set_apt_width)
+        self.apHBox.textChanged.connect(self.set_apt_height)
+        self.offsetBox.textChanged.connect(self.set_det_offset)
+
     def initialise_environments(self):
         self.add_environment(
             {
@@ -113,3 +120,18 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 self.canRotateBox.setText(environment.can_rotate_samples)
                 self.tempControlBox.setText(environment.has_temperature_control)
                 self.pressControlBox.setText(environment.has_pressure_control)
+
+    def set_det_offset(self, value):
+        pass
+
+    def set_apt_pos_x(self, value):
+        pass
+
+    def set_apt_pos_y(self, value):
+        pass
+
+    def set_apt_width(self, value):
+        pass
+
+    def set_apt_height(self, value):
+        pass
