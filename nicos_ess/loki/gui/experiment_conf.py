@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 """LoKI Experiment Configuration dialog."""
+from nicos.guisupport.qt import QMessageBox
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
@@ -129,16 +130,39 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 self.pressControlBox.setText(environment.has_pressure_control)
 
     def set_det_offset(self, value):
-        pass
+        self._set_instrument_settings(value)
 
     def set_apt_pos_x(self, value):
-        pass
+        self._set_instrument_settings(value)
 
     def set_apt_pos_y(self, value):
-        pass
+        self._set_instrument_settings(value)
 
     def set_apt_width(self, value):
-        pass
+        self._set_instrument_settings(value)
 
     def set_apt_height(self, value):
-        pass
+        self._set_instrument_settings(value)
+
+    def _set_instrument_settings(self, value):
+        if not value:
+            return
+        self._validate_instrument_settings(value)
+
+    def _validate_instrument_settings(self, value):
+        # The entered value to any of the settings should be float-able.
+        # If not, this is caught by the Python runtime and raises an error.
+        # We would like to warn to user without raising.
+        try:
+            float(value)
+            # Enable apply button upon validation here to prevent repetition
+            # of the code and/or misbehaviour due to multiple edits.
+            self.instSetApply.setEnabled(True)
+            return
+        except ValueError:
+            QMessageBox.warning(self, 'Error', 'Please enter valid values '
+                                               'for all input fields.')
+            # We immediately disable apply button if any one the setting has
+            # an invalid value.
+            self.instSetApply.setEnabled(False)
+
