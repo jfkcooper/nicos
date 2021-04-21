@@ -26,6 +26,8 @@
 
 """LoKI Script Model."""
 
+import copy
+
 from nicos.guisupport.qt import QAbstractTableModel, QModelIndex, Qt
 
 
@@ -45,10 +47,11 @@ class LokiScriptModel(QAbstractTableModel):
     def table_data(self, new_data):
         # Extend the list with empty rows if new data has less rows than the
         # default
-        if len(new_data) < self._default_num_rows:
-            new_data.extend(self.empty_table(
-                self._default_num_rows - len(new_data), len(self._header_data)))
-        self._table_data = new_data
+        self._table_data = copy.deepcopy(new_data)
+        if len(self._table_data) < self._default_num_rows:
+            self._table_data.extend(self.empty_table(
+                self._default_num_rows - len(self._table_data),
+                len(self._header_data)))
         self.layoutChanged.emit()
 
     def data(self, index, role):
@@ -110,14 +113,16 @@ class LokiScriptModel(QAbstractTableModel):
             if current_row >= len(self._table_data):
                 self.create_empty_row(current_row)
 
-            while len(row_data):
+            index = 0
+            while index < len(row_data):
                 if top_left_index[1] + col_index < len(self._header_data):
                     current_column = top_left_index[1] + col_index
                     col_index += 1
                     if hidden_columns and current_column in hidden_columns:
                         continue
                     self._table_data[current_row][
-                        current_column] = row_data.pop(0)
+                        current_column] = row_data[index]
+                    index += 1
                 else:
                     break
 
