@@ -77,61 +77,72 @@ def _do_simultaneous(row_values, sans_duration_type):
 
 class TransFirst:
     def generate_script(self, labeled_data, trans_duration_type,
-                        sans_duration_type):
+                        sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_trans(row_values, trans_duration_type)
-            template += "\n"
-
-        for row_values in labeled_data:
-            template += _do_sans(row_values, sans_duration_type)
-            template += "\n"
+        for i in range(max(trans_times, sans_times)):
+            if i < trans_times:
+                for row_values in labeled_data:
+                    template += _do_trans(row_values, trans_duration_type)
+                    template += "\n"
+            if i < sans_times:
+                for row_values in labeled_data:
+                    template += _do_sans(row_values, sans_duration_type)
+                    template += "\n"
         return template
 
 
 class SansFirst:
     def generate_script(self, labeled_data, trans_duration_type,
-                        sans_duration_type):
+                        sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_sans(row_values, sans_duration_type)
-            template += "\n"
-
-        for row_values in labeled_data:
-            template += _do_trans(row_values, trans_duration_type)
-            template += "\n"
+        for i in range(max(trans_times, sans_times)):
+            if i < sans_times:
+                for row_values in labeled_data:
+                    template += _do_sans(row_values, sans_duration_type)
+                    template += "\n"
+            if i < trans_times:
+                for row_values in labeled_data:
+                    template += _do_trans(row_values, trans_duration_type)
+                    template += "\n"
         return template
 
 
 class TransThenSans:
     def generate_script(self, labeled_data, trans_duration_type,
-                        sans_duration_type):
+                        sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_trans(row_values, trans_duration_type)
-            template += _do_sans(row_values, sans_duration_type)
-            template += "\n"
+        for i in range(max(trans_times, sans_times)):
+            for row_values in labeled_data:
+                if i < trans_times:
+                    template += _do_trans(row_values, trans_duration_type)
+                if i < sans_times:
+                    template += _do_sans(row_values, sans_duration_type)
+                template += "\n"
         return template
 
 
 class SansThenTrans:
     def generate_script(self, labeled_data, trans_duration_type,
-                        sans_duration_type):
+                        sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_sans(row_values, sans_duration_type)
-            template += _do_trans(row_values, trans_duration_type)
-            template += "\n"
+        for i in range(max(trans_times, sans_times)):
+            for row_values in labeled_data:
+                if i < sans_times:
+                    template += _do_sans(row_values, sans_duration_type)
+                if i < trans_times:
+                    template += _do_trans(row_values, trans_duration_type)
+                template += "\n"
         return template
 
 
 class Simultaneous:
     def generate_script(self, labeled_data, trans_duration_type,
-                        sans_duration_type):
+                        sans_duration_type, trans_times, sans_times):
         template = ""
-        for row_values in labeled_data:
-            template += _do_simultaneous(row_values, sans_duration_type)
-            template += "\n"
+        for _ in range(sans_times):
+            for row_values in labeled_data:
+                template += _do_simultaneous(row_values, sans_duration_type)
+                template += "\n"
         return template
 
 
