@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="2">
-    <widget class="QGroupBox" name="SampleSetGroupBox">
+    <widget class="QGroupBox" name="sampleSetGroupBox">
      <property name="title">
       <string>Sample Settings</string>
      </property>
@@ -365,7 +365,7 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QGroupBox" name="InstSetGroupBox">
+    <widget class="QGroupBox" name="instSetGroupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
        <horstretch>0</horstretch>

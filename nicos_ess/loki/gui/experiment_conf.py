@@ -104,7 +104,8 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         )
 
     def setViewOnly(self, viewonly):
-        pass
+        self.sampleSetGroupBox.setEnabled(not viewonly)
+        self.instSetGroupBox.setEnabled(not viewonly)
 
     def _activate_environment_settings(self):
         # Fill the read-only fields.
@@ -117,8 +118,6 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
         # Set focus to reference cell x-position
         self.refPosXBox.setFocus()
-        # Enable apply button
-        self.sampleSetApply.setEnabled(True)
 
     def _map_environment_fields_to_properties(self):
         for environment in self.environment_list:
@@ -151,8 +150,8 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
     def _validate_instrument_settings(self, value):
         # The entered value to any of the settings should be float-able.
-        # If not, this is caught by the Python runtime and raises an error.
-        # We would like to warn to user without raising.
+        # If not, this is caught by the Python runtime during casting
+        # and raises an error. We would like to warn to user without raising.
         try:
             float(value)
             # Enable apply button upon validation here to prevent repetition
