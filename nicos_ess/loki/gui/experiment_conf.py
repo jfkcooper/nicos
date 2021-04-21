@@ -65,6 +65,11 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.apHBox.textChanged.connect(self.set_apt_height)
         self.offsetBox.textChanged.connect(self.set_det_offset)
 
+        # Disable apply buttons in both settings until an action taken by the
+        # user.
+        self.sampleSetApply.setEnabled(False)
+        self.instSetApply.setEnabled(False)
+
     def initialise_environments(self):
         self.add_environment(
             {
@@ -111,6 +116,8 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
         # Set focus to reference cell x-position
         self.refPosXBox.setFocus()
+        # Enable apply button
+        self.sampleSetApply.setEnabled(True)
 
     def _map_environment_fields_to_properties(self):
         for environment in self.environment_list:
