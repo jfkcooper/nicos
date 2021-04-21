@@ -21,10 +21,6 @@ CLIPBOARD_DATA = [["a", "b", "c",],
                   ["i", "j", "k",]]
 
 
-def create_empty_list(rows, columns):
-    return [[""] * columns for _ in range(rows)]
-
-
 class TestLokiScriptModel:
 
     @pytest.fixture(autouse=True)
@@ -37,9 +33,6 @@ class TestLokiScriptModel:
         assert len(self.model.table_data) == NUM_ROWS
         assert all(
             [len(data) == len(HEADERS) for data in self.model.table_data])
-        # check if (NUM_ROWS - len(DATA)) number of empty rows are created
-        assert self.model.table_data == DATA + create_empty_list(
-            NUM_ROWS - len(DATA), len(HEADERS))
 
     def test_row_inserted_at_position(self):
         position = 2
@@ -58,7 +51,26 @@ class TestLokiScriptModel:
         assert selected_data == ["\t".join(DATA[0][:3]),
                                  "\t".join(DATA[1][:3])]
 
-    def test_clipboard_data_gets_pasted_correctly_at_top_left_index(self):
+    def test_clipboard_data_gets_pasted_correctly_at_top_right(self):
+        top_right = (0, len(HEADERS)-1)
+        self.model.update_data_from_clipboard(
+            copy.deepcopy(CLIPBOARD_DATA), top_right)
+
+        table_data_np = np.array(self.model.table_data, dtype=np.str_)
+        clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
+
+        clip_shape = clipboard_data_np.shape
+        table_shape = table_data_np.shape
+
+        row_slice = np.s_[top_right[0]:top_right[0]+clip_shape[0]]
+        # Only one column of clip data should be pasted
+        np.testing.assert_array_equal(
+            table_data_np[row_slice, top_right[1]],
+            clipboard_data_np[:,0]
+            )
+        return table_shape
+
+    def test_clipboard_data_gets_pasted_correctly_at_top_left(self):
         top_left = (0, 0)
         self.model.update_data_from_clipboard(
             copy.deepcopy(CLIPBOARD_DATA), top_left)
@@ -69,11 +81,14 @@ class TestLokiScriptModel:
 
         clip_shape = clipboard_data_np.shape
         table_shape = table_data_np.shape
-        # May be use np.testing.array_equal
-        # TODO: Simplify and correct it.
-        assert table_data_np[top_left[0]:top_left[0]+clip_shape[0],
-                             top_left[1]:top_left[1]+clip_shape[1]].tolist() ==\
-               clipboard_data_np[:,:table_shape[1]-top_left[1]].tolist()
+
+        row_slice = np.s_[top_left[0]:top_left[0]+clip_shape[0]]
+        col_slice = np.s_[top_left[1]:top_left[1]+clip_shape[1]]
+        #TODO: Test is very brittle
+        np.testing.assert_array_equal(
+            table_data_np[row_slice, col_slice],
+            clipboard_data_np
+            )
 
     def test_extra_rows_created_when_clipboard_data_pasted_at_bottom_row(self):
         bottom_left = (NUM_ROWS - 1, 0)
@@ -83,4 +98,24 @@ class TestLokiScriptModel:
         assert len(self.model.table_data) == NUM_ROWS + len(CLIPBOARD_DATA) - 1
 
     def test_clipboard_data_gets_pasted_in_table_with_hidden_columns(self):
-        pass
+        hidden_columns = [1]
+        top_left = (0, 0)
+
+        self.model.update_data_from_clipboard(
+            copy.deepcopy(CLIPBOARD_DATA),
+            top_left,
+            hidden_columns=hidden_columns)
+
+        # Convert to numpy arrays for easy slicing
+        table_data_np = np.array(self.model.table_data, dtype=np.str_)
+        clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
+
+        clip_shape = clipboard_data_np.shape
+        table_shape = table_data_np.shape
+
+        row_slice = np.s_[top_left[0]:top_left[0]+clip_shape[0]]
+
+        np.testing.assert_array_equal(
+            table_data_np[row_slice, hidden_columns],
+            np.array(DATA, dtype=np.str_)[row_slice, hidden_columns]
+        )
