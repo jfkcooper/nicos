@@ -22,8 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos_ess.loki.gui.loki_scriptbuilder import \
-    extract_table_from_clipboard_text
+from nicos_ess.utilities.table_utils import extract_table_from_clipboard_text
 
 
 def test_one_empty_cell():

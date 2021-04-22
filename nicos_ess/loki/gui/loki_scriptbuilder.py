@@ -27,7 +27,6 @@
 """LoKI Script Builder Panel."""
 
 import os.path as osp
-import re
 from collections import OrderedDict
 from functools import partial
 
@@ -41,25 +40,9 @@ from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
 from nicos_ess.utilities.csv_utils import load_table_from_csv, \
     save_table_to_csv
+from nicos_ess.utilities.table_utils import extract_table_from_clipboard_text
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
-
-
-def extract_table_from_clipboard_text(text):
-    """
-    Extracts 2-D tabular data from clipboard text.
-
-    When sent to the clipboard, tabular data from Excel, etc. is represented as
-    a text string with tabs for columns and newlines for rows.
-
-    :param text: The clipboard text
-    :return: tabular data
-    """
-    # Uses re.split because "A\n" represents two vertical cells one
-    # containing "A" and one being empty.
-    # str.splitlines will lose the empty cell but re.split won't
-    return [[x for x in row.split('\t')]
-            for row in re.split('\r?\n', text)]
 
 
 class LokiScriptBuilderPanel(LokiPanelBase):
