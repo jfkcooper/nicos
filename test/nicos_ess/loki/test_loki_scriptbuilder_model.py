@@ -1,122 +1,139 @@
-import copy
-import numpy as np
 import pytest
 
 from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 
 
-NUM_ROWS = 20
+HEADERS = ["COLUMN_1", "COLUMN_2", "COLUMN_3"]
 
-HEADERS = ["COLUMN_1", "COLUMN_2", "COLUMN_3",
-           "COLUMN_4", "COLUMN_5", "COLUMN_6"]
+DATA = [["00", "01", "02"],
+        ["10", "11", "12"],
+        ["20", "21", "22"],
+        ["30", "31", "32"]]
 
-DATA = [["00", "01", "02", "03", "04", "05"],
-        ["10", "11", "12", "13", "14", "15"],
-        ["20", "21", "22", "23", "24", "25"],
-        ["30", "31", "32", "33", "34", "35"],
-        ["40", "41", "42", "43", "44", "45"]]
-
-CLIPBOARD_DATA = [["A", "B", "C",],
-                  ["D", "E", "F",],
-                  ["G", "H", "I",]]
+NUM_ROWS = len(DATA)
 
 
-def convert_to_ndarray(data):
-    data_np = np.array(data, dtype=np.str_)
-    return data_np, data_np.shape
+def create_loki_script_model(data=None):
+    model = LokiScriptModel(HEADERS, NUM_ROWS)
+    if data is not None:
+        model.table_data = data
+    return model
 
 
-class TestLokiScriptModel:
+def test_initialization_done_correctly():
+    model = create_loki_script_model()
+    assert model.num_rows == NUM_ROWS
+    # check if initialized with empty data
+    assert not any(data for data in sum(model.table_data, []))
 
-    @pytest.fixture(autouse=True)
-    def prepare(self):
-        self.model = LokiScriptModel(HEADERS, NUM_ROWS)
-        self.model.table_data = DATA
 
-    def test_initialization_done_correctly(self):
-        # check shape of the table_data
-        assert len(self.model.table_data) == NUM_ROWS
-        assert all(
-            [len(data) == len(HEADERS) for data in self.model.table_data])
+def test_row_inserted_at_position():
+    model = create_loki_script_model(DATA)
 
-    def test_row_inserted_at_position(self):
-        position = 2
-        self.model.insertRow(position)
-        assert len(self.model.table_data) == NUM_ROWS + 1
+    position = 2
+    model.insertRow(position)
 
-        assert self.model.table_data[position-1] == DATA[position-1]
-        assert self.model.table_data[position] == [""] * len(HEADERS)
-        assert self.model.table_data[position+1] == DATA[position]
+    assert len(model.table_data) == NUM_ROWS + 1
+    assert model.table_data[position-1] == DATA[position-1]
+    assert model.table_data[position] == [""] * len(HEADERS)
+    assert model.table_data[position+1] == DATA[position]
 
-    def test_row_removed_at_position(self):
-        position = 2
-        self.model.removeRows([position])
-        assert len(self.model.table_data) == NUM_ROWS - 1
-        assert self.model.table_data[position] == DATA[position+1]
 
-        # Remove multiple rows at once
-        positions = [4, 5, 6]
-        self.model.removeRows(positions)
-        assert len(self.model.table_data) == NUM_ROWS - 1 - len(positions)
+def test_row_removed_at_position():
+    model = create_loki_script_model(DATA)
 
-    def test_data_selected_for_selected_indices(self):
-        selected_indices = [(0, 0), (0, 1), (0, 2),
-                            (1, 0), (1, 1), (1, 2)]
-        selected_data = self.model.select_data(selected_indices)
-        assert selected_data == ["\t".join(DATA[0][:3]),
-                                 "\t".join(DATA[1][:3])]
+    positions = [0, 1]
+    model.removeRows(positions)
 
-    def test_extra_rows_created_when_clipboard_data_pasted_at_bottom_row(self):
-        bottom_left = (NUM_ROWS - 1, 0)
-        self.model.update_data_from_clipboard(
-            copy.deepcopy(CLIPBOARD_DATA), bottom_left)
+    assert len(model.table_data) == NUM_ROWS - len(positions)
+    assert model.table_data == DATA[2:]
 
-        assert len(self.model.table_data) == NUM_ROWS + len(CLIPBOARD_DATA) - 1
 
-    def test_clipboard_data_gets_pasted_correctly_at_top_left(self):
-        top_left = (0, 0)
-        self.model.update_data_from_clipboard(CLIPBOARD_DATA, top_left)
+def test_data_selected_for_selected_indices():
+    model = create_loki_script_model(DATA)
 
-        table_data_np, table_shape = convert_to_ndarray(self.model.table_data)
-        clipboard_data_np, clip_shape = convert_to_ndarray(CLIPBOARD_DATA)
+    selected_indices = [(0, 0), (0, 1),
+                        (1, 0), (1, 1)]
+    selected_data = model.select_data(selected_indices)
 
-        row_slice = np.s_[top_left[0]:top_left[0]+clip_shape[0]]
-        col_slice = np.s_[top_left[1]:top_left[1]+clip_shape[1]]
-        np.testing.assert_array_equal(
-            table_data_np[row_slice, col_slice],
-            clipboard_data_np
-            )
+    assert selected_data == ["\t".join(DATA[0][:2]),
+                                "\t".join(DATA[1][:2])]
 
-    def test_clipboard_data_gets_pasted_correctly_at_top_right(self):
-        top_right = (0, len(HEADERS)-1)
-        self.model.update_data_from_clipboard(CLIPBOARD_DATA, top_right)
 
-        # Convert to numpy arrays for easy slicing
-        table_data_np, table_shape = convert_to_ndarray(self.model.table_data)
-        clipboard_data_np, clip_shape = convert_to_ndarray(CLIPBOARD_DATA)
+def test_clipboard_data_gets_pasted_in_empty_table_at_top_left():
+    model = create_loki_script_model()
+    clipboard_data = [["A", "B"],
+                      ["C", "D"]]
 
-        row_slice = np.s_[top_right[0]:top_right[0]+clip_shape[0]]
-        # Only first column of clip data should be pasted
-        np.testing.assert_array_equal(
-            table_data_np[row_slice, top_right[1]],
-            clipboard_data_np[:,0]
-            )
+    top_left = (0, 0)
+    model.update_data_from_clipboard(clipboard_data, top_left)
 
-    def test_clipboard_data_gets_pasted_in_table_with_hidden_columns(self):
-        hidden_columns = [1]
-        top_left = (0, 0)
+    assert model.table_data == [["A", "B", ""],
+                                ["C", "D", ""],
+                                ["", "", ""],
+                                ["", "", ""]]
 
-        self.model.update_data_from_clipboard(
-            CLIPBOARD_DATA,
-            top_left,
-            hidden_columns=hidden_columns)
 
-        table_data_np, table_shape = convert_to_ndarray(self.model.table_data)
-        clipboard_data_np, clip_shape = convert_to_ndarray(CLIPBOARD_DATA)
+def test_clipboard_data_gets_pasted_in_empty_table_at_top_right():
+    model = create_loki_script_model()
+    clipboard_data = [["A", "B"],
+                      ["C", "D"]]
 
-        row_slice = np.s_[top_left[0]:top_left[0]+clip_shape[0]]
+    top_right = (0, len(HEADERS)-1)
+    model.update_data_from_clipboard(clipboard_data, top_right)
 
-        np.testing.assert_array_equal(
-            table_data_np[row_slice, hidden_columns],
-            np.array(DATA, dtype=np.str_)[row_slice, hidden_columns]
-        )
+    assert model.table_data == [["", "", "A"],
+                                ["", "", "C"],
+                                ["", "", ""],
+                                ["", "", ""]]
+
+
+def test_clipboard_data_gets_pasted_in_empty_table_at_bottom_left():
+    model = create_loki_script_model()
+
+    clipboard_data = [["A", "B"],
+                      ["C", "D"]]
+    bottom_left = (NUM_ROWS - 1, 0)
+    model.update_data_from_clipboard(clipboard_data, bottom_left)
+
+    # Test if a new row was created
+    assert len(model.table_data) == NUM_ROWS + len(clipboard_data) - 1
+    assert model.table_data == [["", "", ""],
+                                ["", "", ""],
+                                ["", "", ""],
+                                ["A", "B", ""],
+                                ["C", "D", ""]]
+
+
+def test_clipboard_data_gets_pasted_at_index_in_table_with_data():
+    # Create table with DATA
+    model = create_loki_script_model(DATA)
+    clipboard_data = [["A", "B"],
+                      ["C", "D"]]
+    index = (1, 0)
+
+    model.update_data_from_clipboard(clipboard_data, index)
+
+    assert model.table_data == [["00", "01", "02"],
+                                ["A", "B", "12"],
+                                ["C", "D", "22"],
+                                ["30", "31", "32"]]
+
+
+def test_clipboard_data_gets_pasted_in_table_with_one_hidden_column():
+    model = create_loki_script_model()
+    hidden_column = 1
+    top_left = (0, 0)
+    clipboard_data = [["A", "B"],
+                      ["C", "D"]]
+
+    model.update_data_from_clipboard(
+        clipboard_data,
+        top_left,
+        hidden_columns=[hidden_column])
+
+    assert model.table_data == [["A", "", "B"],
+                                ["C", "", "D"],
+                                ["", "", ""],
+                                ["", "", ""]]
+
