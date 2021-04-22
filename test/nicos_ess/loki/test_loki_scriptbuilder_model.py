@@ -43,14 +43,32 @@ class TestLokiScriptModel:
         assert self.model.table_data[position] == [""] * len(HEADERS)
         assert self.model.table_data[position+1] == DATA[position]
 
+    def test_row_removed_at_position(self):
+        position = 2
+        self.model.removeRows([position])
+        assert len(self.model.table_data) == NUM_ROWS - 1
+        assert self.model.table_data[position] == DATA[position+1]
+
+        # Remove multiple rows at once
+        positions = [4, 5, 6]
+        self.model.removeRows(positions)
+        assert len(self.model.table_data) == NUM_ROWS - 1 - len(positions)
+
     def test_data_selected_for_selected_indices(self):
-        # TODO: Improve this test
         selected_indices = [(0, 0), (0, 1), (0, 2),
                             (1, 0), (1, 1), (1, 2)]
         selected_data = self.model.select_data(selected_indices)
         assert selected_data == ["\t".join(DATA[0][:3]),
                                  "\t".join(DATA[1][:3])]
 
+    def test_extra_rows_created_when_clipboard_data_pasted_at_bottom_row(self):
+        bottom_left = (NUM_ROWS - 1, 0)
+        self.model.update_data_from_clipboard(
+            copy.deepcopy(CLIPBOARD_DATA), bottom_left)
+
+        assert len(self.model.table_data) == NUM_ROWS + len(CLIPBOARD_DATA) - 1
+
+    # TODO: Improve everything from here (Pairing)
     def test_clipboard_data_gets_pasted_correctly_at_top_right(self):
         top_right = (0, len(HEADERS)-1)
         self.model.update_data_from_clipboard(
@@ -84,18 +102,10 @@ class TestLokiScriptModel:
 
         row_slice = np.s_[top_left[0]:top_left[0]+clip_shape[0]]
         col_slice = np.s_[top_left[1]:top_left[1]+clip_shape[1]]
-        #TODO: Test is very brittle
         np.testing.assert_array_equal(
             table_data_np[row_slice, col_slice],
             clipboard_data_np
             )
-
-    def test_extra_rows_created_when_clipboard_data_pasted_at_bottom_row(self):
-        bottom_left = (NUM_ROWS - 1, 0)
-        self.model.update_data_from_clipboard(
-            copy.deepcopy(CLIPBOARD_DATA), bottom_left)
-
-        assert len(self.model.table_data) == NUM_ROWS + len(CLIPBOARD_DATA) - 1
 
     def test_clipboard_data_gets_pasted_in_table_with_hidden_columns(self):
         hidden_columns = [1]
