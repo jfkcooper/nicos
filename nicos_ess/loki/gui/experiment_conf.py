@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 """LoKI Experiment Configuration dialog."""
-from nicos.guisupport.qt import QMessageBox
+from nicos.guisupport.qt import QMessageBox, Qt
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
@@ -46,6 +46,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.instrument = options.get('instrument', 'loki')
         self.initialise_connection_status_listeners()
         self.initialise_environments()
+        self.initialise_markups()
 
         self.envComboBox.addItems(self.get_environment_names())
         # Start with a "no item", ie, empty selection.
@@ -110,6 +111,15 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 'has_pressure_control': 'Yes'
             }
         )
+
+    def initialise_markups(self):
+        setting_boxes = [
+            self.apXBox, self.apYBox, self.apWBox, self.apHBox,
+            self.offsetBox, self.refPosXBox, self.refPosYBox
+        ]
+        for box in setting_boxes:
+            box.setAlignment(Qt.AlignRight)
+            box.setPlaceholderText('0.0')
 
     def setViewOnly(self, viewonly):
         self.sampleSetGroupBox.setEnabled(not viewonly)
