@@ -360,9 +360,6 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         clipboard_text = QApplication.instance().clipboard().text()
         copied_table = extract_table_from_clipboard_text(clipboard_text)
 
-        if not any(data for data in sum(copied_table, [])): # flatten 2D list
-            # Don't do anything if only empty cells are copied
-            return
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # Only one value, so put it in all selected cells
             self._do_bulk_update(copied_table[0][0])
