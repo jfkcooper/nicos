@@ -23,33 +23,21 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-import csv
+import re
 
 
-def save_table_to_csv(data, filename, headers=None):
-    """Save 2D data list to a text file.
-
-    :param data: 2D data list
-    :param filename: file to save as
-    :param headers: List of column names.
+def extract_table_from_clipboard_text(text):
     """
-    with open(filename, "w") as file:
-        writer = csv.writer(file)
-        if headers:
-            writer.writerow(headers)
-        writer.writerows(data)
+    Extracts 2-D tabular data from clipboard text.
 
+    When sent to the clipboard, tabular data from Excel, etc. is represented as
+    a text string with tabs for columns and newlines for rows.
 
-def load_table_from_csv(filename):
-    """Load data for from a csv file.
-
-    Note: May contain headers
-
-    :param filename: path to csv file
-    :return: 2D data list
+    :param text: The clipboard text
+    :return: tabular data
     """
-    with open(filename, "r") as file:
-        reader = csv.reader(file)
-        data = [row for row in reader]
-
-    return data
+    # Uses re.split because "A\n" represents two vertical cells one
+    # containing "A" and one being empty.
+    # str.splitlines will lose the empty cell but re.split won't
+    return [[x for x in row.split('\t')]
+            for row in re.split('\r?\n', text)]

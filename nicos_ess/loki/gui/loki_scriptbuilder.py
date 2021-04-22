@@ -40,6 +40,7 @@ from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
 from nicos_ess.utilities.csv_utils import load_table_from_csv, \
     save_table_to_csv
+from nicos_ess.utilities.table_utils import extract_table_from_clipboard_text
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -310,9 +311,6 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self.model.update_data_at_index(index.row(), index.column(), '')
 
     def _handle_copy_cells(self):
-        indices = [(index.row(), index.column())
-                   for index in self.tableView.selectedIndexes()]
-
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
 
@@ -336,19 +334,15 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             return
         top_left = indices[0]
 
-        clipboard_text = QApplication.instance().clipboard().text()
         data_type = QApplication.instance().clipboard().mimeData()
 
         if not data_type.hasText():
             # Don't paste images etc.
             return
 
-        copied_table = [[x for x in row.split('\t')]
-                        for row in clipboard_text.splitlines()]
+        clipboard_text = QApplication.instance().clipboard().text()
+        copied_table = extract_table_from_clipboard_text(clipboard_text)
 
-        if not any(data for data in sum(copied_table, [])): # flatten 2D list
-            # Don't do anything if only empty cells are copied
-            return
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # Only one value, so put it in all selected cells
             self._do_bulk_update(copied_table[0][0])
@@ -357,6 +351,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
                           if self.tableView.isColumnHidden(idx)]
         self.model.update_data_from_clipboard(
             copied_table, top_left, hidden_columns)
+
+
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
