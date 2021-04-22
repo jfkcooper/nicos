@@ -82,35 +82,35 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
     def initialise_environments(self):
         self.add_environment('SampleChanger',
-            {
-                'name': 'Tumbler Sample Changer',
-                'number_of_cells': '4',
-                'cell_type': 'Titanium',
-                'can_rotate_samples': 'Yes',
-                'has_temperature_control': 'No',
-                'has_pressure_control': 'No'
-            }
-        )
+                             {
+                                'name': 'Tumbler Sample Changer',
+                                'number_of_cells': '4',
+                                'cell_type': 'Titanium',
+                                'can_rotate_samples': 'Yes',
+                                'has_temperature_control': 'No',
+                                'has_pressure_control': 'No'
+                             }
+                             )
         self.add_environment('SampleChanger',
-            {
-                'name': 'Peltier Sample Changer',
-                'number_of_cells': '12',
-                'cell_type': 'Copper',
-                'can_rotate_samples': 'No',
-                'has_temperature_control': 'Yes',
-                'has_pressure_control': 'No'
-            }
-        )
+                             {
+                                'name': 'Peltier Sample Changer',
+                                'number_of_cells': '12',
+                                'cell_type': 'Copper',
+                                'can_rotate_samples': 'No',
+                                'has_temperature_control': 'Yes',
+                                'has_pressure_control': 'No'
+                             }
+                             )
         self.add_environment('SampleChanger',
-            {
-                'name': 'Dome Cell Sample Changer',
-                'number_of_cells': '4',
-                'cell_type': 'Aluminium/Titanium',
-                'can_rotate_samples': 'No',
-                'has_temperature_control': 'Yes',
-                'has_pressure_control': 'Yes'
-            }
-        )
+                             {
+                                'name': 'Dome Cell Sample Changer',
+                                'number_of_cells': '4',
+                                'cell_type': 'Aluminium/Titanium',
+                                'can_rotate_samples': 'No',
+                                'has_temperature_control': 'Yes',
+                                'has_pressure_control': 'Yes'
+                             }
+                             )
 
     def initialise_markups(self):
         setting_boxes = [
