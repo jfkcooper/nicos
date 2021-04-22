@@ -48,6 +48,16 @@ class SampleEnvironmentBase:
         self._validate(fields)
         self.environment_list.append(self.Environment(**fields))
 
+    def get_environment(self, env_name):
+        if not env_name:
+            raise ValueError('The name of the environment should be provided.')
+        for environment in self.environment_list:
+            if env_name == environment.name:
+                return tuple(environment, environment._asdict)
+            else:
+                raise ValueError(f'Requested environment, {env_name} does '
+                                 f'not exist.')
+
     def get_environments(self):
         return self.environment_list
 
