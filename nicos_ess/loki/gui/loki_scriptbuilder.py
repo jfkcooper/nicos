@@ -363,7 +363,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         # containing "A" and one being empty.
         # str.splitlines will lose the empty cell but re.split won't
         copied_table = [[x for x in row.split('\t')]
-                        for row in re.split('\n', clipboard_text)]
+                        for row in re.split('\r?\n', clipboard_text)]
         return copied_table
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
