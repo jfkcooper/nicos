@@ -81,7 +81,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.invalid_instrument_settings = []
 
     def initialise_environments(self):
-        self.add_environment(
+        self.add_environment('SampleChanger',
             {
                 'name': 'Tumbler Sample Changer',
                 'number_of_cells': '4',
@@ -91,7 +91,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 'has_pressure_control': 'No'
             }
         )
-        self.add_environment(
+        self.add_environment('SampleChanger',
             {
                 'name': 'Peltier Sample Changer',
                 'number_of_cells': '12',
@@ -101,7 +101,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
                 'has_pressure_control': 'No'
             }
         )
-        self.add_environment(
+        self.add_environment('SampleChanger',
             {
                 'name': 'Dome Cell Sample Changer',
                 'number_of_cells': '4',

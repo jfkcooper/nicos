@@ -28,8 +28,8 @@ from collections import namedtuple
 
 
 class SampleEnvironmentBase:
-    """A general schema for environments that holds read-only properties."""
-    field_names = (
+    """General schemas for environments that holds read-only properties."""
+    sample_changer_properties = (
         'name',
         'number_of_cells',
         'cell_type',
@@ -40,13 +40,19 @@ class SampleEnvironmentBase:
 
     def __init__(self):
         self.environment_list = []
-        # We create a subclass for Sample Environments with field_names as its
-        # class attributes.
-        self.Environment = namedtuple('Environment', self.field_names)
+        # We create a subclasses for Sample Environments with corresponding
+        # (read-only) properties.
+        self.SampleChanger = namedtuple('SampleChanger',
+                                        self.sample_changer_properties)
 
-    def add_environment(self, fields):
+    def add_environment(self, environment_type, fields):
         self._validate(fields)
-        self.environment_list.append(self.Environment(**fields))
+        environment_switch = {
+            'SampleChanger': self.SampleChanger
+        }
+        self.environment_list.append(
+            environment_switch[environment_type](**fields)
+        )
 
     def get_environment(self, env_name):
         if not env_name:
