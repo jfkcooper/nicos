@@ -49,11 +49,11 @@ def extract_table_from_clipboard_text(text):
     """
     Extracts 2-D tabular data from clipboard text.
 
-    Data from the Qt table widget or Excel is formatted with newlines for rows
-    and tabs for columns.
+    When sent to the clipboard, tabular data from Excel, etc. is represented as
+    a text string with tabs for columns and newlines for rows.
 
     :param text: The clipboard text
-    :return: tabular data (2-D)
+    :return: tabular data
     """
     # Uses re.split because "A\n" represents two vertical cells one
     # containing "A" and one being empty.
