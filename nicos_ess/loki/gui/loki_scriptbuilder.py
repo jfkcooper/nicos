@@ -328,9 +328,6 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self.model.update_data_at_index(index.row(), index.column(), '')
 
     def _handle_copy_cells(self):
-        indices = [(index.row(), index.column())
-                   for index in self.tableView.selectedIndexes()]
-
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
 
