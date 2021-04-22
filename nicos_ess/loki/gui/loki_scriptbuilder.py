@@ -345,6 +345,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         copied_table = [[x for x in row.split('\t')]
                         for row in clipboard_text.splitlines()]
+
+        if not any(data for data in sum(copied_table, [])): # flatten 2D list
+            # Don't do anything if only empty cells are copied
+            return
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # Only one value, so put it in all selected cells
             self._do_bulk_update(copied_table[0][0])
@@ -402,7 +406,9 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         template = ScriptGenerator.from_trans_order(_trans_order).\
             generate_script(labeled_data,
                             self.comboTransDurationType.currentText(),
-                            self.comboSansDurationType.currentText())
+                            self.comboSansDurationType.currentText(),
+                            self.sbTransTimes.value(),
+                            self.sbSansTimes.value())
 
         self.mainwindow.codeGenerated.emit(template)
 
