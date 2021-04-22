@@ -27,6 +27,7 @@
 """LoKI Script Builder Panel."""
 
 import os.path as osp
+import re
 from collections import OrderedDict
 from functools import partial
 
@@ -343,8 +344,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             # Don't paste images etc.
             return
 
-        copied_table = [[x for x in row.split('\t')]
-                        for row in clipboard_text.splitlines()]
+        copied_table = self._extract_table_from_text(clipboard_text)
 
         if not any(data for data in sum(copied_table, [])): # flatten 2D list
             # Don't do anything if only empty cells are copied
@@ -357,6 +357,14 @@ class LokiScriptBuilderPanel(LokiPanelBase):
                           if self.tableView.isColumnHidden(idx)]
         self.model.update_data_from_clipboard(
             copied_table, top_left, hidden_columns)
+
+    def _extract_table_from_text(self, clipboard_text):
+        # Uses re.split because "A\n" represents two vertical cells one
+        # containing "A" and one being empty.
+        # str.splitlines will lose the empty cell but re.split won't
+        copied_table = [[x for x in row.split('\t')]
+                        for row in re.split('\n', clipboard_text)]
+        return copied_table
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
