@@ -5,16 +5,9 @@ from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 
 HEADERS = ["COLUMN_1", "COLUMN_2", "COLUMN_3"]
 
-DATA = [["00", "01", "02"],
-        ["10", "11", "12"],
-        ["20", "21", "22"],
-        ["30", "31", "32"]]
 
-NUM_ROWS = len(DATA)
-
-
-def create_loki_script_model(data=None):
-    model = LokiScriptModel(HEADERS, NUM_ROWS)
+def create_loki_script_model(num_rows=4, data=None):
+    model = LokiScriptModel(HEADERS, num_rows)
     if data is not None:
         model.table_data = data
     return model
@@ -22,42 +15,55 @@ def create_loki_script_model(data=None):
 
 def test_initialization_done_correctly():
     model = create_loki_script_model()
-    assert model.num_rows == NUM_ROWS
     # check if initialized with empty data
     assert not any(data for data in sum(model.table_data, []))
 
 
 def test_row_inserted_at_position():
-    model = create_loki_script_model(DATA)
+    data = [["00", "01", "02"],
+            ["10", "11", "12"],
+            ["20", "21", "22"],
+            ["30", "31", "32"]]
+    # Create table with DATA
+    model = create_loki_script_model(len(data), data)
 
     position = 2
     model.insertRow(position)
 
-    assert len(model.table_data) == NUM_ROWS + 1
-    assert model.table_data[position-1] == DATA[position-1]
+    assert len(model.table_data) == len(data) + 1
+    assert model.table_data[position-1] == data[position-1]
     assert model.table_data[position] == [""] * len(HEADERS)
-    assert model.table_data[position+1] == DATA[position]
+    assert model.table_data[position+1] == data[position]
 
 
 def test_row_removed_at_position():
-    model = create_loki_script_model(DATA)
+    data = [["00", "01", "02"],
+            ["10", "11", "12"],
+            ["20", "21", "22"],
+            ["30", "31", "32"]]
+    # Create table with DATA
+    model = create_loki_script_model(len(data), data)
 
     positions = [0, 1]
     model.removeRows(positions)
 
-    assert len(model.table_data) == NUM_ROWS - len(positions)
-    assert model.table_data == DATA[2:]
+    assert len(model.table_data) == len(data) - len(positions)
+    assert model.table_data == data[2:]
 
 
 def test_data_selected_for_selected_indices():
-    model = create_loki_script_model(DATA)
+    data = [["00", "01", "02"],
+            ["10", "11", "12"],
+            ["20", "21", "22"],
+            ["30", "31", "32"]]
+    model = create_loki_script_model(len(data), data)
 
     selected_indices = [(0, 0), (0, 1),
                         (1, 0), (1, 1)]
     selected_data = model.select_data(selected_indices)
 
-    assert selected_data == ["\t".join(DATA[0][:2]),
-                                "\t".join(DATA[1][:2])]
+    assert selected_data == ["\t".join(data[0][:2]),
+                                "\t".join(data[1][:2])]
 
 
 def test_clipboard_data_gets_pasted_in_empty_table_at_top_left():
@@ -89,15 +95,16 @@ def test_clipboard_data_gets_pasted_in_empty_table_at_top_right():
 
 
 def test_clipboard_data_gets_pasted_in_empty_table_at_bottom_left():
-    model = create_loki_script_model()
+    num_rows = 4
+    model = create_loki_script_model(num_rows)
 
     clipboard_data = [["A", "B"],
                       ["C", "D"]]
-    bottom_left = (NUM_ROWS - 1, 0)
+    bottom_left = (num_rows - 1, 0)
     model.update_data_from_clipboard(clipboard_data, bottom_left)
 
     # Test if a new row was created
-    assert len(model.table_data) == NUM_ROWS + len(clipboard_data) - 1
+    assert len(model.table_data) == num_rows + len(clipboard_data) - 1
     assert model.table_data == [["", "", ""],
                                 ["", "", ""],
                                 ["", "", ""],
@@ -107,7 +114,11 @@ def test_clipboard_data_gets_pasted_in_empty_table_at_bottom_left():
 
 def test_clipboard_data_gets_pasted_at_index_in_table_with_data():
     # Create table with DATA
-    model = create_loki_script_model(DATA)
+    data = [["00", "01", "02"],
+            ["10", "11", "12"],
+            ["20", "21", "22"],
+            ["30", "31", "32"]]
+    model = create_loki_script_model(len(data), data)
     clipboard_data = [["A", "B"],
                       ["C", "D"]]
     index = (1, 0)
