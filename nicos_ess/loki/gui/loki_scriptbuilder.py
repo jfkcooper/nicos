@@ -45,6 +45,23 @@ from nicos_ess.utilities.csv_utils import load_table_from_csv, \
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
+def extract_table_from_clipboard_text(text):
+    """
+    Extracts 2-D tabular data from clipboard text.
+
+    Data from the Qt table widget or Excel is formatted with newlines for rows
+    and tabs for columns.
+
+    :param text: The clipboard text
+    :return: tabular data (2-D)
+    """
+    # Uses re.split because "A\n" represents two vertical cells one
+    # containing "A" and one being empty.
+    # str.splitlines will lose the empty cell but re.split won't
+    return [[x for x in row.split('\t')]
+            for row in re.split('\r?\n', text)]
+
+
 class LokiScriptBuilderPanel(LokiPanelBase):
     _available_trans_options = OrderedDict({
         'All TRANS First': TransOrder.TRANSFIRST,
@@ -337,14 +354,14 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             return
         top_left = indices[0]
 
-        clipboard_text = QApplication.instance().clipboard().text()
         data_type = QApplication.instance().clipboard().mimeData()
 
         if not data_type.hasText():
             # Don't paste images etc.
             return
 
-        copied_table = self._extract_table_from_text(clipboard_text)
+        clipboard_text = QApplication.instance().clipboard().text()
+        copied_table = extract_table_from_clipboard_text(clipboard_text)
 
         if not any(data for data in sum(copied_table, [])): # flatten 2D list
             # Don't do anything if only empty cells are copied
@@ -358,13 +375,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.model.update_data_from_clipboard(
             copied_table, top_left, hidden_columns)
 
-    def _extract_table_from_text(self, clipboard_text):
-        # Uses re.split because "A\n" represents two vertical cells one
-        # containing "A" and one being empty.
-        # str.splitlines will lose the empty cell but re.split won't
-        copied_table = [[x for x in row.split('\t')]
-                        for row in re.split('\r?\n', clipboard_text)]
-        return copied_table
+
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
