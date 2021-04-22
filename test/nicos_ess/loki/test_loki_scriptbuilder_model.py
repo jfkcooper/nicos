@@ -16,9 +16,14 @@ DATA = [["00", "01", "02", "03", "04", "05"],
         ["30", "31", "32", "33", "34", "35"],
         ["40", "41", "42", "43", "44", "45"]]
 
-CLIPBOARD_DATA = [["a", "b", "c",],
-                  ["e", "f", "g",],
-                  ["i", "j", "k",]]
+CLIPBOARD_DATA = [["A", "B", "C",],
+                  ["D", "E", "F",],
+                  ["G", "H", "I",]]
+
+
+def convert_to_ndarray(data):
+    data_np = np.array(data, dtype=np.str_)
+    return data_np, data_np.shape
 
 
 class TestLokiScriptModel:
@@ -26,7 +31,7 @@ class TestLokiScriptModel:
     @pytest.fixture(autouse=True)
     def prepare(self):
         self.model = LokiScriptModel(HEADERS, NUM_ROWS)
-        self.model.table_data = copy.deepcopy(DATA)
+        self.model.table_data = DATA
 
     def test_initialization_done_correctly(self):
         # check shape of the table_data
@@ -68,37 +73,12 @@ class TestLokiScriptModel:
 
         assert len(self.model.table_data) == NUM_ROWS + len(CLIPBOARD_DATA) - 1
 
-    # TODO: Improve everything from here (Pairing)
-    def test_clipboard_data_gets_pasted_correctly_at_top_right(self):
-        top_right = (0, len(HEADERS)-1)
-        self.model.update_data_from_clipboard(
-            copy.deepcopy(CLIPBOARD_DATA), top_right)
-
-        table_data_np = np.array(self.model.table_data, dtype=np.str_)
-        clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
-
-        clip_shape = clipboard_data_np.shape
-        table_shape = table_data_np.shape
-
-        row_slice = np.s_[top_right[0]:top_right[0]+clip_shape[0]]
-        # Only one column of clip data should be pasted
-        np.testing.assert_array_equal(
-            table_data_np[row_slice, top_right[1]],
-            clipboard_data_np[:,0]
-            )
-        return table_shape
-
     def test_clipboard_data_gets_pasted_correctly_at_top_left(self):
         top_left = (0, 0)
-        self.model.update_data_from_clipboard(
-            copy.deepcopy(CLIPBOARD_DATA), top_left)
+        self.model.update_data_from_clipboard(CLIPBOARD_DATA, top_left)
 
-        # Convert to numpy arrays for easy slicing
-        table_data_np = np.array(self.model.table_data, dtype=np.str_)
-        clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
-
-        clip_shape = clipboard_data_np.shape
-        table_shape = table_data_np.shape
+        table_data_np, table_shape = convert_to_ndarray(self.model.table_data)
+        clipboard_data_np, clip_shape = convert_to_ndarray(CLIPBOARD_DATA)
 
         row_slice = np.s_[top_left[0]:top_left[0]+clip_shape[0]]
         col_slice = np.s_[top_left[1]:top_left[1]+clip_shape[1]]
@@ -107,21 +87,32 @@ class TestLokiScriptModel:
             clipboard_data_np
             )
 
+    def test_clipboard_data_gets_pasted_correctly_at_top_right(self):
+        top_right = (0, len(HEADERS)-1)
+        self.model.update_data_from_clipboard(CLIPBOARD_DATA, top_right)
+
+        # Convert to numpy arrays for easy slicing
+        table_data_np, table_shape = convert_to_ndarray(self.model.table_data)
+        clipboard_data_np, clip_shape = convert_to_ndarray(CLIPBOARD_DATA)
+
+        row_slice = np.s_[top_right[0]:top_right[0]+clip_shape[0]]
+        # Only first column of clip data should be pasted
+        np.testing.assert_array_equal(
+            table_data_np[row_slice, top_right[1]],
+            clipboard_data_np[:,0]
+            )
+
     def test_clipboard_data_gets_pasted_in_table_with_hidden_columns(self):
         hidden_columns = [1]
         top_left = (0, 0)
 
         self.model.update_data_from_clipboard(
-            copy.deepcopy(CLIPBOARD_DATA),
+            CLIPBOARD_DATA,
             top_left,
             hidden_columns=hidden_columns)
 
-        # Convert to numpy arrays for easy slicing
-        table_data_np = np.array(self.model.table_data, dtype=np.str_)
-        clipboard_data_np = np.array(CLIPBOARD_DATA, dtype=np.str_)
-
-        clip_shape = clipboard_data_np.shape
-        table_shape = table_data_np.shape
+        table_data_np, table_shape = convert_to_ndarray(self.model.table_data)
+        clipboard_data_np, clip_shape = convert_to_ndarray(CLIPBOARD_DATA)
 
         row_slice = np.s_[top_left[0]:top_left[0]+clip_shape[0]]
 
