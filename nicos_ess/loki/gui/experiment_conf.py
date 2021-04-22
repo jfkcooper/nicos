@@ -75,6 +75,7 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.sampleSetApply.setEnabled(False)
         self.instSetApply.setEnabled(False)
 
+        # Required for the dynamic validation
         self.invalid_sample_settings = []
         self.invalid_instrument_settings = []
 
@@ -189,10 +190,21 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
             'instrument': (self.instSetApply.setEnabled,
                            self.invalid_instrument_settings)
         }
+        map_value_type_to_setting = {
+            'apt_pos_x': self.apXBox,
+            'apt_pos_y': self.apYBox,
+            'apt_width': self.apWBox,
+            'apt_height': self.apHBox,
+            'det_offset': self.offsetBox,
+            'ref_pos_x': self.refPosXBox,
+            'ref_pos_y': self.refPosYBox
+        }
         try:
             float(value)
             if value_type in map_settings[settings_type][1]:
                 map_settings[settings_type][1].remove(value_type)
+                map_value_type_to_setting[value_type]. \
+                    setClearButtonEnabled(False)
             # Enable apply button upon validation here to prevent repetition
             # of the code and/or misbehaviour due to multiple edits.
             if len(map_settings[settings_type][1]) == 0:
@@ -200,8 +212,10 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
             return
         except ValueError:
             if value_type not in map_settings[settings_type][1]:
-                QMessageBox.warning(self, 'Error', 'Please enter valid values '
-                                                   'for all input fields.')
+                QMessageBox.warning(self, 'Error',
+                                    'A value should be a number.')
                 map_settings[settings_type][1].append(value_type)
+                map_value_type_to_setting[value_type].\
+                    setClearButtonEnabled(True)
             map_settings[settings_type][0](False)
 
