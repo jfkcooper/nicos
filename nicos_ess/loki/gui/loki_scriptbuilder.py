@@ -34,6 +34,7 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAction, QApplication, QFileDialog,\
     QHeaderView, QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
+from nicos_ess.gui.panels import get_icon
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
@@ -122,18 +123,22 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         copy_action = QAction("Copy", self)
         copy_action.triggered.connect(self._handle_copy_cells)
+        copy_action.setIcon(get_icon("file_copy-24px.svg"))
         self.addAction(copy_action)
 
         cut_action = QAction("Cut", self)
         cut_action.triggered.connect(self._handle_cut_cells)
+        cut_action.setIcon(get_icon("cut_24px.svg"))
         self.addAction(cut_action)
 
         paste_action = QAction("Paste", self)
         paste_action.triggered.connect(self._handle_table_paste)
+        paste_action.setIcon(get_icon("paste_24px.svg"))
         self.addAction(paste_action)
 
         delete_action = QAction("Delete", self)
         delete_action.triggered.connect(self._delete_rows)
+        delete_action.setIcon(get_icon("remove-24px.svg"))
         self.addAction(delete_action)
 
     def _create_keyboard_shortcuts(self):
