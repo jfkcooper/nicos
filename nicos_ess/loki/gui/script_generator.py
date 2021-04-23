@@ -45,33 +45,54 @@ def _get_sample(name, thickness):
     return f"set_sample('{name}', {thickness})"
 
 
+def _get_temperature(temperature):
+    if not temperature:
+        return ""
+    return f"set_temperature({temperature})\n"
+
+
+def _get_command(command):
+    if not command:
+        return ""
+    return f"{command}\n"
+
+
 def _do_trans(row_values, trans_duration_type):
+
     template = (
         f"# Sample = {row_values['sample']}\n"
+        f"{_get_command(row_values.get('pre-command'))}"
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
         f"{_get_position(row_values['position'])}\n"
-        f"do_trans({row_values['trans_duration']}, "
-        f"'{trans_duration_type}')\n")
+        f"{_get_temperature(row_values.get('temperature'))}"
+        f"do_trans({row_values['trans_duration']}, '{trans_duration_type}')\n"
+        f"{_get_command(row_values.get('post-command'))}")
+
     return template
 
 
 def _do_sans(row_values, sans_duration_type):
     template = (
         f"# Sample = {row_values['sample']}\n"
+        f"{_get_command(row_values.get('pre-command'))}"
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
         f"{_get_position(row_values['position'])}\n"
-        f"do_sans({row_values['sans_duration']}, "
-        f"'{sans_duration_type}')\n")
+        f"{_get_temperature(row_values.get('temperature'))}"
+        f"do_sans({row_values['sans_duration']}, '{sans_duration_type}')\n"
+        f"{_get_command(row_values.get('post-command'))}")
     return template
 
 
 def _do_simultaneous(row_values, sans_duration_type):
     template = (
         f"# Sample = {row_values['sample']}\n"
+        f"{_get_command(row_values.get('pre-command'))}"
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
         f"{_get_position(row_values['position'])}\n"
+        f"{_get_temperature(row_values.get('temperature'))}"
         f"do_sans_simultaneous({row_values['sans_duration']}, "
-        f"'{sans_duration_type}')\n")
+        f"'{sans_duration_type}')\n"
+        f"{_get_command(row_values.get('post-command'))}")
     return template
 
 
