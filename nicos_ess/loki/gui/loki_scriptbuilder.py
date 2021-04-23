@@ -31,8 +31,8 @@ from collections import OrderedDict
 from functools import partial
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
+from nicos.guisupport.qt import QAction, QApplication, QFileDialog,\
+    QHeaderView, QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
@@ -83,6 +83,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.columns_in_order.extend(self.optional_columns.keys())
         self.last_save_location = None
         self._init_table_panel()
+        self._init_right_click_context_menu()
 
     def _init_table_panel(self):
         headers = [
@@ -115,6 +116,25 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.tableView.setStyleSheet(TABLE_QSS)
 
         self._create_keyboard_shortcuts()
+
+    def _init_right_click_context_menu(self):
+        self.setContextMenuPolicy(Qt.ActionsContextMenu)
+
+        copy_action = QAction("Copy", self)
+        copy_action.triggered.connect(self._handle_copy_cells)
+        self.addAction(copy_action)
+
+        cut_action = QAction("Cut", self)
+        cut_action.triggered.connect(self._handle_cut_cells)
+        self.addAction(cut_action)
+
+        paste_action = QAction("Paste", self)
+        paste_action.triggered.connect(self._handle_table_paste)
+        self.addAction(paste_action)
+
+        delete_action = QAction("Delete", self)
+        delete_action.triggered.connect(self._delete_rows)
+        self.addAction(delete_action)
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [
