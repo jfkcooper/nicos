@@ -38,12 +38,16 @@ def create_loki_script_model(num_rows=4, data=None):
 
 
 def test_initialization_done_correctly():
-    model = create_loki_script_model()
+    num_rows = 4
+    model = create_loki_script_model(num_rows)
     # check if initialized with empty data
     assert not any(data for data in sum(model.table_data, []))
+    # check dimensions of the table_data
+    assert len(model.table_data) == num_rows
+    assert all(len(data) == len(HEADERS) for data in model.table_data)
 
 
-def test_row_inserted_at_position():
+def test_inserting_empty_row():
     data = [
         ['00', '01', '02'],
         ['10', '11', '12'],
@@ -62,14 +66,14 @@ def test_row_inserted_at_position():
     assert model.table_data[position + 1] == data[position]
 
 
-def test_row_removed_at_position():
+def test_removing_rows():
     data = [
         ['00', '01', '02'],
         ['10', '11', '12'],
         ['20', '21', '22'],
         ['30', '31', '32'],
     ]
-    # Create table with DATA
+    # Create table with data
     model = create_loki_script_model(len(data), data)
 
     positions = [0, 1]
@@ -109,7 +113,7 @@ def test_clipboard_data_gets_pasted_in_empty_table_at_top_left():
     ]
 
 
-def test_clipboard_data_gets_pasted_in_empty_table_at_top_right():
+def test_clipboard_data_pasting_outside_the_columns_gets_ignored():
     model = create_loki_script_model()
     clipboard_data = [['A', 'B'], ['C', 'D']]
 
@@ -124,7 +128,7 @@ def test_clipboard_data_gets_pasted_in_empty_table_at_top_right():
     ]
 
 
-def test_clipboard_data_gets_pasted_in_empty_table_at_bottom_left():
+def test_clipboard_data_pasting_in_bottom_row_expands_the_table():
     num_rows = 4
     model = create_loki_script_model(num_rows)
 
@@ -144,13 +148,13 @@ def test_clipboard_data_gets_pasted_in_empty_table_at_bottom_left():
 
 
 def test_clipboard_data_gets_pasted_at_index_in_table_with_data():
-    # Create table with DATA
     data = [
         ['00', '01', '02'],
         ['10', '11', '12'],
         ['20', '21', '22'],
         ['30', '31', '32'],
     ]
+    # Create table with data
     model = create_loki_script_model(len(data), data)
     clipboard_data = [['A', 'B'], ['C', 'D']]
     index = (1, 0)
@@ -165,7 +169,7 @@ def test_clipboard_data_gets_pasted_at_index_in_table_with_data():
     ]
 
 
-def test_clipboard_data_gets_pasted_in_table_with_one_hidden_column():
+def test_hidden_column_skipped_when_pasting_clipboard_data():
     model = create_loki_script_model()
     hidden_column = 1
     top_left = (0, 0)
