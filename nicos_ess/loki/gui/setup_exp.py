@@ -286,6 +286,7 @@ class ExpPanel(LokiPanelBase):
         self._defined_emails = self.notifEmails.toPlainText().strip()
         self.is_exp_props_edited = [False] * self.num_experiment_props_opts
         self.applyWarningLabel.setVisible(False)
+        self.client.signal('exp_proposal_activated')
 
     @pyqtSlot(str)
     def on_proposalNum_textChanged(self, value):
