@@ -31,11 +31,11 @@ from collections import OrderedDict
 from functools import partial
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAction, QApplication, QFileDialog,\
+from nicos.guisupport.qt import QAction, QApplication, QFileDialog, \
     QHeaderView, QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
-from nicos_ess.gui.panels import get_icon
 
+from nicos_ess.gui.panels import get_icon
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
