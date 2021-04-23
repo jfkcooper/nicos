@@ -32,7 +32,7 @@ from functools import partial
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
+    QKeySequence, QShortcut, Qt, QTableView, pyqtSlot, QAction
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
@@ -83,6 +83,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.columns_in_order.extend(self.optional_columns.keys())
         self.last_save_location = None
         self._init_table_panel()
+        self._init_context_menu()
 
     def _init_table_panel(self):
         headers = [
@@ -115,6 +116,17 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.tableView.setStyleSheet(TABLE_QSS)
 
         self._create_keyboard_shortcuts()
+
+    def _init_context_menu(self):
+        self.setContextMenuPolicy(Qt.ActionsContextMenu)
+        copy_action = QAction("Copy", self)
+        self.addAction(copy_action)
+        cut_action = QAction("Cut", self)
+        self.addAction(cut_action)
+        paste_action = QAction("Paste", self)
+        self.addAction(paste_action)
+        delete_action = QAction("Delete", self)
+        self.addAction(delete_action)
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [
