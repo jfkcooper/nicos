@@ -251,7 +251,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         epics_msg_pvs = self._read_epics_message_pvs()
         if epics_msg_pvs[self.SEVR]:
-            return self._get_epics_err_info(epics_msg_pvs)
+            return self._log_epics_err_info(epics_msg_pvs)
         else:
             return epics_msg_pvs[self.MSG_TXT]
 
@@ -265,7 +265,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         epics_msg_pvs = self._read_epics_message_pvs()
         if epics_msg_pvs[self.SEVR] == "INVALID" and \
                 epics_msg_pvs[self.STAT] == "COMM":
-            return self._get_epics_err_info(epics_msg_pvs)
+            return self._log_epics_err_info(epics_msg_pvs)
         else:
             return ''
 
@@ -289,19 +289,20 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
                 self._get_pv('error_msg_status', as_string=True)
         return epics_msg_pvs
 
-    def _get_epics_err_info(self, error):
+    def _log_epics_err_info(self, error):
         """
         Sends EPICS error information to the NICOS logger.
 
         :return: returns an error message string.
         """
-        self.log.error([f'EPICS ERROR MESSAGE: '
-                           f'"{error[self.MSG_TXT]}"',
-                           f'EPICS ERROR MESSAGE STATUS:'
-                           f'{error[self.STAT]}',
-                           f'EPICS ERROR SEVERITY: '
-                           f'{error[self.SEVR]}'])
-        return f'EPICS ERROR: "{error[self.MSG_TXT]}"'
+        msg_to_log = f'Motor error: {error[self.MSG_TXT]} '\
+                     f'({error[self.SEVR]}, '\
+                     f'{error[self.STAT]})'
+        if error[self.SEVR] == 'MINOR':
+            self.log.error(msg_to_log)
+        else:
+            self.log.warning(msg_to_log)
+        return f'Motor error: "{error[self.MSG_TXT]}"'
 
     def doStop(self):
         self._put_pv('stop', 1, False)
