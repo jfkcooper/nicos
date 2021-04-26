@@ -312,7 +312,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if error[1] == 'MINOR':
             self.log.warning(msg_to_log)
         else:
-            self.log.log(msg_to_log)
+            self.log.error(msg_to_log)
         return f'Motor error: "{error[0]}"'
 
     def doStop(self):
