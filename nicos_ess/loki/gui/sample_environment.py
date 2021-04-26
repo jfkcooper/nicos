@@ -51,15 +51,15 @@ class SampleEnvironmentBase:
             'SampleChanger': self.SampleChanger
         }
         self.environment_list.append(
-            environment_switch[environment_type](**fields)
+            (environment_type, environment_switch[environment_type](**fields))
         )
 
     def get_environment(self, env_name):
         if not env_name:
             raise ValueError('The name of the environment should be provided.')
         for environment in self.environment_list:
-            if env_name == environment.name:
-                return tuple(environment, environment._asdict)
+            if env_name == environment[1].name:
+                return tuple(environment, environment[1]._asdict)
             else:
                 raise ValueError(f'Requested environment, {env_name} does '
                                  f'not exist.')
@@ -73,12 +73,12 @@ class SampleEnvironmentBase:
         mapped to their corresponding values.
         """
         environments_as_dicts = [
-            env._asdict for env in self.environment_list
+            env[1]._asdict for env in self.environment_list
         ]
         return environments_as_dicts
 
     def get_environment_names(self):
-        env_names = [env.name for env in self.environment_list]
+        env_names = [env[1].name for env in self.environment_list]
         return env_names
 
     @staticmethod

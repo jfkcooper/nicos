@@ -84,14 +84,14 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_6">
             <item row="0" column="0">
-             <widget class="QLabel" name="numCellsLabel">
+             <widget class="QLabel" name="firstPropertyLabel">
               <property name="text">
-               <string>Number of Cells:</string>
+               <string>Property</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="numCellBox">
+             <widget class="QLineEdit" name="firstPropertyBox">
               <property name="acceptDrops">
                <bool>false</bool>
               </property>
@@ -110,14 +110,14 @@
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="cellTypeLabel">
+             <widget class="QLabel" name="secondPropertyLabel">
               <property name="text">
-               <string>Cell Type:</string>
+               <string>Property</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="cellTypeBox">
+             <widget class="QLineEdit" name="secondPropertyBox">
               <property name="acceptDrops">
                <bool>false</bool>
               </property>
@@ -133,14 +133,14 @@
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="canRotateLabel">
+             <widget class="QLabel" name="thirdPropertyLabel">
               <property name="text">
-               <string>Rotate Samples:</string>
+               <string>Property</string>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="canRotateBox">
+             <widget class="QLineEdit" name="thirdPropertyBox">
               <property name="acceptDrops">
                <bool>false</bool>
               </property>
@@ -156,14 +156,14 @@
              </widget>
             </item>
             <item row="3" column="0">
-             <widget class="QLabel" name="canTempLabel">
+             <widget class="QLabel" name="fourthPropertyLabel">
               <property name="text">
-               <string>Temperature Control:</string>
+               <string>Property</string>
               </property>
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QLineEdit" name="tempControlBox">
+             <widget class="QLineEdit" name="fourthPropertyBox">
               <property name="acceptDrops">
                <bool>false</bool>
               </property>
@@ -179,14 +179,14 @@
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QLabel" name="canPressureLabel">
+             <widget class="QLabel" name="fifthPropertyLabel">
               <property name="text">
-               <string>Pressure Control:</string>
+               <string>Property</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QLineEdit" name="pressControlBox">
+             <widget class="QLineEdit" name="fifthPropertyBox">
               <property name="acceptDrops">
                <bool>false</bool>
               </property>
@@ -606,11 +606,11 @@
   <tabstop>offsetBox</tabstop>
   <tabstop>instSetApply</tabstop>
   <tabstop>envComboBox</tabstop>
-  <tabstop>numCellBox</tabstop>
-  <tabstop>cellTypeBox</tabstop>
-  <tabstop>canRotateBox</tabstop>
-  <tabstop>tempControlBox</tabstop>
-  <tabstop>pressControlBox</tabstop>
+  <tabstop>firstPropertyBox</tabstop>
+  <tabstop>secondPropertyBox</tabstop>
+  <tabstop>thirdPropertyBox</tabstop>
+  <tabstop>fourthPropertyBox</tabstop>
+  <tabstop>fifthPropertyBox</tabstop>
   <tabstop>refCellSpinBox</tabstop>
   <tabstop>refPosXBox</tabstop>
   <tabstop>refPosYBox</tabstop>

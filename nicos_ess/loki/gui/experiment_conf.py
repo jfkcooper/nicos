@@ -55,8 +55,10 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         # Hide read-only properties and hide and disable reference cell
         # positions until a sample environment is chosen by the user.
         self.propertiesGroupBox.setVisible(False)
+
+        # Hide and disable cell position properties which shall be only
+        # available for sample environments that holds them.
         self.refPosGroupBox.setVisible(False)
-        self.refPosGroupBox.setEnabled(False)  # this is an extra safety measure
 
         self.envComboBox.activated.connect(self._activate_environment_settings)
 
@@ -127,24 +129,51 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
 
     def _activate_environment_settings(self):
         # Fill the read-only fields.
-        self._map_environment_fields_to_properties()
+        environment_type, environment = self._get_selected_environment()
+        self._map_environment_fields_to_properties(environment_type,
+                                                   environment)
 
         # Enable sample environments
         self.propertiesGroupBox.setVisible(True)
-        self.refPosGroupBox.setVisible(True)
-        self.refPosGroupBox.setEnabled(True)
 
-        # Set focus to reference cell x-position
-        self.refPosXBox.setFocus()
+        if environment_type == "SampleChanger":
+            self.refPosGroupBox.setVisible(True)
+            self.refPosGroupBox.setEnabled(True)
+            self.refCellSpinBox.setFocus()
 
-    def _map_environment_fields_to_properties(self):
+    def _get_selected_environment(self):
         for environment in self.environment_list:
-            if environment.name == self.envComboBox.currentText():
-                self.numCellBox.setText(environment.number_of_cells)
-                self.cellTypeBox.setText(environment.cell_type)
-                self.canRotateBox.setText(environment.can_rotate_samples)
-                self.tempControlBox.setText(environment.has_temperature_control)
-                self.pressControlBox.setText(environment.has_pressure_control)
+            if environment[1].name == self.envComboBox.currentText():
+                return environment
+
+    def _map_environment_fields_to_properties(self, environment_type,
+                                              environment):
+        _sample_changer = {
+            'first_property': [
+                (self.firstPropertyLabel, "Number of Cells:"),
+                (self.firstPropertyBox, environment.number_of_cells)
+            ],
+            'second_property': [
+                (self.secondPropertyLabel, "Cell Type:"),
+                (self.secondPropertyBox, environment.cell_type)
+            ],
+            'third_property': [
+                (self.thirdPropertyLabel, "Rotate Samples:"),
+                (self.thirdPropertyBox, environment.can_rotate_samples)
+            ],
+            'fourth_property': [
+                (self.fourthPropertyLabel, "Temperature Control:"),
+                (self.fourthPropertyBox, environment.has_temperature_control)
+            ],
+            'fifth_property': [
+                (self.fifthPropertyLabel, "Pressure Control:"),
+                (self.fifthPropertyBox, environment.has_pressure_control)
+            ]
+        }
+        if environment_type == 'SampleChanger':
+            for k in _sample_changer:
+                _sample_changer[k][0][0].setText(_sample_changer[k][0][1])
+                _sample_changer[k][1][0].setText(_sample_changer[k][1][1])
 
     def set_det_offset(self, value):
         value_type = 'det_offset'
