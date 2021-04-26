@@ -59,6 +59,11 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         # Hide and disable cell position properties which shall be only
         # available for sample environments that holds them.
         self.refPosGroupBox.setVisible(False)
+        self.refPosGroupBox.setEnabled(False)
+
+        self.refCellSpinBox.valueChanged.connect(
+            self._set_sample_changer_ref_cell
+        )
 
         self.envComboBox.activated.connect(self._activate_environment_settings)
 
@@ -137,9 +142,21 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.propertiesGroupBox.setVisible(True)
 
         if environment_type == "SampleChanger":
+            self._set_cell_indices(environment)
             self.refPosGroupBox.setVisible(True)
             self.refPosGroupBox.setEnabled(True)
             self.refCellSpinBox.setFocus()
+
+    def _set_cell_indices(self, environment):
+        # Setting minimum and maximum values for the number of cells not only
+        # ensures we have the correct numbers to choose from in the UI but also
+        # prevents user errors as any integer that is not in [min, max] is not
+        # allowed (or non-integer types).
+        self.refCellSpinBox.setMinimum(1)
+        self.refCellSpinBox.setMaximum(float(environment.number_of_cells))
+
+    def _set_sample_changer_ref_cell(self):
+        pass
 
     def _get_selected_environment(self):
         for environment in self.environment_list:
@@ -149,26 +166,26 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
     def _map_environment_fields_to_properties(self, environment_type,
                                               environment):
         _sample_changer = {
-            'first_property': [
+            'first_property': (
                 (self.firstPropertyLabel, "Number of Cells:"),
                 (self.firstPropertyBox, environment.number_of_cells)
-            ],
-            'second_property': [
+            ),
+            'second_property': (
                 (self.secondPropertyLabel, "Cell Type:"),
                 (self.secondPropertyBox, environment.cell_type)
-            ],
-            'third_property': [
-                (self.thirdPropertyLabel, "Rotate Samples:"),
+            ),
+            'third_property': (
+                (self.thirdPropertyLabel, "dis.Rotate Samples:"),
                 (self.thirdPropertyBox, environment.can_rotate_samples)
-            ],
-            'fourth_property': [
+            ),
+            'fourth_property': (
                 (self.fourthPropertyLabel, "Temperature Control:"),
                 (self.fourthPropertyBox, environment.has_temperature_control)
-            ],
-            'fifth_property': [
+            ),
+            'fifth_property': (
                 (self.fifthPropertyLabel, "Pressure Control:"),
                 (self.fifthPropertyBox, environment.has_pressure_control)
-            ]
+            )
         }
         if environment_type == 'SampleChanger':
             for k in _sample_changer:
