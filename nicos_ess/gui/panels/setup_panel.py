@@ -168,7 +168,7 @@ class ExpPanel(DefaultExpPanel):
         self._defined_data_emails = self.dataEmails.toPlainText().strip()
         self.applyWarningLabel.setVisible(False)
         self.is_exp_props_edited = [False] * self.num_experiment_props_opts
-        self.client.signal('exp_proposal_activated')
+        self.mainwindow.exp_proposal_activated.emit()
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
@@ -309,7 +309,8 @@ class FinishPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
-        client.exp_proposal_activated.connect(self.on_new_experiment_proposal)
+        self.mainwindow.exp_proposal_activated.connect(
+            self.on_new_experiment_proposal)
 
     def on_client_connected(self):
         if not self.client.viewonly:
