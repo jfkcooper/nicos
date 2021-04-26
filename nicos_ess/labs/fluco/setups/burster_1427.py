@@ -7,7 +7,7 @@ devices = dict(
         'nicos_ess.devices.epics.pva.EpicsAnalogMoveable',
         description='The resistance?',
         readpv='{}value_RBV'.format(pv_root),
-        targetpv='{}value'.format(pv_root),
+        writepv='{}value'.format(pv_root),
         epicstimeout=3.0,
     ),
     burster_function=device(
