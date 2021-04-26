@@ -113,11 +113,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'writepv': 'target',
     }
 
-    # Severity and message status when connection between IOC and controller is
-    # lost.
-    COMM_STAT = "COMM"
-    INVALID_SEVR = "INVALID"
-
     # EPICS PV error dictionary keys used internally in this class.
     SEVR = "SEVERITY"
     STAT = "STATUS"
@@ -301,8 +296,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         otherwise returns an empty string.
         """
         epics_msg_pvs = self._parse_epics_message_pvs()
-        if epics_msg_pvs[self.SEVR] == self.INVALID_SEVR and \
-                epics_msg_pvs[self.STAT] == self.COMM_STAT:
+        if epics_msg_pvs[self.SEVR] == "INVALID" and \
+                epics_msg_pvs[self.STAT] == "COMM":
             return self._get_epics_err_info(epics_msg_pvs)
         else:
             return ''
