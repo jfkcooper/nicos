@@ -24,7 +24,6 @@
 #
 # *****************************************************************************
 
-from nicos import session
 from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
@@ -330,7 +329,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         :return: returns an error message string.
         """
-        session.log.error([f'EPICS ERROR MESSAGE: '
+        self.log.error([f'EPICS ERROR MESSAGE: '
                            f'"{error[self.MSG_TXT]}"',
                            f'EPICS ERROR MESSAGE STATUS:'
                            f'{error[self.STAT]}',

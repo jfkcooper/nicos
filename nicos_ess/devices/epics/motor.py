@@ -23,7 +23,6 @@
 #
 # *****************************************************************************
 
-from nicos import session
 from nicos.core import Override, Param, oneof, pvname, status
 from nicos.core.device import requires
 from nicos.core.errors import ConfigurationError
@@ -308,7 +307,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
         :return: returns an error message string.
         """
-        session.log.error([f'EPICS ERROR MESSAGE: '
+        self.log.error([f'EPICS ERROR MESSAGE: '
                            f'"{error[self.MSG_TXT]}"',
                            f'EPICS ERROR MESSAGE STATUS:'
                            f'{error[self.STAT]}',
