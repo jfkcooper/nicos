@@ -41,7 +41,8 @@ from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
 from nicos_ess.utilities.csv_utils import load_table_from_csv, \
     save_table_to_csv
-from nicos_ess.utilities.table_utils import extract_table_from_clipboard_text
+from nicos_ess.utilities.table_utils import extract_table_from_clipboard_text, \
+    convert_table_to_clipboard_text
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -337,7 +338,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
     def _handle_copy_cells(self):
         selected_data = self._extract_selected_data()
-        QApplication.instance().clipboard().setText('\n'.join(selected_data))
+        clipboard_text = convert_table_to_clipboard_text(selected_data)
+        QApplication.instance().clipboard().setText(clipboard_text)
 
     def _extract_selected_data(self):
         selected_indices = []
