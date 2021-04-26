@@ -284,8 +284,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         otherwise returns an empty string.
         """
         epics_msg_pvs = self._read_epics_message_pvs()
-        if epics_msg_pvs[self.SEVR] == "INVALID" and \
-                epics_msg_pvs[self.STAT] == "COMM":
+        if epics_msg_pvs[self.SEVR] == 'INVALID' and \
+                epics_msg_pvs[self.STAT] == 'COMM':
             return self._log_epics_err_info(epics_msg_pvs)
         else:
             return ''
@@ -320,9 +320,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                      f'({error[self.SEVR]}, ' \
                      f'{error[self.STAT]})'
         if error[self.SEVR] == 'MINOR':
-            self.log.error(msg_to_log)
-        else:
             self.log.warning(msg_to_log)
+        else:
+            self.log.error(msg_to_log)
         return f'Motor error: "{error[self.MSG_TXT]}"'
 
     def doStop(self):
