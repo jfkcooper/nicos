@@ -260,7 +260,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         :return: returns message to display, otherwise an
         empty string.
         """
-        epics_msg_pvs = self._parse_epics_message_pvs()
+        epics_msg_pvs = self._read_epics_message_pvs()
         if epics_msg_pvs[self.SEVR]:
             return self._get_epics_err_info(epics_msg_pvs)
         else:
@@ -273,14 +273,14 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         :return: returns communication error message if there is no connection,
         otherwise returns an empty string.
         """
-        epics_msg_pvs = self._parse_epics_message_pvs()
+        epics_msg_pvs = self._read_epics_message_pvs()
         if epics_msg_pvs[self.SEVR] == "INVALID" and \
                 epics_msg_pvs[self.STAT] == "COMM":
             return self._get_epics_err_info(epics_msg_pvs)
         else:
             return ''
 
-    def _parse_epics_message_pvs(self):
+    def _read_epics_message_pvs(self):
         """
         Parses the epics status message PVs and gives a dictionary containing
         these in string format.
