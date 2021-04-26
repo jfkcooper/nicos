@@ -58,10 +58,10 @@ def _get_command(command):
 
 
 def _get_comment_line(name):
-    return f"# Sample = {name}\n"
+    return f'# Sample = {name}\n'
 
 
-def _decorate_row_template(row_template, row_values):
+def _add_commands_to_template(row_template, row_values):
     return (
         f"{_get_comment_line(row_values['sample'])}"
         f"{_get_command(row_values.get('pre-command'))}"
@@ -110,13 +110,13 @@ class TransFirst:
         for i in range(max(trans_times, sans_times)):
             if i < trans_times:
                 for row_values in labeled_data:
-                    template += _decorate_row_template(
+                    template += _add_commands_to_template(
                         _do_trans(row_values, trans_duration_type),
                         row_values)
                     template += '\n'
             if i < sans_times:
                 for row_values in labeled_data:
-                    template += _decorate_row_template(
+                    template += _add_commands_to_template(
                         _do_sans(row_values, trans_duration_type),
                         row_values)
                     template += '\n'
@@ -130,13 +130,13 @@ class SansFirst:
         for i in range(max(trans_times, sans_times)):
             if i < sans_times:
                 for row_values in labeled_data:
-                    template += _decorate_row_template(
+                    template += _add_commands_to_template(
                         _do_sans(row_values, trans_duration_type),
                         row_values)
                     template += '\n'
             if i < trans_times:
                 for row_values in labeled_data:
-                    template += _decorate_row_template(
+                    template += _add_commands_to_template(
                         _do_trans(row_values, trans_duration_type),
                         row_values)
                     template += '\n'
@@ -155,7 +155,7 @@ class TransThenSans:
                 if i < sans_times:
                     row_template += _do_sans(row_values, sans_duration_type)
 
-                template += _decorate_row_template(row_template, row_values)
+                template += _add_commands_to_template(row_template, row_values)
                 template += '\n'
         return template
 
@@ -172,7 +172,7 @@ class SansThenTrans:
                 if i < trans_times:
                     row_template += _do_trans(row_values, trans_duration_type)
 
-                template = _decorate_row_template(row_template, row_values)
+                template = _add_commands_to_template(row_template, row_values)
                 template += '\n'
         return template
 
@@ -183,7 +183,7 @@ class Simultaneous:
         template = ''
         for _ in range(sans_times):
             for row_values in labeled_data:
-                template += _decorate_row_template(
+                template += _add_commands_to_template(
                     _do_simultaneous(row_values, sans_duration_type),
                     row_values)
                 template += '\n'
