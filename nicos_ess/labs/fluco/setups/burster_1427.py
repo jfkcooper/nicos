@@ -34,6 +34,7 @@ devices = dict(
         readpv='{}r0_RBV'.format(pv_root),
         writepv='{}r0'.format(pv_root),
         epicstimeout=3.0,
+        abslimits=(0, 200),
     ),
     burster_status=device(
         'nicos_ess.devices.epics.pva.EpicsStringReadable',
