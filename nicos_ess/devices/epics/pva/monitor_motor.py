@@ -107,11 +107,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'writepv': 'target',
     }
 
-    # EPICS PV error dictionary keys used internally in this class.
-    SEVR = "SEVERITY"
-    STAT = "STATUS"
-    MSG_TXT = "MESSAGE TEXT"
-
     def _get_pv_parameters(self):
         """
         Implementation of inherited method to automatically account for fields
@@ -271,10 +266,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         empty string.
         """
         epics_msg_pvs = self._read_epics_message_pvs()
-        if epics_msg_pvs[self.SEVR]:
+        if epics_msg_pvs[1]:
             return self._log_epics_err_info(epics_msg_pvs)
         else:
-            return epics_msg_pvs[self.MSG_TXT]
+            return epics_msg_pvs[0]
 
     def _check_ioc_controller_communication(self):
         """
@@ -284,8 +279,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         otherwise returns an empty string.
         """
         epics_msg_pvs = self._read_epics_message_pvs()
-        if epics_msg_pvs[self.SEVR] == 'INVALID' and \
-                epics_msg_pvs[self.STAT] == 'COMM':
+        if epics_msg_pvs[1] == 'INVALID' and \
+                epics_msg_pvs[2] == 'COMM':
             return self._log_epics_err_info(epics_msg_pvs)
         else:
             return ''
@@ -298,16 +293,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         :return: returns a dictionary containing all the information regarding
         status messages from EPICS.
         """
-        epics_msg_pvs = {self.SEVR: "",
-                         self.STAT: "",
-                         self.MSG_TXT: ""}
+        epics_msg_pvs = ('', '', '')
         if self.errormsgpv:
-            epics_msg_pvs[self.MSG_TXT] = \
-                self._get_pv('errormsgpv', as_string=True)
-            epics_msg_pvs[self.SEVR] = \
-                self._get_pv('error_msg_severity', as_string=True)
-            epics_msg_pvs[self.STAT] = \
-                self._get_pv('error_msg_status', as_string=True)
+            epics_msg_pvs = (self._get_pv('errormsgpv', as_string=True),
+                             self._get_pv('error_msg_severity', as_string=True),
+                             self._get_pv('error_msg_status', as_string=True))
         return epics_msg_pvs
 
     def _log_epics_err_info(self, error):
@@ -316,14 +306,14 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         :return: returns an error message string.
         """
-        msg_to_log = f'Motor error: {error[self.MSG_TXT]} ' \
-                     f'({error[self.SEVR]}, ' \
-                     f'{error[self.STAT]})'
-        if error[self.SEVR] == 'MINOR':
+        msg_to_log = f'Motor error: {error[0]} ' \
+                     f'({error[1]}, ' \
+                     f'{error[2]})'
+        if error[1] == 'MINOR':
             self.log.warning(msg_to_log)
         else:
-            self.log.error(msg_to_log)
-        return f'Motor error: "{error[self.MSG_TXT]}"'
+            self.log.log(msg_to_log)
+        return f'Motor error: "{error[0]}"'
 
     def doStop(self):
         self._put_pv('stop', 1, False)
