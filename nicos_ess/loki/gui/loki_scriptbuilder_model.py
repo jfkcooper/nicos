@@ -129,20 +129,12 @@ class LokiScriptModel(QAbstractTableModel):
         self.layoutChanged.emit()
 
     def select_data(self, selected_indices):
-        curr_row = -1
-        row_data = []
-        selected_data = []
-        for row, column in selected_indices:
-            if row != curr_row:
-                if row_data:
-                    selected_data.append('\t'.join(row_data))
-                    row_data.clear()
-            curr_row = row
-            row_data.append(self._table_data[row][column])
-
-        if row_data:
-            selected_data.append('\t'.join(row_data))
-            row_data.clear()
+        import numpy as np
+        rows, columns = zip(*selected_indices)
+        row_slice = np.s_[sorted(rows)[0]: sorted(rows)[-1] + 1]
+        col_slice = np.s_[sorted(columns)[0]: sorted(columns)[-1] + 1]
+        table_data = np.array(self._table_data, dtype=np.str_)
+        selected_data = table_data[row_slice, col_slice]
         return selected_data
 
     def clear(self):
