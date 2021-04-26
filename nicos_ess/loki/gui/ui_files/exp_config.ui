@@ -611,6 +611,7 @@
   <tabstop>canRotateBox</tabstop>
   <tabstop>tempControlBox</tabstop>
   <tabstop>pressControlBox</tabstop>
+  <tabstop>refCellSpinBox</tabstop>
   <tabstop>refPosXBox</tabstop>
   <tabstop>refPosYBox</tabstop>
   <tabstop>sampleSetApply</tabstop>
