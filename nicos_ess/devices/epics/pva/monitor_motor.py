@@ -59,13 +59,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
-        'error_severity_pv': Param('Optional PV with error severity.',
-                                 type=pvname, mandatory=False, settable=False,
-                                 userparam=False),
-        'error_status_pv': Param('Optional PV with error status.',
-                               type=pvname, mandatory=False, settable=False,
-                               userparam=False),
-
     }
 
     parameter_overrides = {
@@ -104,6 +97,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'set': 'SET',
         'foff': 'FOFF',
         'units': 'EGU',
+        'error_msg_status': 'STAT',
+        'error_msg_severity': 'SEVR',
     }
 
     _cache_relations = {
@@ -134,12 +129,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         if self.reseterrorpv:
             pvs.add('reseterrorpv')
-
-        if self.error_severity_pv:
-            pvs.add('error_severity_pv')
-
-        if self.error_status_pv:
-            pvs.add('error_status_pv')
 
         return pvs
 
@@ -315,12 +304,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if self.errormsgpv:
             epics_msg_pvs[self.MSG_TXT] = \
                 self._get_pv('errormsgpv', as_string=True)
-        if self.error_severity_pv:
             epics_msg_pvs[self.SEVR] = \
-                self._get_pv('error_severity_pv', as_string=True)
-        if self.error_status_pv:
+                self._get_pv('error_msg_severity', as_string=True)
             epics_msg_pvs[self.STAT] = \
-                self._get_pv('error_status_pv', as_string=True)
+                self._get_pv('error_msg_status', as_string=True)
         return epics_msg_pvs
 
     def _get_epics_err_info(self, error):
