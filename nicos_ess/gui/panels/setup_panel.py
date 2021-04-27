@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 """NICOS GUI experiment setup window."""
-import copy
+from copy import deepcopy
 
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
@@ -38,14 +38,14 @@ from nicos_ess.gui import uipath
 
 class ProposalSettings:
     def __init__(self, proposal_id='', title='', users='', local_contacts='',
-                 sample_name='', notifications='', abort_on_fatal_error=''):
+                 sample_name='', notifications='', abort_on_error=''):
         self.proposal_id = proposal_id
         self.title = title
         self.users = users
         self.local_contacts = local_contacts
         self.sample_name = sample_name
         self.notifications = notifications
-        self.abort_on_fatal_error = abort_on_fatal_error
+        self.abort_on_error = abort_on_error
 
     def __eq__(self, other):
         if self.proposal_id != other.proposal_id \
@@ -54,7 +54,7 @@ class ProposalSettings:
                 or self.local_contacts != other.local_contacts \
                 or self.sample_name != other.sample_name \
                 or self.notifications != other.notifications \
-                or self.abort_on_fatal_error != other.abort_on_fatal_error:
+                or self.abort_on_error != other.abort_on_error:
             return False
         return True
 
@@ -102,28 +102,32 @@ class ExpPanel(Panel):
                                   'session.experiment.users, '
                                   'session.experiment.localcontact, '
                                   'session.experiment.sample.samplename, '
-                                  'session.experiment.propinfo["notif_emails"],'
                                   'session.experiment.errorbehavior', None)
+        notif_emails = self.client.eval(
+            'session.experiment.propinfo["notif_emails"]', [])
+
         if values:
             self.old_proposal_settings = ProposalSettings(decodeAny(values[0]),
                                                           decodeAny(values[1]),
                                                           decodeAny(values[2]),
                                                           decodeAny(values[3]),
                                                           decodeAny(values[4]),
-                                                          values[5],
-                                                          values[6] == 'abort',
+                                                          notif_emails,
+                                                          values[5] == 'abort',
                                                           )
 
-            self.new_proposal_settings = copy.deepcopy(self.old_proposal_settings)
+            self.new_proposal_settings = deepcopy(self.old_proposal_settings)
             # Update GUI
-            self._orig_proposal_info = values
             self.proposalNum.setText(self.old_proposal_settings.proposal_id)
             self.expTitle.setText(self.old_proposal_settings.title)
             self.users.setText(self.old_proposal_settings.users)
             self.sampleName.setText(self.old_proposal_settings.sample_name)
-            self.localContacts.setText(self.old_proposal_settings.local_contacts)
-            self.errorAbortBox.setChecked(self.old_proposal_settings.abort_on_fatal_error)
-            self.notifEmails.setPlainText('\n'.join(self.old_proposal_settings.notifications))
+            self.localContacts.setText(
+                self.old_proposal_settings.local_contacts)
+            self.errorAbortBox.setChecked(
+                self.old_proposal_settings.abort_on_error)
+            self.notifEmails.setPlainText(
+                '\n'.join(self.old_proposal_settings.notifications))
 
     def on_client_connected(self):
         # fill proposal
@@ -191,11 +195,9 @@ class ExpPanel(Panel):
 
         # do some work
         if proposal_id != self.old_proposal_settings.proposal_id:
-            args = {'proposal': proposal_id}
-            args['title'] = self.new_proposal_settings.title
-            args['localcontact'] = local_contacts
-            if users:
-                args['user'] = users
+            args = {'proposal': proposal_id,
+                    'title': self.new_proposal_settings.title,
+                    'localcontact': local_contacts, 'user': users}
             code = 'NewExperiment(%s)' % ', '.join('%s=%r' % i
                                                    for i in args.items())
             if self.client.run(code, noqueue=False) is None:
@@ -208,25 +210,16 @@ class ExpPanel(Panel):
                                   'New experiment')
                 dlg.exec_()
         else:
-            if self.new_proposal_settings.title != self.old_proposal_settings.title:
-                self.client.run('Exp.update(title=%r)' % self.new_proposal_settings.title)
+            if self.new_proposal_settings.title != \
+                    self.old_proposal_settings.title:
+                self.client.run('Exp.update(title=%r)' %
+                                self.new_proposal_settings.title)
                 done.append('New experiment title set.')
-            if self.new_proposal_settings.users != self.old_proposal_settings.users:
-                self.client.run('Exp.update(users=%r)' % users)
-                done.append('New users set.')
-            if self.new_proposal_settings.local_contacts != self.old_proposal_settings.local_contacts:
-                self.client.run('Exp.update(localcontacts=%r)' % local_contacts)
-                done.append('New local contact(s) set.')
-        if self.new_proposal_settings.sample_name != self.old_proposal_settings.sample_name:
-            self.client.run('NewSample(%r)' % self.new_proposal_settings.sample_name)
-            done.append('New sample name set.')
-        if self.new_proposal_settings.notifications != self.old_proposal_settings.notifications:
-            self.client.run('SetMailReceivers(%s)' %
-                            ', '.join(map(repr, self.new_proposal_settings.notifications)))
-            done.append('New mail receivers set.')
-        if self.new_proposal_settings.abort_on_fatal_error != self.old_proposal_settings.abort_on_fatal_error:
-            self.client.run('SetErrorAbort(%s)' % self.new_proposal_settings.abort_on_fatal_error)
-            done.append('New error behavior set.')
+            self._update_users(users, done)
+            self._update_local_contacts(local_contacts, done)
+        self._update_sample_name(done)
+        self._update_notification_receivers(done)
+        self._update_abort_on_error(done)
 
         # tell user about everything we did
         if done:
@@ -235,6 +228,43 @@ class ExpPanel(Panel):
 
         self.applyWarningLabel.setVisible(False)
         self.client.signal('exp_proposal_activated')
+
+    def _update_title(self, done):
+        if self.new_proposal_settings.title != self.old_proposal_settings.title:
+            self.client.run('Exp.update(title=%r)' %
+                            self.new_proposal_settings.title)
+            done.append('New experiment title set.')
+
+    def _update_users(self, users, done):
+        if self.new_proposal_settings.users != self.old_proposal_settings.users:
+            self.client.run('Exp.update(users=%r)' % users)
+            done.append('New users set.')
+
+    def _update_local_contacts(self, local_contacts, done):
+        if self.new_proposal_settings.local_contacts != \
+                    self.old_proposal_settings.local_contacts:
+            self.client.run('Exp.update(localcontacts=%r)' % local_contacts)
+            done.append('New local contact(s) set.')
+
+    def _update_sample_name(self, done):
+        sample_name = self.new_proposal_settings.sample_name
+        if sample_name != self.old_proposal_settings.sample_name:
+            self.client.run('NewSample(%r)' % sample_name)
+            done.append('New sample name set.')
+
+    def _update_abort_on_error(self, done):
+        abort_on_error = self.new_proposal_settings.abort_on_error
+        if abort_on_error != self.old_proposal_settings.abort_on_error:
+            self.client.run('SetErrorAbort(%s)' % abort_on_error)
+            done.append('New error behavior set.')
+
+    def _update_notification_receivers(self, done):
+        notifications = self.new_proposal_settings.notifications
+        if notifications != self.old_proposal_settings.notifications:
+            self.client.run('SetMailReceivers(%s)' %
+                            ', '.join(map(repr, notifications)))
+            done.append('New mail receivers set.')
+
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
@@ -301,7 +331,7 @@ class ExpPanel(Panel):
 
     @pyqtSlot()
     def on_errorAbortBox_clicked(self):
-        self.new_proposal_settings.abort_on_fatal_error = \
+        self.new_proposal_settings.abort_on_error = \
             self.errorAbortBox.isChecked()
         self._check_for_changes()
 
