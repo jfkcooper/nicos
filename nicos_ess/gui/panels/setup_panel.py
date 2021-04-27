@@ -149,28 +149,6 @@ class ExpPanel(Panel):
         self.queryDBButton.setEnabled(not is_view_only)
         self.applyButton.setEnabled(not is_view_only)
 
-    def _getProposalInput(self):
-        prop = self.proposalNum.text()
-        title = self.expTitle.text()
-        try:
-            users = splitUsers(self.users.text())
-        except ValueError:
-            QMessageBox.warning(self, 'Error', 'Invalid email address in '
-                                'users list')
-            raise ConfigurationError from None
-        try:
-            local = splitUsers(self.localContacts.text())
-        except ValueError:
-            QMessageBox.warning(self, 'Error', 'Invalid email address in '
-                                'local contacts list')
-            raise ConfigurationError from None
-        sample = self.sampleName.text()
-        notifEmails = self.notifEmails.toPlainText().strip()
-        notifEmails = notifEmails.split('\n') if notifEmails else []
-        errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
-        return prop, title, users, local, sample, notifEmails, [], \
-            errorbehavior
-
     def _format_users(self, users):
         if users:
             try:
@@ -195,20 +173,22 @@ class ExpPanel(Panel):
     def on_applyButton_clicked(self):
         done = []
 
+        proposal_id = self.new_proposal_settings.proposal_id
         users = self._format_users(self.new_proposal_settings.users)
-        local_contacts = self._format_local_contacts(self.new_proposal_settings.local_contacts)
+        local_contacts = self._format_local_contacts(
+            self.new_proposal_settings.local_contacts)
 
         # check if already in an experiment
         if self.client.eval('session.experiment.serviceexp', True) and \
            self.client.eval('session.experiment.proptype', 'user') == 'user' and \
-           self.client.eval('session.experiment.proposal', '') != prop:
+           self.client.eval('session.experiment.proposal', '') != proposal_id:
             self.showError('Can not directly switch experiments, please use '
                            'FinishExperiment first!')
             return
 
         # do some work
-        if self.new_proposal_settings.proposal_id != self.old_proposal_settings.proposal_id:
-            args = {'proposal': self.new_proposal_settings.proposal_id}
+        if proposal_id != self.old_proposal_settings.proposal_id:
+            args = {'proposal': proposal_id}
             args['title'] = self.new_proposal_settings.title
             args['localcontact'] = local_contacts
             if users:
@@ -256,16 +236,11 @@ class ExpPanel(Panel):
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
+        # read values from proposal system
         try:
-            prop, title, _, _, _, _, _, _ = self._getProposalInput()
-        except ConfigurationError:
-            return
-
-        # read all values from propdb
-        try:
-            queryprop = prop or None
+            proposal = self.new_proposal_settings.proposal_id
             result = self.client.eval(
-                'session.experiment._queryProposals(%r, {})' % queryprop)
+                'session.experiment._queryProposals(%r, {})' % proposal)
 
             if result:
                 if len(result) != 1:
@@ -283,8 +258,8 @@ class ExpPanel(Panel):
                     self.showError('Proposal might have problems:\n\n' +
                                    '\n'.join(result['warnings']))
                 # now transfer it into gui
-                self.proposalNum.setText(result.get('proposal', prop))
-                self.expTitle.setText(result.get('title', title))
+                self.proposalNum.setText(result.get('proposal', proposal))
+                self.expTitle.setText(result.get('title', ''))
                 self.users.setText(
                     combineUsers(result.get('users', [])))
                 self.localContacts.setText(
