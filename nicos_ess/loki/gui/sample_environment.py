@@ -57,7 +57,7 @@ class SampleEnvironmentBase:
 
     def __init__(self):
         self.environment_list = []
-        # We create a subclasses for Sample Environments with corresponding
+        # We create subclasses for Sample Environments with corresponding
         # (read-only) properties.
         self.SampleChanger = namedtuple('SampleChanger',
                                         self.sample_changer_properties)
@@ -116,5 +116,5 @@ class SampleEnvironmentBase:
         for values in fields.values():
             if not isinstance(values, str):
                 raise ValueError('A read-only property of an'
-                                 ' Environment should be a string.')
+                                 ' environment should be a string.')
 
