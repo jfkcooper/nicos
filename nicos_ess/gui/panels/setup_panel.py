@@ -82,7 +82,7 @@ class ExpPanel(Panel):
 
         self._text_controls = (self.proposalNum, self.expTitle, self.users,
                                self.localContacts, self.sampleName,
-                               self.proposalQuery)
+                               self.proposalNum)
 
         # Additional dialog panel to pop up after NewExperiment()
         self._new_exp_panel = options.get('new_exp_panel')
@@ -136,8 +136,10 @@ class ExpPanel(Panel):
         # check for capability to ask proposal database
         if self.client.eval('session.experiment._canQueryProposals()', None):
             self.findProposalBox.setVisible(True)
+            self.proposalNum.setReadOnly(True)
         else:
             self.findProposalBox.setVisible(False)
+            self.proposalNum.setReadOnly(False)
         self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
@@ -300,7 +302,6 @@ class ExpPanel(Panel):
 
     @pyqtSlot(str)
     def on_proposalNum_textChanged(self, value):
-        # TODO: this should not apply to the "search" box
         self.new_proposal_settings.proposal_id = value.strip()
         self._check_for_changes()
 
