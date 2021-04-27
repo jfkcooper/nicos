@@ -26,13 +26,13 @@
 from copy import deepcopy
 
 from nicos.clients.gui.panels import Panel, PanelDialog
-from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
-    SetupsPanel as DefaultSetupsPanel
-from nicos.clients.gui.panels.setup_panel import combineUsers, splitUsers
+from nicos.clients.gui.panels.setup_panel import \
+    SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSlot
 from nicos.utils import decodeAny, findResource
+
 from nicos_ess.gui import uipath
 
 
