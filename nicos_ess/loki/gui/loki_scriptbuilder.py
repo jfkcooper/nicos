@@ -31,8 +31,8 @@ from collections import OrderedDict
 from functools import partial
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAction, QApplication, QFileDialog, \
-    QHeaderView, QKeySequence, QShortcut, Qt, QTableView, pyqtSlot
+from nicos.guisupport.qt import QAction, QApplication, QCursor, QFileDialog, \
+    QHeaderView, QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.gui.panels import get_icon
@@ -119,27 +119,34 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self._create_keyboard_shortcuts()
 
     def _init_right_click_context_menu(self):
-        self.setContextMenuPolicy(Qt.ActionsContextMenu)
+        self.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tableView.customContextMenuRequested.connect(
+            self._show_context_menu)
+
+    def _show_context_menu(self):
+        menu = QMenu()
 
         copy_action = QAction("Copy", self)
         copy_action.triggered.connect(self._handle_copy_cells)
         copy_action.setIcon(get_icon("file_copy-24px.svg"))
-        self.addAction(copy_action)
+        menu.addAction(copy_action)
 
         cut_action = QAction("Cut", self)
         cut_action.triggered.connect(self._handle_cut_cells)
         cut_action.setIcon(get_icon("cut_24px.svg"))
-        self.addAction(cut_action)
+        menu.addAction(cut_action)
 
         paste_action = QAction("Paste", self)
         paste_action.triggered.connect(self._handle_table_paste)
         paste_action.setIcon(get_icon("paste_24px.svg"))
-        self.addAction(paste_action)
+        menu.addAction(paste_action)
 
         delete_action = QAction("Delete", self)
         delete_action.triggered.connect(self._delete_rows)
         delete_action.setIcon(get_icon("remove-24px.svg"))
-        self.addAction(delete_action)
+        menu.addAction(delete_action)
+
+        menu.exec_(QCursor.pos())
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [
