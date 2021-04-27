@@ -170,7 +170,7 @@ class ExpPanel(DefaultExpPanel):
             return
 
         # do some work
-        if prop and prop != self._orig_propinfo.get('proposal'):
+        if prop and prop != self.old_proposal_settings.proposal_id:
             args = {'proposal': prop}
             if local:
                 args['localcontact'] = local
@@ -298,12 +298,6 @@ class ExpPanel(DefaultExpPanel):
         self.new_proposal_settings.notifications = \
             self.notifEmails.toPlainText().strip().splitlines()
         self._check_for_changes()
-
-    def _get_proposal_data(self, props_key):
-        curr_value = self._orig_propinfo.get(props_key)
-        if curr_value is None:
-            curr_value = ""
-        return curr_value
 
     def _check_for_changes(self):
         if self.new_proposal_settings != self.old_proposal_settings:
