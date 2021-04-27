@@ -73,14 +73,11 @@ class ExpPanel(DefaultExpPanel):
 
     def __init__(self, parent, client, options):
         DefaultExpPanel.__init__(self, parent, client, options)
-        # Setting up warning label so user remembers to press apply button.
-        self.num_experiment_props_opts = len(self._getProposalInput()) + 1
-        self.is_exp_props_edited = [False] * self.num_experiment_props_opts
-        self.applyWarningLabel.setStyleSheet('color: red')
-        self.applyWarningLabel.setVisible(False)
-
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = ProposalSettings()
+
+        self.applyWarningLabel.setStyleSheet('color: red')
+        self.applyWarningLabel.setVisible(False)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -220,7 +217,6 @@ class ExpPanel(DefaultExpPanel):
         self._update_proposal_info()
 
         self.applyWarningLabel.setVisible(False)
-        self.is_exp_props_edited = [False] * self.num_experiment_props_opts
         self.client.signal('exp_proposal_activated')
 
     @pyqtSlot()
@@ -309,20 +305,11 @@ class ExpPanel(DefaultExpPanel):
             curr_value = ""
         return curr_value
 
-    def _apply_warning_status(self, value, index, props_curr_val):
-        self.is_exp_props_edited[index] = \
-            value != props_curr_val
-        self._set_warning_visibility()
-
     def _check_for_changes(self):
         if self.new_proposal_settings != self.old_proposal_settings:
             self.applyWarningLabel.setVisible(True)
         else:
             self.applyWarningLabel.setVisible(False)
-
-    def _set_warning_visibility(self):
-        return
-        self.applyWarningLabel.setVisible(any(self.is_exp_props_edited))
 
 
 class SetupsPanel(DefaultSetupsPanel):
