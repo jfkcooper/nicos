@@ -81,7 +81,8 @@ class ExpPanel(Panel):
         self.applyWarningLabel.setVisible(False)
 
         self._text_controls = (self.proposalNum, self.expTitle, self.users,
-                               self.localContacts, self.sampleName)
+                               self.localContacts, self.sampleName,
+                               self.proposalQuery)
 
         # Additional dialog panel to pop up after NewExperiment()
         self._new_exp_panel = options.get('new_exp_panel')
@@ -132,13 +133,11 @@ class ExpPanel(Panel):
     def on_client_connected(self):
         # fill proposal
         self._update_proposal_info()
-        self.newBox.setVisible(True)
         # check for capability to ask proposal database
         if self.client.eval('session.experiment._canQueryProposals()', None):
-            self.propdbInfo.setVisible(True)
-            self.queryDBButton.setVisible(True)
+            self.findProposalBox.setVisible(True)
         else:
-            self.queryDBButton.setVisible(False)
+            self.findProposalBox.setVisible(False)
         self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
@@ -266,7 +265,7 @@ class ExpPanel(Panel):
     def on_queryDBButton_clicked(self):
         # read values from proposal system
         try:
-            proposal = self.new_proposal_settings.proposal_id
+            proposal = self.proposalQuery.text()
             result = self.client.eval(
                 'session.experiment._queryProposals(%r, {})' % proposal)
 
