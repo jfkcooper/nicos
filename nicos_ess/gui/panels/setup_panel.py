@@ -178,7 +178,7 @@ class ExpPanel(Panel):
 
     @pyqtSlot()
     def on_applyButton_clicked(self):
-        done = []
+        changes = []
 
         proposal_id = self.new_proposal_settings.proposal_id
         users = self._format_users(self.new_proposal_settings.users)
@@ -204,66 +204,62 @@ class ExpPanel(Panel):
                 self.showError('Could not start new experiment, a script is '
                                'still running.')
                 return
-            done.append('New experiment started.')
+            changes.append('New experiment started.')
             if self._new_exp_panel:
                 dlg = PanelDialog(self, self.client, self._new_exp_panel,
                                   'New experiment')
                 dlg.exec_()
         else:
-            if self.new_proposal_settings.title != \
-                    self.old_proposal_settings.title:
-                self.client.run('Exp.update(title=%r)' %
-                                self.new_proposal_settings.title)
-                done.append('New experiment title set.')
-            self._update_users(users, done)
-            self._update_local_contacts(local_contacts, done)
-        self._update_sample_name(done)
-        self._update_notification_receivers(done)
-        self._update_abort_on_error(done)
+            self._update_title(changes)
+            self._update_users(users, changes)
+            self._update_local_contacts(local_contacts, changes)
+        self._update_sample_name(changes)
+        self._update_notification_receivers(changes)
+        self._update_abort_on_error(changes)
 
         # tell user about everything we did
-        if done:
-            self.showInfo('\n'.join(done))
+        if changes:
+            self.showInfo('\n'.join(changes))
         self._update_proposal_info()
 
         self.applyWarningLabel.setVisible(False)
         self.client.signal('exp_proposal_activated')
 
-    def _update_title(self, done):
+    def _update_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
             self.client.run('Exp.update(title=%r)' %
                             self.new_proposal_settings.title)
-            done.append('New experiment title set.')
+            changes.append('New experiment title set.')
 
-    def _update_users(self, users, done):
+    def _update_users(self, users, changes):
         if self.new_proposal_settings.users != self.old_proposal_settings.users:
             self.client.run('Exp.update(users=%r)' % users)
-            done.append('New users set.')
+            changes.append('New users set.')
 
-    def _update_local_contacts(self, local_contacts, done):
+    def _update_local_contacts(self, local_contacts, changes):
         if self.new_proposal_settings.local_contacts != \
                     self.old_proposal_settings.local_contacts:
             self.client.run('Exp.update(localcontacts=%r)' % local_contacts)
-            done.append('New local contact(s) set.')
+            changes.append('New local contact(s) set.')
 
-    def _update_sample_name(self, done):
+    def _update_sample_name(self, changes):
         sample_name = self.new_proposal_settings.sample_name
         if sample_name != self.old_proposal_settings.sample_name:
             self.client.run('NewSample(%r)' % sample_name)
-            done.append('New sample name set.')
+            changes.append('New sample name set.')
 
-    def _update_abort_on_error(self, done):
+    def _update_abort_on_error(self, changes):
         abort_on_error = self.new_proposal_settings.abort_on_error
         if abort_on_error != self.old_proposal_settings.abort_on_error:
             self.client.run('SetErrorAbort(%s)' % abort_on_error)
-            done.append('New error behavior set.')
+            changes.append('New error behavior set.')
 
-    def _update_notification_receivers(self, done):
+    def _update_notification_receivers(self, changes):
         notifications = self.new_proposal_settings.notifications
         if notifications != self.old_proposal_settings.notifications:
             self.client.run('SetMailReceivers(%s)' %
                             ', '.join(map(repr, notifications)))
-            done.append('New mail receivers set.')
+            changes.append('New mail receivers set.')
 
 
     @pyqtSlot()
