@@ -134,7 +134,6 @@ class LokiScriptModel(QAbstractTableModel):
         selected_data = self.empty_table(len(set(rows)), len(set(columns)))
         for row, column in selected_indices:
             selected_data[row][column] = self._table_data[row][column]
-
         return selected_data
 
     def clear(self):
