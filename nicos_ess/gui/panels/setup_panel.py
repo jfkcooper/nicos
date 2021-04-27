@@ -83,6 +83,9 @@ class ExpPanel(Panel):
         self._text_controls = (self.proposalNum, self.expTitle, self.users,
                                self.localContacts, self.sampleName)
 
+        # Additional dialog panel to pop up after NewExperiment()
+        self._new_exp_panel = options.get('new_exp_panel')
+
         self.initialise_connection_status_listeners()
 
     def initialise_connection_status_listeners(self):
@@ -200,11 +203,10 @@ class ExpPanel(Panel):
                                'still running.')
                 return
             done.append('New experiment started.')
-            # TODO:
-            # if self._new_exp_panel:
-            #     dlg = PanelDialog(self, self.client, self._new_exp_panel,
-            #                       'New experiment')
-            #     dlg.exec_()
+            if self._new_exp_panel:
+                dlg = PanelDialog(self, self.client, self._new_exp_panel,
+                                  'New experiment')
+                dlg.exec_()
         else:
             if self.new_proposal_settings.title != self.old_proposal_settings.title:
                 self.client.run('Exp.update(title=%r)' % self.new_proposal_settings.title)
