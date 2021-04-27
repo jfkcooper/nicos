@@ -28,7 +28,24 @@ from collections import namedtuple
 
 
 class SampleEnvironmentBase:
-    """General schemas for environments that holds read-only properties."""
+    """
+    Base class for LoKI SANS sample environments. Each environment defined
+    as a `namedtuple` with read-only properties. The settable properties of
+    the environments should be fed in via corresponding Nicos devices.
+
+    The read-only properties has a maximum length of five. This number
+    optimized by the aesthetical considerations in the UI, though can be
+    made different for each environment depending on the needs.
+
+    The read-only properties should be hard-coded at the class level as a tuple.
+    When adding a new environment, a type should be provided along with
+    a dictionary with keys identical to that of defined in the property
+    tuple of the corresponding environment. The type should be a string literal
+    that is same as the environment name set in the environment
+    object (`namedtuple`) declaration.
+    """
+    environment_types = ('SampleChanger',)
+    # General schemas for environments that holds read-only properties.
     sample_changer_properties = (
         'name',
         'number_of_cells',
@@ -46,7 +63,7 @@ class SampleEnvironmentBase:
                                         self.sample_changer_properties)
 
     def add_environment(self, environment_type, fields):
-        self._validate(fields)
+        self._validate(environment_type, fields)
         environment_switch = {
             'SampleChanger': self.SampleChanger
         }
@@ -81,8 +98,14 @@ class SampleEnvironmentBase:
         env_names = [env[1].name for env in self.environment_list]
         return env_names
 
-    @staticmethod
-    def _validate(fields):
+    def _validate(self, environment_type, fields):
+        if environment_type not in self.environment_types:
+            raise ValueError(f'The environment with type {environment_type}'
+                             f'does not exist.')
+
+        if not isinstance(environment_type, str):
+            raise ValueError('An environment type should be a string.')
+
         if not fields:
             raise ValueError('An non-empty dictionary of read-only properties'
                              'is required.')
