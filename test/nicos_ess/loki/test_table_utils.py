@@ -22,8 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos_ess.utilities.table_utils import extract_table_from_clipboard_text, \
-    convert_table_to_clipboard_text
+from nicos_ess.utilities.table_utils import convert_table_to_clipboard_text, \
+    extract_table_from_clipboard_text
 
 
 def test_one_empty_cell():
