@@ -47,6 +47,7 @@ builders = pipeline_builder.createBuilders { container ->
       pip install --user -r ${project}/requirements.txt
       pip install --user -r ${project}/requirements-dev.txt
       pip install --user -r ${project}/requirements-gui.txt
+      pip install --user -r ${project}/requirements-opt.txt
       pip install --user -r ${project}/nicos_ess/requirements.txt
       pip install --user pillow h5py astropy
     """
