@@ -224,7 +224,7 @@ class ExpPanel(Panel):
         self._update_proposal_info()
 
         self.applyWarningLabel.setVisible(False)
-        self.client.signal('exp_proposal_activated')
+        self.mainwindow.exp_proposal_activated.emit()
 
     def _update_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
@@ -381,7 +381,8 @@ class FinishPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
-        client.exp_proposal_activated.connect(self.on_new_experiment_proposal)
+        self.mainwindow.exp_proposal_activated.connect(
+            self.on_new_experiment_proposal)
 
     def on_client_connected(self):
         if not self.client.viewonly:
