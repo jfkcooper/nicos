@@ -18,7 +18,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   AÜC Hardal <umit.hardal@ess.eu>
+#   Ebad Kamil <Ebad.Kamil@ess.eu>
+#   Matt Clarke <matt.clarke@ess.eu>
+#   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
 
