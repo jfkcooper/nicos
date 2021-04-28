@@ -41,7 +41,7 @@ class LokiScriptModel(QAbstractTableModel):
 
     @property
     def table_data(self):
-        return self._table_data
+        return copy.deepcopy(self._table_data)
 
     @table_data.setter
     def table_data(self, new_data):
