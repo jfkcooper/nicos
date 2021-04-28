@@ -270,10 +270,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         stat = self._get_motor_message_type(error_severity, error_status)
         if stat == status.OK or stat == status.UNKNOWN:
-            if msg_txt:
-                return f'Motor message: "{msg_txt}"', stat
-            else:
-                return '', stat
+            return msg_txt, stat
         msg_to_log = f'Motor message: {msg_txt} ' \
                      f'({error_severity}, ' \
                      f'{error_status})'
