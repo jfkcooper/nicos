@@ -73,7 +73,7 @@ def test_removing_rows():
         ['20', '21', '22'],
         ['30', '31', '32'],
     ]
-    # Create table with data
+    # Create model with data
     model = create_loki_script_model(len(data), data)
 
     positions = [0, 1]
