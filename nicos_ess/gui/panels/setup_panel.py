@@ -168,6 +168,7 @@ class ExpPanel(DefaultExpPanel):
         self._defined_data_emails = self.dataEmails.toPlainText().strip()
         self.applyWarningLabel.setVisible(False)
         self.is_exp_props_edited = [False] * self.num_experiment_props_opts
+        self.mainwindow.exp_proposal_activated.emit()
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
@@ -308,6 +309,8 @@ class FinishPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
+        self.mainwindow.exp_proposal_activated.connect(
+            self.on_new_experiment_proposal)
 
     def on_client_connected(self):
         if not self.client.viewonly:
@@ -319,6 +322,10 @@ class FinishPanel(Panel):
     def setViewOnly(self, value):
         self.finishButton.setEnabled(self.client.isconnected and not value)
 
+    def on_new_experiment_proposal(self):
+        if not self.client.viewonly:
+            self.finishButton.setEnabled(True)
+
     @pyqtSlot()
     def on_finishButton_clicked(self):
         if self._finish_exp_panel:
@@ -328,3 +335,11 @@ class FinishPanel(Panel):
         if self.client.run('FinishExperiment()', noqueue=True) is None:
             self.showError('Could not finish experiment, a script '
                            'is still running.')
+        else:
+            self.finishButton.setEnabled(False)
+            self.show_finish_message()
+
+    def show_finish_message(self):
+        msg_box = QMessageBox()
+        msg_box.setText('Experiment successfully finished.')
+        return msg_box.exec_()
