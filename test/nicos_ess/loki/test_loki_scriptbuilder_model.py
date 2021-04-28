@@ -54,7 +54,7 @@ def test_inserting_empty_row():
         ['20', '21', '22'],
         ['30', '31', '32'],
     ]
-    # Create table with DATA
+    # Create table with data
     model = create_loki_script_model(len(data), data)
 
     position = 2
