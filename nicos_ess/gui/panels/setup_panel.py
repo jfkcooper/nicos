@@ -80,9 +80,8 @@ class ExpPanel(Panel):
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
 
-        self._text_controls = (self.proposalNum, self.expTitle, self.users,
-                               self.localContacts, self.sampleName,
-                               self.proposalNum)
+        self._text_controls = (self.expTitle, self.users, self.localContacts,
+                               self.sampleName, self.proposalNum)
 
         # Additional dialog panel to pop up after NewExperiment()
         self._new_exp_panel = options.get('new_exp_panel')
