@@ -268,7 +268,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
         :return: returns an error message string and status.
         """
-        stat = self._get_motor_message_type(error_severity, error_status)
+        stat = self._get_message_status(error_severity, error_status)
         if stat == status.OK or stat == status.UNKNOWN:
             return msg_txt, stat
         msg_to_log = f'Motor message: {msg_txt} ' \
@@ -281,7 +281,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             self.log.error(msg_to_log)
             return f'Motor error: "{msg_txt}"', status.ERROR
 
-    def _get_motor_message_type(self, error_severity, error_status):
+    def _get_message_status(self, error_severity, error_status):
         if error_severity == 'INVALID' and error_status == 'COMM':
             return status.ERROR
         elif error_severity == 'MAJOR':
