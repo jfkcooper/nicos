@@ -71,14 +71,12 @@ def _add_commands_to_template(row_template, row_values):
 
 
 def _do_trans(row_values, trans_duration_type):
-
     template = (
         f"{_get_sample(row_values['sample'], row_values['thickness'])}\n"
         f"{_get_position(row_values['position'])}\n"
         f"{_get_temperature(row_values.get('temperature'))}"
         f"do_trans({row_values['trans_duration']}, '{trans_duration_type}')\n"
     )
-
     return template
 
 
