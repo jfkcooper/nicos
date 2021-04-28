@@ -95,7 +95,7 @@ def test_data_selected_for_selected_indices():
     selected_indices = [(0, 0), (0, 1), (1, 0), (1, 1)]
     selected_data = model.select_data(selected_indices)
 
-    assert selected_data == ['\t'.join(data[0][:2]), '\t'.join(data[1][:2])]
+    assert selected_data == [['00', '01'], ['10', '11']]
 
 
 def test_clipboard_data_gets_pasted_in_empty_table_at_top_left():
