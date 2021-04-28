@@ -30,7 +30,8 @@ from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
 from nicos.clients.gui.panels.setup_panel import combineUsers, splitUsers
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSlot
+from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSignal, \
+    pyqtSlot
 from nicos_ess.gui import uipath
 
 
@@ -45,6 +46,7 @@ class ExpPanel(DefaultExpPanel):
 
     panelName = 'Experiment setup'
     ui = '%s/panels/ui_files/setup_exp.ui' % uipath
+    exp_proposal_activated = pyqtSignal()
 
     def __init__(self, parent, client, options):
         DefaultExpPanel.__init__(self, parent, client, options)
@@ -168,7 +170,7 @@ class ExpPanel(DefaultExpPanel):
         self._defined_data_emails = self.dataEmails.toPlainText().strip()
         self.applyWarningLabel.setVisible(False)
         self.is_exp_props_edited = [False] * self.num_experiment_props_opts
-        self.mainwindow.exp_proposal_activated.emit()
+        self.exp_proposal_activated.emit()
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
@@ -260,10 +262,8 @@ class ExpPanel(DefaultExpPanel):
         self._set_warning_visibility()
 
     def _get_proposal_data(self, props_key):
-        curr_value = self._orig_propinfo.get(props_key)
-        if curr_value is None:
-            curr_value = ""
-        return curr_value
+        # returns empty string in case key not found or value of key is None
+        return self._orig_propinfo.get(props_key, '') or ''
 
     def _apply_warning_status(self, value, index, props_curr_val):
         self.is_exp_props_edited[index] = \
