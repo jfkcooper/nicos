@@ -221,15 +221,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
-        # Before anything, check IOC and controller communication status.
-        comm_fail_stat = self._check_ioc_controller_communication()
-        if comm_fail_stat:
-            return status.ERROR, comm_fail_stat
-
-        stat, message = EpicsMoveable.doStatus(self)
+        message, stat = self._get_status_message()
         if stat == status.ERROR:
-            error_msg = self._get_status_message()
-            return stat, error_msg
+            return stat, message
         elif stat == status.WARN:
             return stat, message
 
@@ -265,25 +259,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         empty string.
         """
         msg_txt, error_severity, error_status = self._read_epics_message_pvs()
-        if error_severity:
-            return self._log_epics_err_info(msg_txt, error_severity,
+        if msg_txt:
+            return self._log_epics_msg_info(msg_txt, error_severity,
                                             error_status)
         else:
-            return msg_txt
-
-    def _check_ioc_controller_communication(self):
-        """
-        Check if there is communication between the IOC and controller.
-
-        :return: returns communication error message if there is no connection,
-        otherwise returns an empty string.
-        """
-        msg_txt, error_severity, error_status = self._read_epics_message_pvs()
-        if error_severity == 'INVALID' and error_status == 'COMM':
-            return self._log_epics_err_info(msg_txt, error_severity,
-                                            error_status)
-        else:
-            return ''
+            return '', status.UNKNOWN
 
     def _read_epics_message_pvs(self):
         """
@@ -300,20 +280,36 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         else:
             return '', '', ''
 
-    def _log_epics_err_info(self, msg_txt, error_severity, error_status):
+    def _log_epics_msg_info(self, msg_txt, error_severity, error_status):
         """
-        Sends EPICS error information to the NICOS logger.
+        Sends EPICS message information to the NICOS logger.
 
-        :return: returns an error message string.
+        :return: returns an error message string and status.
         """
-        msg_to_log = f'Motor error: {msg_txt} ' \
+        stat = self._get_motor_message_type(error_severity, error_status)
+        if stat == status.OK or stat == status.UNKNOWN:
+            return f'Motor message: "{msg_txt}"', stat
+        msg_to_log = f'Motor message: {msg_txt} ' \
                      f'({error_severity}, ' \
                      f'{error_status})'
-        if error_severity == 'MINOR':
+        if stat == status.WARN:
             self.log.warning(msg_to_log)
-        else:
+            return f'Motor warning: "{msg_txt}"', status.WARN
+        elif error_severity == status.ERROR:
             self.log.error(msg_to_log)
-        return f'Motor error: "{msg_txt}"'
+            return f'Motor error: "{msg_txt}"', status.ERROR
+
+    def _get_motor_message_type(self, error_severity, error_status):
+        if error_severity == 'INVALID' and error_status == 'COMM':
+            return status.ERROR
+        elif error_severity == 'MAJOR':
+            return status.ERROR
+        elif error_severity == 'MINOR':
+            return status.WARN
+        elif error_severity == 'NO_ALARM':
+            return status.OK
+        else:
+            return status.UNKNOWN
 
     def doStop(self):
         self._put_pv('stop', 1, False)
