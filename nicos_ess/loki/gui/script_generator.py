@@ -172,7 +172,7 @@ class SansThenTrans:
                 if i < trans_times:
                     row_template += _do_trans(row_values, trans_duration_type)
 
-                template = _add_commands_to_template(row_template, row_values)
+                template += _add_commands_to_template(row_template, row_values)
                 template += '\n'
         return template
 
