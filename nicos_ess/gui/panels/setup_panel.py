@@ -309,8 +309,6 @@ class FinishPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
-        self.mainwindow.exp_proposal_activated.connect(
-            self.on_new_experiment_proposal)
 
     def on_client_connected(self):
         if not self.client.viewonly:
