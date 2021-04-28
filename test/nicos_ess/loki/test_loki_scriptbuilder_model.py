@@ -154,7 +154,7 @@ def test_clipboard_data_gets_pasted_at_index_in_table_with_data():
         ['20', '21', '22'],
         ['30', '31', '32'],
     ]
-    # Create table with data
+    # Create model with data
     model = create_loki_script_model(len(data), data)
     clipboard_data = [['A', 'B'], ['C', 'D']]
     index = (1, 0)
