@@ -29,26 +29,21 @@ from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
-from nicos_ess.loki.gui.sample_environment import SampleEnvironmentBase
 
 
-class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
+class LokiExperimentPanel(LokiPanelBase):
     panelName = 'LoKI Instrument Setup'
 
     def __init__(self, parent, client, options):
         LokiPanelBase.__init__(self, parent, client, options)
-        SampleEnvironmentBase.__init__(self)
         loadUi(self, findResource('nicos_ess/loki/gui/ui_files/exp_config.ui'))
-
-        self.window = parent
 
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
         self.initialise_connection_status_listeners()
-        self.initialise_environments()
         self.initialise_markups()
 
-        self.envComboBox.addItems(self.get_environment_names())
+        self.envComboBox.addItems(['Sample Changer A', 'Sample Changer B'])
         # Start with a "no item", ie, empty selection.
         self.envComboBox.setCurrentIndex(-1)
 
@@ -87,38 +82,6 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.invalid_sample_settings = []
         self.invalid_instrument_settings = []
 
-    def initialise_environments(self):
-        self.add_environment('SampleChanger',
-                             {
-                                'name': 'Tumbler Sample Changer',
-                                'number_of_cells': '4',
-                                'cell_type': 'Titanium',
-                                'can_rotate_samples': 'Yes',
-                                'has_temperature_control': 'No',
-                                'has_pressure_control': 'No'
-                             }
-                             )
-        self.add_environment('SampleChanger',
-                             {
-                                'name': 'Peltier Sample Changer',
-                                'number_of_cells': '12',
-                                'cell_type': 'Copper',
-                                'can_rotate_samples': 'No',
-                                'has_temperature_control': 'Yes',
-                                'has_pressure_control': 'No'
-                             }
-                             )
-        self.add_environment('SampleChanger',
-                             {
-                                'name': 'Dome Cell Sample Changer',
-                                'number_of_cells': '4',
-                                'cell_type': 'Aluminium/Titanium',
-                                'can_rotate_samples': 'No',
-                                'has_temperature_control': 'Yes',
-                                'has_pressure_control': 'Yes'
-                             }
-                             )
-
     def initialise_markups(self):
         setting_boxes = [
             self.apXBox, self.apYBox, self.apWBox, self.apHBox,
@@ -133,92 +96,44 @@ class LokiExperimentPanel(LokiPanelBase, SampleEnvironmentBase):
         self.instSetGroupBox.setEnabled(not viewonly)
 
     def _activate_environment_settings(self):
-        # Fill the read-only fields.
-        environment_type, environment = self._get_selected_environment()
-        self._map_environment_fields_to_properties(environment_type,
-                                                   environment)
-
         # Enable sample environments
         self.propertiesGroupBox.setVisible(True)
 
-        if environment_type == "SampleChanger":
-            self._set_cell_indices(environment)
-            self.refPosGroupBox.setVisible(True)
-            self.refPosGroupBox.setEnabled(True)
-            self.refCellSpinBox.setFocus()
+        self._set_cell_indices()
+        self.refPosGroupBox.setVisible(True)
+        self.refPosGroupBox.setEnabled(True)
+        self.refCellSpinBox.setFocus()
 
-    def _set_cell_indices(self, environment):
+    def _set_cell_indices(self):
         # Setting minimum and maximum values for the number of cells not only
         # ensures we have the correct numbers to choose from in the UI but also
         # prevents user errors as any integer that is not in [min, max] is not
         # allowed (or non-integer types).
         self.refCellSpinBox.setMinimum(1)
-        self.refCellSpinBox.setMaximum(float(environment.number_of_cells))
 
     def _set_sample_changer_ref_cell(self):
         pass
 
-    def _get_selected_environment(self):
-        for environment in self.environment_list:
-            if environment[1].name == self.envComboBox.currentText():
-                return environment
-
-    def _map_environment_fields_to_properties(self, environment_type,
-                                              environment):
-        _sample_changer = {
-            'first_property': (
-                (self.firstPropertyLabel, "Number of Cells:"),
-                (self.firstPropertyBox, environment.number_of_cells)
-            ),
-            'second_property': (
-                (self.secondPropertyLabel, "Cell Type:"),
-                (self.secondPropertyBox, environment.cell_type)
-            ),
-            'third_property': (
-                (self.thirdPropertyLabel, "dis.Rotate Samples:"),
-                (self.thirdPropertyBox, environment.can_rotate_samples)
-            ),
-            'fourth_property': (
-                (self.fourthPropertyLabel, "Temperature Control:"),
-                (self.fourthPropertyBox, environment.has_temperature_control)
-            ),
-            'fifth_property': (
-                (self.fifthPropertyLabel, "Pressure Control:"),
-                (self.fifthPropertyBox, environment.has_pressure_control)
-            )
-        }
-        if environment_type == 'SampleChanger':
-            for k in _sample_changer:
-                _sample_changer[k][0][0].setText(_sample_changer[k][0][1])
-                _sample_changer[k][1][0].setText(_sample_changer[k][1][1])
-
     def set_det_offset(self, value):
-        value_type = 'det_offset'
-        self._set_instrument_settings(value, value_type)
+        self._set_instrument_settings(value, value_type='det_offset')
 
     def set_apt_pos_x(self, value):
-        value_type = 'apt_pos_x'
-        self._set_instrument_settings(value, value_type)
+        self._set_instrument_settings(value, value_type='apt_pos_x')
 
     def set_apt_pos_y(self, value):
-        value_type = 'apt_pos_y'
-        self._set_instrument_settings(value, value_type)
+        self._set_instrument_settings(value, value_type='apt_pos_y')
 
     def set_apt_width(self, value):
-        value_type = 'apt_width'
-        self._set_instrument_settings(value, value_type)
+        self._set_instrument_settings(value, value_type='apt_width')
 
     def set_apt_height(self, value):
-        value_type = 'apt_height'
-        self._set_instrument_settings(value, value_type)
+        self._set_instrument_settings(value, value_type='apt_height')
 
     def set_ref_pos_x(self, value):
-        value_type = 'ref_pos_x'
-        self._set_instrument_settings(value, value_type)
+        self._set_instrument_settings(value, value_type='ref_pos_x')
 
     def set_ref_pos_y(self, value):
-        value_type = 'ref_pos_y'
-        self._set_instrument_settings(value, value_type)
+        self._set_instrument_settings(value, value_type='ref_pos_y')
 
     def _set_instrument_settings(self, value, value_type):
         if not value:
