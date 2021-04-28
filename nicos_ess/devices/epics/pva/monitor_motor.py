@@ -288,14 +288,17 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         """
         stat = self._get_motor_message_type(error_severity, error_status)
         if stat == status.OK or stat == status.UNKNOWN:
-            return f'Motor message: "{msg_txt}"', stat
+            if msg_txt:
+                return f'Motor message: "{msg_txt}"', stat
+            else:
+                return '', stat
         msg_to_log = f'Motor message: {msg_txt} ' \
                      f'({error_severity}, ' \
                      f'{error_status})'
         if stat == status.WARN:
             self.log.warning(msg_to_log)
             return f'Motor warning: "{msg_txt}"', status.WARN
-        elif error_severity == status.ERROR:
+        elif stat == status.ERROR:
             self.log.error(msg_to_log)
             return f'Motor error: "{msg_txt}"', status.ERROR
 
