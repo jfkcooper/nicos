@@ -259,7 +259,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         msg_txt, error_severity, error_status = self._read_epics_error_pvs()
         if msg_txt:
             stat = self._convert_to_nicos_status(error_severity, error_status)
-            self._log_epics_msg_info(msg_txt, stat)
+            self._log_epics_msg_info(msg_txt, stat, error_status)
             return msg_txt, stat
         else:
             return '', status.OK
@@ -275,10 +275,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         else:
             return '', '', ''
 
-    def _log_epics_msg_info(self, msg_txt, stat):
+    def _log_epics_msg_info(self, msg_txt, stat, epics_status):
         if stat == status.OK or stat == status.UNKNOWN:
             return
-        msg_to_log = f'Motor message: {msg_txt}'
+        msg_to_log = f'Motor message: {msg_txt} ({epics_status})'
         if stat == status.WARN:
             self.log.warning(msg_to_log)
         elif stat == status.ERROR:
