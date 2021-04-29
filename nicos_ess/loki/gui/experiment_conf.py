@@ -54,7 +54,6 @@ class LokiExperimentPanel(LokiPanelBase):
         # Hide and disable cell position properties which shall be only
         # available for sample environments that holds them.
         self.refPosGroupBox.setVisible(False)
-        self.refPosGroupBox.setEnabled(False)
 
         self.refCellSpinBox.valueChanged.connect(
             self._set_sample_changer_ref_cell
