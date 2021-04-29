@@ -278,7 +278,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     def _log_epics_msg_info(self, msg_txt, stat):
         if stat == status.OK or stat == status.UNKNOWN:
             return
-        msg_to_log = f'Motor message: {msg_txt} ({stat})'
+        msg_to_log = f'Motor message: {msg_txt}'
         if stat == status.WARN:
             self.log.warning(msg_to_log)
         elif stat == status.ERROR:
