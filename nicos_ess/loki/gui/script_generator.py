@@ -76,18 +76,18 @@ def _finish_sample(row_values):
 
 
 class TransFirst:
-    def generate_script(self, labeled_data, trans_duration_type,
+    def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
         for i in range(max(trans_times, sans_times)):
             if i < trans_times:
-                for row_values in labeled_data:
+                for row_values in table_data:
                     script += _initialise_sample(row_values)
                     script += _do_trans(row_values['trans_duration'],
                                         trans_duration_type)
                     script += _finish_sample(row_values)
             if i < sans_times:
-                for row_values in labeled_data:
+                for row_values in table_data:
                     script += _initialise_sample(row_values)
                     script += _do_sans(row_values['sans_duration'],
                                        sans_duration_type)
@@ -96,18 +96,18 @@ class TransFirst:
 
 
 class SansFirst:
-    def generate_script(self, labeled_data, trans_duration_type,
+    def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
         for i in range(max(trans_times, sans_times)):
             if i < sans_times:
-                for row_values in labeled_data:
+                for row_values in table_data:
                     script += _initialise_sample(row_values)
                     script += _do_sans(row_values['sans_duration'],
                                        sans_duration_type)
                     script += _finish_sample(row_values)
             if i < trans_times:
-                for row_values in labeled_data:
+                for row_values in table_data:
                     script += _initialise_sample(row_values)
                     script += _do_trans(row_values['trans_duration'],
                                         trans_duration_type)
@@ -116,11 +116,11 @@ class SansFirst:
 
 
 class TransThenSans:
-    def generate_script(self, labeled_data, trans_duration_type,
+    def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
         for i in range(max(trans_times, sans_times)):
-            for row_values in labeled_data:
+            for row_values in table_data:
                 script += _initialise_sample(row_values)
                 if i < trans_times:
                     script += _do_trans(row_values['trans_duration'],
@@ -133,11 +133,11 @@ class TransThenSans:
 
 
 class SansThenTrans:
-    def generate_script(self, labeled_data, trans_duration_type,
+    def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
         for i in range(max(trans_times, sans_times)):
-            for row_values in labeled_data:
+            for row_values in table_data:
                 script += _initialise_sample(row_values)
                 if i < sans_times:
                     script += _do_sans(row_values['sans_duration'],
@@ -150,11 +150,11 @@ class SansThenTrans:
 
 
 class Simultaneous:
-    def generate_script(self, labeled_data, trans_duration_type,
+    def generate_script(self, table_data, trans_duration_type,
                         sans_duration_type, trans_times, sans_times):
         script = ''
         for _ in range(sans_times):
-            for row_values in labeled_data:
+            for row_values in table_data:
                 script += _initialise_sample(row_values)
                 script += _do_simultaneous(row_values['sans_duration'],
                                            sans_duration_type)
