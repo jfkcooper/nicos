@@ -115,7 +115,7 @@ class TransFirst:
             if i < sans_times:
                 for row_values in labeled_data:
                     template += _add_commands_to_template(
-                        _do_sans(row_values, trans_duration_type),
+                        _do_sans(row_values, sans_duration_type),
                         row_values)
                     template += '\n'
         return template
@@ -129,7 +129,7 @@ class SansFirst:
             if i < sans_times:
                 for row_values in labeled_data:
                     template += _add_commands_to_template(
-                        _do_sans(row_values, trans_duration_type),
+                        _do_sans(row_values, sans_duration_type),
                         row_values)
                     template += '\n'
             if i < trans_times:
