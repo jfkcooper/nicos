@@ -61,7 +61,7 @@ def _do_simultaneous(sans_duration, sans_duration_type):
     return f'do_sans_simultaneous({sans_duration}, "{sans_duration_type}")\n'
 
 
-def _initialise_sample(row_values):
+def _start_sample(row_values):
     script = f'# Sample = {row_values["sample"]}\n'
     script += _get_command(row_values['pre-command'])
     script += (f'set_sample(\'{row_values["sample"]}\', '
@@ -82,13 +82,13 @@ class TransFirst:
         for i in range(max(trans_times, sans_times)):
             if i < trans_times:
                 for row_values in table_data:
-                    script += _initialise_sample(row_values)
+                    script += _start_sample(row_values)
                     script += _do_trans(row_values['trans_duration'],
                                         trans_duration_type)
                     script += _finish_sample(row_values)
             if i < sans_times:
                 for row_values in table_data:
-                    script += _initialise_sample(row_values)
+                    script += _start_sample(row_values)
                     script += _do_sans(row_values['sans_duration'],
                                        sans_duration_type)
                     script += _finish_sample(row_values)
@@ -102,13 +102,13 @@ class SansFirst:
         for i in range(max(trans_times, sans_times)):
             if i < sans_times:
                 for row_values in table_data:
-                    script += _initialise_sample(row_values)
+                    script += _start_sample(row_values)
                     script += _do_sans(row_values['sans_duration'],
                                        sans_duration_type)
                     script += _finish_sample(row_values)
             if i < trans_times:
                 for row_values in table_data:
-                    script += _initialise_sample(row_values)
+                    script += _start_sample(row_values)
                     script += _do_trans(row_values['trans_duration'],
                                         trans_duration_type)
                     script += _finish_sample(row_values)
@@ -121,7 +121,7 @@ class TransThenSans:
         script = ''
         for i in range(max(trans_times, sans_times)):
             for row_values in table_data:
-                script += _initialise_sample(row_values)
+                script += _start_sample(row_values)
                 if i < trans_times:
                     script += _do_trans(row_values['trans_duration'],
                                         trans_duration_type)
@@ -138,7 +138,7 @@ class SansThenTrans:
         script = ''
         for i in range(max(trans_times, sans_times)):
             for row_values in table_data:
-                script += _initialise_sample(row_values)
+                script += _start_sample(row_values)
                 if i < sans_times:
                     script += _do_sans(row_values['sans_duration'],
                                        sans_duration_type)
@@ -155,7 +155,7 @@ class Simultaneous:
         script = ''
         for _ in range(sans_times):
             for row_values in table_data:
-                script += _initialise_sample(row_values)
+                script += _start_sample(row_values)
                 script += _do_simultaneous(row_values['sans_duration'],
                                            sans_duration_type)
                 script += _finish_sample(row_values)
