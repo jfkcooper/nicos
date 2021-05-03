@@ -139,6 +139,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         if self.errormsgpv:
             status_pars.add('errormsgpv')
+            status_pars.add('error_status')
+            status_pars.add('error_severity')
         return status_pars
 
     def _get_pv_name(self, pvparam):
