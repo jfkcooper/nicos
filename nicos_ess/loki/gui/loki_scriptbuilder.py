@@ -359,6 +359,15 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         selected_data = self.model.select_data(selected_indices)
         return selected_data
 
+    def _get_hidden_columns(self):
+        hidden_columns = [(idx, column)
+                          for idx, column in enumerate(self.columns_in_order)
+                          if self.tableView.isColumnHidden(idx)]
+
+        if not hidden_columns:
+            return [], []
+        return zip(*hidden_columns)
+
     def _handle_table_paste(self):
         indices = []
         for index in self.tableView.selectedIndexes():
@@ -381,12 +390,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             # Only one value, so put it in all selected cells
             self._do_bulk_update(copied_table[0][0])
             return
-        hidden_columns = [idx for idx in range(len(self.columns_in_order))
-                          if self.tableView.isColumnHidden(idx)]
+
+        hidden_indices, _ = self._get_hidden_columns()
         self.model.update_data_from_clipboard(
-            copied_table, top_left, hidden_columns)
-
-
+            copied_table, top_left, hidden_indices)
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
@@ -408,9 +415,13 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.model.clear()
 
     def _extract_labeled_data(self):
+        _, hidden_columns = self._get_hidden_columns()
+
         labeled_data = []
         for row_data in self.model.table_data:
             labeled_row_data = dict(zip(self.columns_in_order, row_data))
+            for key in hidden_columns:
+                del labeled_row_data[key]
             # Row will contribute to script only if all permanent columns
             # values are present
             if all(map(labeled_row_data.get, self.permanent_columns.keys())):
@@ -419,6 +430,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
+        if self.is_data_in_hidden_columns():
+            self.showError('There is data in optional column(s) which '
+                           'will not appear in the script')
+
         labeled_data = self._extract_labeled_data()
 
         if self._available_trans_options[self.comboTransOrder.currentText()]\

@@ -63,16 +63,16 @@ def _do_simultaneous(sans_duration, sans_duration_type):
 
 def _start_sample(row_values):
     script = f'# Sample = {row_values["sample"]}\n'
-    script += _get_command(row_values['pre-command'])
+    script += _get_command(row_values.get('pre-command'))
     script += (f'set_sample(\'{row_values["sample"]}\', '
                f'{row_values["thickness"]})\n')
     script += f'set_position({row_values["position"]})\n'
-    script += _get_temperature(row_values['temperature'])
+    script += _get_temperature(row_values.get('temperature'))
     return script
 
 
 def _finish_sample(row_values):
-    return _get_command(row_values['post-command']) + '\n'
+    return _get_command(row_values.get('post-command')) + '\n'
 
 
 class TransFirst:
