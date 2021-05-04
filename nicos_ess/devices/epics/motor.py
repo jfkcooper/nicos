@@ -98,8 +98,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             'enable': 'CNEN',
             'set': 'SET',
             'foff': 'FOFF',
-            'error_status': 'STAT',
-            'error_severity': 'SEVR',
+            'alarm_status': 'STAT',
+            'alarm_severity': 'SEVR',
         }
 
     def _get_pv_parameters(self):
@@ -240,58 +240,47 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         :return: returns message to display, otherwise an
         empty string.
         """
-        msg_txt, error_severity, error_status = self._read_epics_message_pvs()
+        msg_txt, alarm_severity, alarm_status = self._read_epics_alarm_pvs()
         if msg_txt:
-            return self._log_epics_msg_info(msg_txt, error_severity,
-                                            error_status)
+            stat = self._convert_to_nicos_status(alarm_severity, alarm_status)
+            self._log_epics_msg_info(msg_txt, stat, alarm_status)
+            return msg_txt, stat
         else:
-            return '', status.UNKNOWN
+            return '', status.OK
 
-    def _read_epics_message_pvs(self):
+    def _read_epics_alarm_pvs(self):
         """
-        Parses the epics status message PVs and gives a dictionary containing
-        these in string format.
-
-        :return: returns a dictionary containing all the information regarding
-        status messages from EPICS.
+        :return: tuple containing alarm message, severity and status
         """
         if self.errormsgpv:
             return (self._get_pv('errormsgpv', as_string=True),
-                    self._get_pv('error_severity', as_string=True),
-                    self._get_pv('error_status', as_string=True))
+                    self._get_pv('alarm_severity', as_string=True),
+                    self._get_pv('alarm_status', as_string=True))
         else:
             return '', '', ''
 
-    def _log_epics_msg_info(self, msg_txt, error_severity, error_status):
-        """
-        Sends EPICS message information to the NICOS logger.
-
-        :return: returns an error message string and status.
-        """
-        stat = self._get_message_status(error_severity, error_status)
+    def _log_epics_msg_info(self, msg_txt, stat, epics_status):
         if stat == status.OK or stat == status.UNKNOWN:
-            return msg_txt, stat
-        msg_to_log = f'Motor message: {msg_txt} ' \
-                     f'({error_severity}, ' \
-                     f'{error_status})'
+            return
+        msg_to_log = f'Motor message: {msg_txt} ({epics_status})'
         if stat == status.WARN:
             self.log.warning(msg_to_log)
-            return f'Motor warning: "{msg_txt}"', status.WARN
         elif stat == status.ERROR:
             self.log.error(msg_to_log)
-            return f'Motor error: "{msg_txt}"', status.ERROR
 
-    def _get_message_status(self, error_severity, error_status):
-        if error_severity == 'INVALID' and error_status == 'COMM':
+    def _convert_to_nicos_status(self, alarm_severity, alarm_status):
+        """
+        Converts EPICS alarm to corresponding NICOS status.
+        """
+        if alarm_severity == 'INVALID' and alarm_status == 'COMM':
             return status.ERROR
-        elif error_severity == 'MAJOR':
+        elif alarm_severity == 'MAJOR':
             return status.ERROR
-        elif error_severity == 'MINOR':
+        elif alarm_severity == 'MINOR':
             return status.WARN
-        elif error_severity == 'NO_ALARM':
-            return status.OK
-        else:
+        elif alarm_severity == 'INVALID':
             return status.UNKNOWN
+        return status.OK
 
     def doStop(self):
         self._put_pv('stop', 1, False)

@@ -97,8 +97,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'set': 'SET',
         'foff': 'FOFF',
         'units': 'EGU',
-        'error_status': 'STAT',
-        'error_severity': 'SEVR',
+        'alarm_status': 'STAT',
+        'alarm_severity': 'SEVR',
     }
 
     _cache_relations = {
@@ -139,8 +139,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         if self.errormsgpv:
             status_pars.add('errormsgpv')
-            status_pars.add('error_status')
-            status_pars.add('error_severity')
+            status_pars.add('alarm_status')
+            status_pars.add('alarm_severity')
         return status_pars
 
     def _get_pv_name(self, pvparam):
@@ -258,22 +258,22 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         :return: returns message to display, otherwise an
         empty string.
         """
-        msg_txt, error_severity, error_status = self._read_epics_error_pvs()
+        msg_txt, alarm_severity, alarm_status = self._read_epics_alarm_pvs()
         if msg_txt:
-            stat = self._convert_to_nicos_status(error_severity, error_status)
-            self._log_epics_msg_info(msg_txt, stat, error_status)
+            stat = self._convert_to_nicos_status(alarm_severity, alarm_status)
+            self._log_epics_msg_info(msg_txt, stat, alarm_status)
             return msg_txt, stat
         else:
             return '', status.OK
 
-    def _read_epics_error_pvs(self):
+    def _read_epics_alarm_pvs(self):
         """
-        :return: tuple containing error messsage, severity and status
+        :return: tuple containing alarm message, severity and status
         """
         if self.errormsgpv:
             return (self._get_pv('errormsgpv', as_string=True),
-                    self._get_pv('error_severity', as_string=True),
-                    self._get_pv('error_status', as_string=True))
+                    self._get_pv('alarm_severity', as_string=True),
+                    self._get_pv('alarm_status', as_string=True))
         else:
             return '', '', ''
 
@@ -286,17 +286,17 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         elif stat == status.ERROR:
             self.log.error(msg_to_log)
 
-    def _convert_to_nicos_status(self, error_severity, error_status):
+    def _convert_to_nicos_status(self, alarm_severity, alarm_status):
         """
         Converts EPICS errors to corresponding NICOS status.
         """
-        if error_severity == 'INVALID' and error_status == 'COMM':
+        if alarm_severity == 'INVALID' and alarm_status == 'COMM':
             return status.ERROR
-        elif error_severity == 'MAJOR':
+        elif alarm_severity == 'MAJOR':
             return status.ERROR
-        elif error_severity == 'MINOR':
+        elif alarm_severity == 'MINOR':
             return status.WARN
-        elif error_severity == 'INVALID':
+        elif alarm_severity == 'INVALID':
             return status.UNKNOWN
         return status.OK
 
