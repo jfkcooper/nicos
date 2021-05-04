@@ -31,7 +31,7 @@ from nicos.clients.gui.panels import PanelDialog
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress
-from nicos.guisupport.qt import QMessageBox, pyqtSlot
+from nicos.guisupport.qt import QMessageBox, pyqtSignal, pyqtSlot
 from nicos.utils import decodeAny, findResource
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 
@@ -48,6 +48,7 @@ class ExpPanel(LokiPanelBase):
     """
 
     panelName = 'Experiment setup'
+    exp_proposal_activated = pyqtSignal()
 
     def __init__(self, parent, client, options):
         LokiPanelBase.__init__(self, parent, client, options)
@@ -287,7 +288,7 @@ class ExpPanel(LokiPanelBase):
         self._defined_emails = self.notifEmails.toPlainText().strip()
         self.is_exp_props_edited = [False] * self.num_experiment_props_opts
         self.applyWarningLabel.setVisible(False)
-        self.mainwindow.exp_proposal_activated.emit()
+        self.exp_proposal_activated.emit()
 
     @pyqtSlot(str)
     def on_proposalNum_textChanged(self, value):

@@ -29,8 +29,7 @@ from time import time as current_time
 
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
-    QMenu, QPixmap, QPoint, QSize, QSizePolicy, Qt, QWidget, pyqtSignal,\
-    pyqtSlot
+    QMenu, QPixmap, QPoint, QSize, QSizePolicy, Qt, QWidget, pyqtSlot
 
 from nicos_ess.gui import uipath
 from nicos_ess.gui.panels import get_icon, root_path
@@ -51,13 +50,17 @@ class Spacer(QWidget):
 
 class MainWindow(DefaultMainWindow):
     ui = '%s/main.ui' % uipath
-    exp_proposal_activated = pyqtSignal()
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         DefaultMainWindow.__init__(self, log, gui_conf, viewonly, tunnel)
         self.add_logo()
         self.set_icons()
         self.style_file = gui_conf.stylefile
+
+        # Connect widget events.
+        self.getPanel('Experiment setup').exp_proposal_activated.connect(
+            self.getPanel('Finish experiment').on_new_experiment_proposal
+        )
 
         # Cheeseburger menu
         dropdown = QMenu('')
@@ -72,7 +75,6 @@ class MainWindow(DefaultMainWindow):
         self.dropdown = dropdown
         self.actionExpert.setEnabled(self.client.isconnected)
         self.actionEmergencyStop.setEnabled(self.client.isconnected)
-
         self._init_instrument_name()
         self._init_experiment_name()
 
