@@ -359,7 +359,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         selected_data = self.model.select_data(selected_indices)
         return selected_data
 
-    def _get_hidden_columns(self):
+    def _get_hidden_column_indices_and_names(self):
         hidden_columns = [(idx, column)
                           for idx, column in enumerate(self.columns_in_order)
                           if self.tableView.isColumnHidden(idx)]
@@ -391,9 +391,9 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self._do_bulk_update(copied_table[0][0])
             return
 
-        hidden_indices, _ = self._get_hidden_columns()
+        hidden_column_indices, _ = self._get_hidden_column_indices_and_names()
         self.model.update_data_from_clipboard(
-            copied_table, top_left, hidden_indices)
+            copied_table, top_left, hidden_column_indices)
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
@@ -415,12 +415,12 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.model.clear()
 
     def _extract_labeled_data(self):
-        _, hidden_columns = self._get_hidden_columns()
+        _, hidden_column_names = self._get_hidden_column_indices_and_names()
 
         labeled_data = []
         for row_data in self.model.table_data:
             labeled_row_data = dict(zip(self.columns_in_order, row_data))
-            for key in hidden_columns:
+            for key in hidden_column_names:
                 del labeled_row_data[key]
             # Row will contribute to script only if all permanent columns
             # values are present
