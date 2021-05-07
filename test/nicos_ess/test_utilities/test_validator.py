@@ -29,14 +29,19 @@ from nicos_ess.utilities.validators import DoubleValidator
 double_validator = DoubleValidator(2, 100, 4)
 
 
-def test_validate_returns_acceptable_if_string_is_valid_float():
-    stat, _, _ = double_validator.validate("50.5", 0)
-    assert stat == QValidator.Acceptable
-
-
 def test_validate_returns_intermediate_if_empty_string():
     stat, _, _ = double_validator.validate("", 0)
     assert stat == QValidator.Intermediate
+
+
+def test_validate_returns_acceptable_if_string_is_valid_float():
+    stat, _, _ = double_validator.validate("50.5555", 0)
+    assert stat == QValidator.Acceptable
+
+
+def test_validate_returns_invalid_if_float_has_too_many_decimals():
+    stat, _, _ = double_validator.validate("50.55555", 0)
+    assert stat == QValidator.Invalid
 
 
 def test_validate_returns_invalid_if_string_with_dots_not_float():
@@ -49,13 +54,13 @@ def test_validate_returns_invalid_if_float_value_lower_than_min_val():
     assert stat == QValidator.Invalid
 
 
-def test_validate_returns_invalid_if_integer_value_lower_than_min_val():
-    stat, _, _ = double_validator.validate("0", 0)
+def test_validate_returns_invalid_if_float_value_higher_than_max_val():
+    stat, _, _ = double_validator.validate("105.5", 0)
     assert stat == QValidator.Invalid
 
 
-def test_validate_returns_invalid_if_float_value_higher_than_max_val():
-    stat, _, _ = double_validator.validate("105.5", 0)
+def test_validate_returns_invalid_if_integer_value_lower_than_min_val():
+    stat, _, _ = double_validator.validate("0", 0)
     assert stat == QValidator.Invalid
 
 
