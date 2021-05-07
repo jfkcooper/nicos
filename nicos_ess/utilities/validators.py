@@ -42,9 +42,9 @@ class DoubleValidator(QDoubleValidator):
         if string == "":
             return QValidator.Intermediate, string, pos
         """
-        Here we hack the QT API through `Intermediate` to be able to use
-        `.` in floats instead of `,` which QValidator expects. Try-except
-        block prevents string-types after `.` via float casting. That is, 
+        Here we make sure to use `.` in floats instead of `,` which 
+        QValidator expects. Try-except block prevents string-types after
+        `.` via float casting. That is, 
         
             >> if '.' in string:
                    return QValidator.Intermediate, string, pos
