@@ -58,7 +58,7 @@ class DoubleValidator(QDoubleValidator):
         if '.' in string:
             try:
                 if self.maximum_value > float(string) > self.minimum_value:
-                    return QValidator.Intermediate, string, pos
+                    return QValidator.Acceptable, string, pos
             except ValueError:
                 return QValidator.Invalid, string, pos
             finally:
