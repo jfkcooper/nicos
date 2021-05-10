@@ -25,7 +25,7 @@
 """LoKI Experiment Configuration dialog."""
 import itertools
 
-from nicos.guisupport.qt import QMessageBox, Qt, QLineEdit
+from nicos.guisupport.qt import Qt, QLineEdit
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
