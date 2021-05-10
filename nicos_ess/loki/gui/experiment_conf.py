@@ -23,12 +23,16 @@
 # *****************************************************************************
 
 """LoKI Experiment Configuration dialog."""
-from nicos.guisupport.qt import QMessageBox, Qt
+import itertools
+from collections import namedtuple
+
+from nicos.guisupport.qt import QMessageBox, Qt, QGroupBox, QLineEdit
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
+from nicos_ess.utilities.validators import DoubleValidator
 
 
 class LokiExperimentPanel(LokiPanelBase):
@@ -42,6 +46,7 @@ class LokiExperimentPanel(LokiPanelBase):
         self.instrument = options.get('instrument', 'loki')
         self.initialise_connection_status_listeners()
         self.initialise_markups()
+        self.initialise_validators()
 
         self.envComboBox.addItems(['Sample Changer A', 'Sample Changer B'])
         # Start with a "no item", ie, empty selection.
@@ -90,6 +95,25 @@ class LokiExperimentPanel(LokiPanelBase):
             box.setAlignment(Qt.AlignRight)
             box.setPlaceholderText('0.0')
 
+    def initialise_validators(self):
+        _validator_values = {  # in units of mm
+            'bottom': 0.0,
+            'top': 1000.0,
+            'decimal': 5,
+        }
+        validator = DoubleValidator(**_validator_values)
+        for box in self._get_editable_settings():
+            box.setValidator(validator)
+
+    def _get_editable_settings(self):
+        _editable_settings = list(
+            itertools.chain(
+                self.aptGroupBox.findChildren(QLineEdit),
+                self.detGroupBox.findChildren(QLineEdit)
+            )
+        )
+        return _editable_settings
+
     def setViewOnly(self, viewonly):
         self.sampleSetGroupBox.setEnabled(not viewonly)
         self.instSetGroupBox.setEnabled(not viewonly)
@@ -114,19 +138,19 @@ class LokiExperimentPanel(LokiPanelBase):
         pass
 
     def set_det_offset(self, value):
-        self._set_instrument_settings(value, value_type='det_offset')
+        pass
 
     def set_apt_pos_x(self, value):
-        self._set_instrument_settings(value, value_type='apt_pos_x')
+        pass
 
     def set_apt_pos_y(self, value):
-        self._set_instrument_settings(value, value_type='apt_pos_y')
+        pass
 
     def set_apt_width(self, value):
-        self._set_instrument_settings(value, value_type='apt_width')
+        pass
 
     def set_apt_height(self, value):
-        self._set_instrument_settings(value, value_type='apt_height')
+        pass
 
     def set_ref_pos_x(self, value):
         self._set_instrument_settings(value, value_type='ref_pos_x')
