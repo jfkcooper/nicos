@@ -81,10 +81,6 @@ class LokiExperimentPanel(LokiPanelBase):
         self.sampleSetApply.setEnabled(False)
         self.instSetApply.setEnabled(False)
 
-        # Required for the dynamic validation
-        self.invalid_sample_settings = []
-        self.invalid_instrument_settings = []
-
     def initialise_markups(self):
         for box in self._get_editable_settings():
             box.setAlignment(Qt.AlignRight)
@@ -148,62 +144,7 @@ class LokiExperimentPanel(LokiPanelBase):
         pass
 
     def set_ref_pos_x(self, value):
-        self._set_instrument_settings(value, value_type='ref_pos_x')
+        pass
 
     def set_ref_pos_y(self, value):
-        self._set_instrument_settings(value, value_type='ref_pos_y')
-
-    def _set_instrument_settings(self, value, value_type):
-        if not value:
-            return
-        map_value_type_to_settings = {
-            'sample': ['ref_pos_x', 'ref_pos_y'],
-            'instrument': ['apt_pos_x', 'apt_pos_y',
-                           'apt_width', 'apt_height', 'det_offset']
-        }
-        # Get settings type from value type
-        for key, values in map_value_type_to_settings.items():
-            if value_type in values:
-                settings_type = key
-                # Validate wrt settings type
-                self._validate_instrument_settings(value, value_type,
-                                                   settings_type)
-
-    def _validate_instrument_settings(self, value, value_type, settings_type):
-        # The entered value to any of the settings should be float-able.
-        # If not, this is caught by the Python runtime during casting
-        # and raises an error. We would like to warn to user without raising.
-        map_settings = {
-            'sample': (self.sampleSetApply.setEnabled,
-                       self.invalid_sample_settings),
-            'instrument': (self.instSetApply.setEnabled,
-                           self.invalid_instrument_settings)
-        }
-        map_value_type_to_setting = {
-            'apt_pos_x': self.apXBox,
-            'apt_pos_y': self.apYBox,
-            'apt_width': self.apWBox,
-            'apt_height': self.apHBox,
-            'det_offset': self.offsetBox,
-            'ref_pos_x': self.refPosXBox,
-            'ref_pos_y': self.refPosYBox
-        }
-        try:
-            float(value)
-            if value_type in map_settings[settings_type][1]:
-                map_settings[settings_type][1].remove(value_type)
-                map_value_type_to_setting[value_type]. \
-                    setClearButtonEnabled(False)
-            # Enable apply button upon validation here to prevent repetition
-            # of the code and/or misbehaviour due to multiple edits.
-            if len(map_settings[settings_type][1]) == 0:
-                map_settings[settings_type][0](True)
-            return
-        except ValueError:
-            if value_type not in map_settings[settings_type][1]:
-                QMessageBox.warning(self, 'Error',
-                                    'A value should be a number.')
-                map_settings[settings_type][1].append(value_type)
-                map_value_type_to_setting[value_type].\
-                    setClearButtonEnabled(True)
-            map_settings[settings_type][0](False)
+        pass
