@@ -96,12 +96,10 @@ class LokiExperimentPanel(LokiPanelBase):
             box.setValidator(validator)
 
     def _get_editable_settings(self):
-        _editable_settings = list(
-            itertools.chain(
+        _editable_settings = itertools.chain(
                 self.aptGroupBox.findChildren(QLineEdit),
                 self.detGroupBox.findChildren(QLineEdit)
             )
-        )
         return _editable_settings
 
     def setViewOnly(self, viewonly):
