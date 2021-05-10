@@ -24,9 +24,8 @@
 
 """LoKI Experiment Configuration dialog."""
 import itertools
-from collections import namedtuple
 
-from nicos.guisupport.qt import QMessageBox, Qt, QGroupBox, QLineEdit
+from nicos.guisupport.qt import QMessageBox, Qt, QLineEdit
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
@@ -87,11 +86,7 @@ class LokiExperimentPanel(LokiPanelBase):
         self.invalid_instrument_settings = []
 
     def initialise_markups(self):
-        setting_boxes = [
-            self.apXBox, self.apYBox, self.apWBox, self.apHBox,
-            self.offsetBox, self.refPosXBox, self.refPosYBox
-        ]
-        for box in setting_boxes:
+        for box in self._get_editable_settings():
             box.setAlignment(Qt.AlignRight)
             box.setPlaceholderText('0.0')
 
@@ -212,4 +207,3 @@ class LokiExperimentPanel(LokiPanelBase):
                 map_value_type_to_setting[value_type].\
                     setClearButtonEnabled(True)
             map_settings[settings_type][0](False)
-
