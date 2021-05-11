@@ -23,12 +23,14 @@
 # *****************************************************************************
 
 """LoKI Experiment Configuration dialog."""
-from nicos.guisupport.qt import QMessageBox, Qt
+import itertools
 
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QLineEdit, Qt
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
+from nicos_ess.utilities.validators import DoubleValidator
 
 
 class LokiExperimentPanel(LokiPanelBase):
@@ -42,6 +44,7 @@ class LokiExperimentPanel(LokiPanelBase):
         self.instrument = options.get('instrument', 'loki')
         self.initialise_connection_status_listeners()
         self.initialise_markups()
+        self.initialise_validators()
 
         self.envComboBox.addItems(['Sample Changer A', 'Sample Changer B'])
         # Start with a "no item", ie, empty selection.
@@ -77,18 +80,27 @@ class LokiExperimentPanel(LokiPanelBase):
         self.sampleSetApply.setEnabled(False)
         self.instSetApply.setEnabled(False)
 
-        # Required for the dynamic validation
-        self.invalid_sample_settings = []
-        self.invalid_instrument_settings = []
-
     def initialise_markups(self):
-        setting_boxes = [
-            self.apXBox, self.apYBox, self.apWBox, self.apHBox,
-            self.offsetBox, self.refPosXBox, self.refPosYBox
-        ]
-        for box in setting_boxes:
+        for box in self._get_editable_settings():
             box.setAlignment(Qt.AlignRight)
             box.setPlaceholderText('0.0')
+
+    def initialise_validators(self):
+        _validator_values = {  # in units of mm
+            'bottom': 0.0,
+            'top': 1000.0,
+            'decimal': 5,
+        }
+        validator = DoubleValidator(**_validator_values)
+        for box in self._get_editable_settings():
+            box.setValidator(validator)
+
+    def _get_editable_settings(self):
+        _editable_settings = itertools.chain(
+                self.aptGroupBox.findChildren(QLineEdit),
+                self.detGroupBox.findChildren(QLineEdit)
+            )
+        return _editable_settings
 
     def setViewOnly(self, viewonly):
         self.sampleSetGroupBox.setEnabled(not viewonly)
@@ -114,78 +126,22 @@ class LokiExperimentPanel(LokiPanelBase):
         pass
 
     def set_det_offset(self, value):
-        self._set_instrument_settings(value, value_type='det_offset')
+        pass
 
     def set_apt_pos_x(self, value):
-        self._set_instrument_settings(value, value_type='apt_pos_x')
+        pass
 
     def set_apt_pos_y(self, value):
-        self._set_instrument_settings(value, value_type='apt_pos_y')
+        pass
 
     def set_apt_width(self, value):
-        self._set_instrument_settings(value, value_type='apt_width')
+        pass
 
     def set_apt_height(self, value):
-        self._set_instrument_settings(value, value_type='apt_height')
+        pass
 
     def set_ref_pos_x(self, value):
-        self._set_instrument_settings(value, value_type='ref_pos_x')
+        pass
 
     def set_ref_pos_y(self, value):
-        self._set_instrument_settings(value, value_type='ref_pos_y')
-
-    def _set_instrument_settings(self, value, value_type):
-        if not value:
-            return
-        map_value_type_to_settings = {
-            'sample': ['ref_pos_x', 'ref_pos_y'],
-            'instrument': ['apt_pos_x', 'apt_pos_y',
-                           'apt_width', 'apt_height', 'det_offset']
-        }
-        # Get settings type from value type
-        for key, values in map_value_type_to_settings.items():
-            if value_type in values:
-                settings_type = key
-                # Validate wrt settings type
-                self._validate_instrument_settings(value, value_type,
-                                                   settings_type)
-
-    def _validate_instrument_settings(self, value, value_type, settings_type):
-        # The entered value to any of the settings should be float-able.
-        # If not, this is caught by the Python runtime during casting
-        # and raises an error. We would like to warn to user without raising.
-        map_settings = {
-            'sample': (self.sampleSetApply.setEnabled,
-                       self.invalid_sample_settings),
-            'instrument': (self.instSetApply.setEnabled,
-                           self.invalid_instrument_settings)
-        }
-        map_value_type_to_setting = {
-            'apt_pos_x': self.apXBox,
-            'apt_pos_y': self.apYBox,
-            'apt_width': self.apWBox,
-            'apt_height': self.apHBox,
-            'det_offset': self.offsetBox,
-            'ref_pos_x': self.refPosXBox,
-            'ref_pos_y': self.refPosYBox
-        }
-        try:
-            float(value)
-            if value_type in map_settings[settings_type][1]:
-                map_settings[settings_type][1].remove(value_type)
-                map_value_type_to_setting[value_type]. \
-                    setClearButtonEnabled(False)
-            # Enable apply button upon validation here to prevent repetition
-            # of the code and/or misbehaviour due to multiple edits.
-            if len(map_settings[settings_type][1]) == 0:
-                map_settings[settings_type][0](True)
-            return
-        except ValueError:
-            if value_type not in map_settings[settings_type][1]:
-                QMessageBox.warning(self, 'Error',
-                                    'A value should be a number.')
-                map_settings[settings_type][1].append(value_type)
-                map_value_type_to_setting[value_type].\
-                    setClearButtonEnabled(True)
-            map_settings[settings_type][0](False)
-
+        pass
