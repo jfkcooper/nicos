@@ -359,14 +359,13 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         selected_data = self.model.select_data(selected_indices)
         return selected_data
 
-    def _get_hidden_column_indices_and_names(self):
-        hidden_columns = [(idx, column)
-                          for idx, column in enumerate(self.columns_in_order)
-                          if self.tableView.isColumnHidden(idx)]
+    def _get_hidden_column_indices(self):
+        return [idx for idx, _ in enumerate(self.columns_in_order)
+                if self.tableView.isColumnHidden(idx)]
 
-        if not hidden_columns:
-            return [], []
-        return zip(*hidden_columns)
+    def _get_hidden_column_names(self):
+        return [name for idx, name in enumerate(self.columns_in_order)
+                if self.tableView.isColumnHidden(idx)]
 
     def _handle_table_paste(self):
         indices = []
@@ -391,7 +390,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self._do_bulk_update(copied_table[0][0])
             return
 
-        hidden_column_indices, _ = self._get_hidden_column_indices_and_names()
+        hidden_column_indices = self._get_hidden_column_indices()
         self.model.update_data_from_clipboard(
             copied_table, top_left, hidden_column_indices)
 
@@ -415,7 +414,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.model.clear()
 
     def _extract_labeled_data(self):
-        _, hidden_column_names = self._get_hidden_column_indices_and_names()
+        hidden_column_names = self._get_hidden_column_names()
 
         labeled_data = []
         for row_data in self.model.table_data:
