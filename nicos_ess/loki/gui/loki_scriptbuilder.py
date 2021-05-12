@@ -427,6 +427,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
+        if self.is_data_in_hidden_columns():
+            self.showError('There is data in optional column(s) which will '
+                           'not appear in the script')
+
         labeled_data = self._extract_labeled_data()
 
         if self._available_trans_options[self.comboTransOrder.currentText()]\
