@@ -31,6 +31,7 @@ from streaming_data_types.fbschemas.logdata_f142.AlarmStatus import AlarmStatus
 from streaming_data_types.logdata_f142 import serialise_f142
 
 from nicos.core import Device, Override, Param, host, listof, status
+from nicos.protocols.cache import cache_load
 from nicos.services.collector import ForwarderBase
 from nicos.utils import createThread
 
@@ -150,8 +151,12 @@ class CacheKafkaForwarder(ForwarderBase, Device):
         while True:
             name, value, status, timestamp = self._queue.get()
             try:
-                buffer = to_f142(name, value, status, timestamp)
-                self._send_to_kafka(buffer)
+                # Convert value from string to correct type
+                value = cache_load(value)
+                if not isinstance(value, str):
+                    # Policy decision: don't send strings via f142
+                    buffer = to_f142(name, value, status, timestamp)
+                    self._send_to_kafka(buffer)
             except Exception as error:
                 self.log.error('Could not forward data: %s', error)
             self._queue.task_done()
