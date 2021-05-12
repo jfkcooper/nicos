@@ -38,7 +38,7 @@ from nicos.utils import findResource
 from nicos_ess.gui.panels import get_icon
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
-from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
+from nicos_ess.loki.gui.loki_script_generator import ScriptGenerator, TransOrder
 from nicos_ess.utilities.csv_utils import load_table_from_csv, \
     save_table_to_csv
 from nicos_ess.utilities.table_utils import convert_table_to_clipboard_text, \
