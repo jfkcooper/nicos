@@ -66,7 +66,7 @@ def _start_sample(row_values):
     script += _get_command(row_values.get('pre-command'))
     script += (f'set_sample(\'{row_values["sample"]}\', '
                f'{row_values["thickness"]})\n')
-    script += f'move(positioner, {row_values["position"]})\n'
+    script += f'move(positioner, "{row_values["position"]}")\n'
     script += _get_temperature(row_values.get('temperature'))
     return script
 

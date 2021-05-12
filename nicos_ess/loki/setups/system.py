@@ -42,6 +42,10 @@ devices = dict(
         path=None,
         minfree=5,
     ),
+
+    positioner=device('nicos.devices.generic.DeviceAlias',
+        devclass='nicos.core.device.Moveable',
+    ),
 )
 
 startupcode = '''
