@@ -9,7 +9,7 @@ devices = dict(
         output_topic='ymir_nicos_devices',
     ),
     Collector=device('nicos.services.collector.Collector',
-        cache='172.30.242.20:14869',
+        cache='localhost:14869',
         forwarders=['CacheKafka'],
     ),
 )
