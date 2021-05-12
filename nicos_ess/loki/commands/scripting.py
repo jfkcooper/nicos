@@ -23,34 +23,29 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-import csv
+
+from nicos.commands import helparglist, usercommand
 
 
-def export_table_to_csv(data, filename, headers=None):
-    """Export 2D data list to a text file.
-
-    :param data: 2D data list
-    :param filename: file to save as
-    :param headers: List of column names.
-    """
-    with open(filename, "w") as file:
-        writer = csv.writer(file)
-        if headers:
-            writer.writerow(headers)
-        writer.writerows(data)
+@usercommand
+@helparglist('trans_duration, trans_duration_type')
+def do_trans(trans_duration, trans_duration_type):
+    pass
 
 
-def import_table_from_csv(filename):
-    """Import tabular data from a csv file.
+@usercommand
+@helparglist('sans_duration, sans_duration_type')
+def do_sans(sans_duration, sans_duration_type):
+    pass
 
-    :param filename: path to csv file
-    :return: tuple of headers (empty if no headers) and rows
-    """
-    with open(filename, "r") as file:
-        sniffer = csv.Sniffer()
-        has_header = sniffer.has_header(file.read(2048))
-        file.seek(0)
-        rows = list(csv.reader(file))
-        if has_header:
-            return rows[0], rows[1:]
-        return [], rows
+
+@usercommand
+@helparglist('sans_duration, sans_duration_type')
+def do_sans_simultaneous(sans_duration, sans_duration_type):
+    pass
+
+
+@usercommand
+@helparglist('name, thickness')
+def set_sample(name, thickness):
+    pass

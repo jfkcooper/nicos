@@ -9,7 +9,7 @@ sysconfig = dict(
     datasinks=['conssink', 'filesink', 'daemonsink'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'nicos_ess.loki.commands.scripting']
 
 devices = dict(
     LoKI=device('nicos.devices.instrument.Instrument',
@@ -41,6 +41,10 @@ devices = dict(
         description='The amount of free space for storing data',
         path=None,
         minfree=5,
+    ),
+
+    positioner=device('nicos.devices.generic.DeviceAlias',
+        devclass='nicos.core.device.Moveable',
     ),
 )
 
