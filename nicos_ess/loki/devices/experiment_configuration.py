@@ -23,3 +23,37 @@
 # *****************************************************************************
 
 """LoKI Experiment Configuration Devices."""
+from nicos.core import Device, Param
+
+
+class Aperture(Device):
+    parameters = {
+        'x': Param('Aperture x-position',
+                   type=float,
+                   settable=True,
+                   unit='mm',
+                   mandatory=True
+                   ),
+        'y': Param('Aperture y-position',
+                   type=float,
+                   settable=True,
+                   unit='mm',
+                   mandatory=True
+                   ),
+        'width': Param('Aperture width',
+                       type=float,
+                       settable=True,
+                       unit='mm',
+                       mandatory=True
+                       ),
+        'height': Param('Aperture height',
+                        type=float,
+                        settable=True,
+                        unit='mm',
+                        mandatory=True
+                        ),
+
+    }
+
+    def _set_parameter(self, param, value):
+        self._setROParam(f'{param}', value)
