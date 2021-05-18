@@ -51,9 +51,7 @@ def convert_status(nicos_status):
     :param nicos_status: the NICOS status
     :return: the f142 schema severity
     """
-    if nicos_status:
-        return nicos_status_to_f142.get(nicos_status, AlarmSeverity.NO_ALARM)
-    return AlarmSeverity.NO_ALARM
+    return nicos_status_to_f142.get(nicos_status, AlarmSeverity.NO_ALARM)
 
 
 def to_f142(dev_name, dev_value, dev_severity, timestamp_ns):
