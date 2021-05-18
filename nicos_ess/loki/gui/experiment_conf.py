@@ -44,7 +44,6 @@ class LokiExperimentPanel(LokiPanelBase):
         self.instrument = options.get('instrument', 'loki')
         self.initialise_connection_status_listeners()
         self.initialise_markups()
-        self.initialise_validators()
 
         self.envComboBox.addItems(['Sample Changer A', 'Sample Changer B'])
         # Start with a "no item", ie, empty selection.
@@ -80,10 +79,33 @@ class LokiExperimentPanel(LokiPanelBase):
         self.sampleSetApply.setEnabled(False)
         self.instSetApply.setEnabled(False)
 
+    def on_client_connected(self):
+        LokiPanelBase.on_client_connected(self)
+        self._set_cached_values_to_ui()
+        self.initialise_validators()
+
+    def on_client_disconnected(self):
+        LokiPanelBase.on_client_disconnected(self)
+        self.initialise_markups()
+
+    def _set_cached_values_to_ui(self):
+        apt_keys = ('x', 'y', 'width', 'height', 'offset')
+        inst_settings = [
+            self.client.getDeviceParam('InstrumentSettings', param)
+            for param in apt_keys
+        ]
+        for index, box in enumerate(self._get_editable_settings()):
+            box.setText(f'{inst_settings[index]}')
+
     def initialise_markups(self):
         for box in self._get_editable_settings():
+            box.clear()
             box.setAlignment(Qt.AlignRight)
-            box.setPlaceholderText('0.0')
+            # The validator should be reset upon disconnection from the server.
+            # This is due to false behaviour of QT when reconnected, ie, the
+            # validator fails (does not initialise) until a valid value entered.
+            box.setValidator(None)
+            box.setPlaceholderText('1.0')
 
     def initialise_validators(self):
         _validator_values = {  # in units of mm

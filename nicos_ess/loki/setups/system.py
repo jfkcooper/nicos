@@ -31,14 +31,11 @@ devices = dict(
                sample='Sample',
                ),
 
-    Aperture=device('nicos_ess.loki.devices.'
-                    'experiment_configuration.Aperture',
-                    x='0.0',
-                    y='0.0',
-                    width='0.0',
-                    height='0.0',
-                    lowlevel=True,
-                    ),
+    InstrumentSettings=device('nicos_ess.loki.devices.'
+                              'experiment_configuration.InstrumentSettings',
+                              description='aperture settings',
+                              lowlevel=True,
+                              ),
 
     filesink=device('nicos.devices.datasinks.AsciiScanfileSink', ),
 
