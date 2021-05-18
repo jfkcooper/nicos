@@ -35,7 +35,7 @@ from nicos.protocols.cache import cache_load
 from nicos.services.collector import ForwarderBase
 from nicos.utils import createThread
 
-# Policy decision: treat everything that is not WARN or ERROR as OK
+
 nicos_status_to_f142 = {
     status.OK: AlarmSeverity.NO_ALARM,
     status.WARN: AlarmSeverity.MINOR,
@@ -45,6 +45,8 @@ nicos_status_to_f142 = {
 
 def convert_status(nicos_status):
     """Convert the NICOS status into the corresponding f142 schema severity.
+
+    Policy decision: treat everything that is not WARN or ERROR as OK.
 
     :param nicos_status: the NICOS status
     :return: the f142 schema severity
