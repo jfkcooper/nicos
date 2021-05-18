@@ -76,7 +76,14 @@ class EpicsMonitorMixin(DeviceMixinBase):
                               **kwargs):
         self.log.debug(
             f'{name} [{param}]: value cb with {value} {severity} {message}!')
-        # TODO: if no cache key then what should we do with it?
+        self._value_change_callback(name, param, value, severity, message,
+                                    **kwargs)
+
+    def _value_change_callback(self, name, param, value, severity, message,
+                               **kwargs):
+        """
+        Override this for custom behaviour in sub-classes.
+        """
         cache_key = self._get_cache_relation(param) or name
         self._cache.put(self._name, cache_key, value, time.time())
         self._set_status(name, param, severity, message)
@@ -85,6 +92,14 @@ class EpicsMonitorMixin(DeviceMixinBase):
                                **kwargs):
         self.log.debug(
             f'{name} [{param}]: status cb with {value} {severity} {message}')
+        self._status_change_callback(name, param, value, severity, message,
+                                     **kwargs)
+
+    def _status_change_callback(self, name, param, value, severity, message,
+                               **kwargs):
+        """
+        Override this for custom behaviour in sub-classes.
+        """
         self._set_status(name, param, severity, message)
         current_status = self.doStatus()
         self._cache.put(self._name, 'status', current_status, time.time())
