@@ -35,7 +35,6 @@ from nicos.protocols.cache import cache_load
 from nicos.services.collector import ForwarderBase
 from nicos.utils import createThread
 
-
 nicos_status_to_f142 = {
     status.OK: AlarmSeverity.NO_ALARM,
     status.WARN: AlarmSeverity.MINOR,
