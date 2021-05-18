@@ -123,7 +123,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
         return False
 
     def _putChange(self, time, ttl, key, value):
-        if not value:
+        if value is None:
             return
         dev_name = key[0:key.index('/')]
         if not self._checkKey(key) or not self._checkDevice(dev_name):
