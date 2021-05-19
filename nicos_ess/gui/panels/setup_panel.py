@@ -30,9 +30,9 @@ from nicos.clients.gui.panels.setup_panel import \
     SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSlot
-from nicos.utils import decodeAny, findResource
-
+from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSignal, \
+    pyqtSlot
+from nicos.utils import findResource, decodeAny
 from nicos_ess.gui import uipath
 
 
@@ -69,6 +69,7 @@ class ExpPanel(Panel):
     """
 
     panelName = 'Experiment setup'
+    exp_proposal_activated = pyqtSignal()
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
@@ -223,7 +224,7 @@ class ExpPanel(Panel):
         self._update_proposal_info()
 
         self.applyWarningLabel.setVisible(False)
-        self.mainwindow.exp_proposal_activated.emit()
+        self.exp_proposal_activated.emit()
 
     def _update_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
@@ -260,7 +261,6 @@ class ExpPanel(Panel):
             self.client.run('SetMailReceivers(%s)' %
                             ', '.join(map(repr, notifications)))
             changes.append('New mail receivers set.')
-
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
@@ -380,8 +380,6 @@ class FinishPanel(Panel):
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
-        self.mainwindow.exp_proposal_activated.connect(
-            self.on_new_experiment_proposal)
 
     def on_client_connected(self):
         if not self.client.viewonly:
