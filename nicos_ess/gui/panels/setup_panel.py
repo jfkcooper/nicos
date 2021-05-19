@@ -30,9 +30,10 @@ from nicos.clients.gui.panels.setup_panel import \
     SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSignal, \
-    pyqtSlot
-from nicos.utils import findResource, decodeAny
+from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, \
+    pyqtSignal, pyqtSlot
+from nicos.utils import decodeAny, findResource
+
 from nicos_ess.gui import uipath
 
 
