@@ -82,7 +82,8 @@ class ExpPanel(Panel):
         self.applyWarningLabel.setVisible(False)
 
         self._text_controls = (self.expTitle, self.users, self.localContacts,
-                               self.sampleName, self.proposalNum)
+                               self.sampleName, self.proposalNum,
+                               self.proposalQuery)
 
         # Additional dialog panel to pop up after NewExperiment()
         self._new_exp_panel = options.get('new_exp_panel')
@@ -155,7 +156,11 @@ class ExpPanel(Panel):
         self.notifEmails.setEnabled(not is_view_only)
         self.errorAbortBox.setEnabled(not is_view_only)
         self.queryDBButton.setEnabled(not is_view_only)
-        self.applyButton.setEnabled(not is_view_only)
+        if is_view_only:
+            self.applyButton.setEnabled(False)
+            self.applyWarningLabel.setVisible(False)
+        else:
+            self._check_for_changes()
 
     def _format_users(self, users):
         if users:
