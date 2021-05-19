@@ -74,8 +74,6 @@ class EpicsMonitorMixin(DeviceMixinBase):
 
     def value_change_callback(self, name, param, value, severity, message,
                               **kwargs):
-        self.log.debug(
-            f'{name} [{param}]: value cb with {value} {severity} {message}!')
         self._value_change_callback(name, param, value, severity, message,
                                     **kwargs)
 
@@ -90,8 +88,6 @@ class EpicsMonitorMixin(DeviceMixinBase):
 
     def status_change_callback(self, name, param, value, severity, message,
                                **kwargs):
-        self.log.debug(
-            f'{name} [{param}]: status cb with {value} {severity} {message}')
         self._status_change_callback(name, param, value, severity, message,
                                      **kwargs)
 
@@ -106,12 +102,12 @@ class EpicsMonitorMixin(DeviceMixinBase):
 
     def connection_change_callback(self, name, pvparam, is_connected, **kwargs):
         if is_connected:
-            self.log.debug(f'{name} connected!')
+            self.log.debug('%s connected!', name)
             # Clear any readpv status.
             if pvparam == 'readpv':
                 self._set_status(name, 'readpv', status.OK, '')
         else:
-            self.log.warn(f'{name} disconnected!')
+            self.log.warn('%s disconnected!', name)
             # Put readpv into error state.
             if pvparam == 'readpv':
                 self._set_status(name, 'readpv', status.ERROR, 'disconnected')
