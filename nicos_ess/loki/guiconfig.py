@@ -5,7 +5,7 @@ main_window = docked(
     tabbed(
         (
             "Experiment",
-            vsplit(panel("nicos_ess.loki.gui.setup_exp.ExpPanel")),  # vsplit
+            vsplit(panel("nicos_ess.gui.panels.setup_panel.ExpPanel")),  # vsplit
         ),
         (
             "Setup",
