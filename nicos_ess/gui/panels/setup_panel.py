@@ -86,10 +86,18 @@ class ExpPanel(Panel):
                                self.sampleName, self.proposalNum,
                                self.proposalQuery)
 
+        if options.get('hide_sample', False):
+            self._hide_sample_info()
+
         # Additional dialog panel to pop up after NewExperiment()
         self._new_exp_panel = options.get('new_exp_panel')
 
         self.initialise_connection_status_listeners()
+
+    def _hide_sample_info(self):
+        self.sampleName.hide()
+        self.sampleLabel.hide()
+        self.sampleLine.hide()
 
     def initialise_connection_status_listeners(self):
         if self.client.isconnected:
