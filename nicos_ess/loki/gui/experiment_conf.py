@@ -64,11 +64,7 @@ class LokiExperimentPanel(LokiPanelBase):
         self.envComboBox.activated.connect(self._activate_environment_settings)
 
         # Listen to changes in Aperture and Detector Offset values
-        self.apXBox.textChanged.connect(self.set_apt_pos_x)
-        self.apYBox.textChanged.connect(self.set_apt_pos_y)
-        self.apWBox.textChanged.connect(self.set_apt_width)
-        self.apHBox.textChanged.connect(self.set_apt_height)
-        self.offsetBox.textChanged.connect(self.set_det_offset)
+        self.listen_instrument_settings()
 
         # Listen to changes in environments
         self.refPosXBox.textChanged.connect(self.set_ref_pos_x)
@@ -96,6 +92,9 @@ class LokiExperimentPanel(LokiPanelBase):
         ]
         for index, box in enumerate(self._get_editable_settings()):
             box.setText(f'{inst_settings[index]}')
+        # Setting cached values will trigger `textChanged`. However, we do not
+        # wanna re-apply already cached values.
+        self.instSetApply.setEnabled(False)
 
     def initialise_markups(self):
         for box in self._get_editable_settings():
@@ -116,6 +115,10 @@ class LokiExperimentPanel(LokiPanelBase):
         validator = DoubleValidator(**_validator_values)
         for box in self._get_editable_settings():
             box.setValidator(validator)
+
+    def listen_instrument_settings(self):
+        for box in self._get_editable_settings():
+            box.textChanged.connect(lambda: self.instSetApply.setEnabled(True))
 
     def _get_editable_settings(self):
         _editable_settings = itertools.chain(
@@ -145,21 +148,6 @@ class LokiExperimentPanel(LokiPanelBase):
         self.refCellSpinBox.setMinimum(1)
 
     def _set_sample_changer_ref_cell(self):
-        pass
-
-    def set_det_offset(self, value):
-        pass
-
-    def set_apt_pos_x(self, value):
-        pass
-
-    def set_apt_pos_y(self, value):
-        pass
-
-    def set_apt_width(self, value):
-        pass
-
-    def set_apt_height(self, value):
         pass
 
     def set_ref_pos_x(self, value):
