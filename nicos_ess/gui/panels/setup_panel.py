@@ -182,6 +182,13 @@ class ExpPanel(Panel):
                 raise ConfigurationError from None
         return []
 
+    def _experiment_in_progress(self, proposal_id):
+        if self.client.eval('session.experiment.serviceexp', True) and \
+           self.client.eval('session.experiment.proptype', 'user') == 'user' and \
+           self.client.eval('session.experiment.proposal', '') != proposal_id:
+            return True
+        return False
+
     @pyqtSlot()
     def on_applyButton_clicked(self):
         changes = []
@@ -191,10 +198,7 @@ class ExpPanel(Panel):
         local_contacts = self._format_local_contacts(
             self.new_proposal_settings.local_contacts)
 
-        # check if already in an experiment
-        if self.client.eval('session.experiment.serviceexp', True) and \
-           self.client.eval('session.experiment.proptype', 'user') == 'user' and \
-           self.client.eval('session.experiment.proposal', '') != proposal_id:
+        if self._experiment_in_progress(proposal_id):
             self.showError('Can not directly switch experiments, please use '
                            'FinishExperiment first!')
             return
