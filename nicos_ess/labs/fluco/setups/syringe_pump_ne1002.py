@@ -95,7 +95,7 @@ devices = dict(
         mapping={'OFF': 0, 'ON': 1},
     ),
     stop_pumping=device(
-        'nicos_ess.devices.epics.pva.EpicsMappedMoveable',
+        'nicos_ess.devices.epics.extensions.EpicsMappedMoveable',
         description='Stop pumping',
         readpv='{}STOP'.format(pv_root),
         writepv='{}STOP'.format(pv_root),
