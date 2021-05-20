@@ -46,7 +46,6 @@ devices = dict(
         description='The pump direction',
         readpv='{}DIRECTION'.format(pv_root),
         writepv='{}SET_DIRECTION'.format(pv_root),
-        mapping={'INF': 0, 'WDR': 1, 'REV': 2, 'STK': 3},
     ),
     volume_withdrawn=device(
         'nicos_ess.devices.epics.pva.EpicsReadable',
@@ -82,14 +81,14 @@ devices = dict(
         mapping={'OFF': 0, 'ON': 1},
     ),
     start_pumping=device(
-        'nicos_ess.devices.epics.pva.EpicsMappedMoveable',
+        'nicos_ess.devices.epics.extensions.EpicsMappedMoveable',
         description='Start pumping',
         readpv='{}RUN'.format(pv_root),
         writepv='{}RUN'.format(pv_root),
         mapping={'OFF': 0, 'ON': 1},
     ),
     pause_pumping=device(
-        'nicos_ess.devices.epics.pva.EpicsMappedMoveable',
+        'nicos_ess.devices.epics.extensions.EpicsMappedMoveable',
         description='Pause pumping',
         readpv='{}PAUSE'.format(pv_root),
         writepv='{}PAUSE'.format(pv_root),
@@ -111,7 +110,7 @@ devices = dict(
         abslimits=(0.1, 50),
     ),
     zero_volume_withdrawn=device(
-        'nicos_ess.devices.epics.pva.EpicsReadable',
+        'nicos.devices.epics.EpicsReadable',
         description='Zero volume withdrawn and infused',
         readpv='{}CLEAR_V_DISPENSED'.format(pv_root),
         epicstimeout=3.0,
