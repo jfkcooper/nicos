@@ -30,33 +30,33 @@ class InstrumentSettings(Device):
     parameters = {
         'x': Param('Aperture x-position',
                    type=float,
+                   default=0.0,
                    settable=True,
                    unit='mm',
-                   mandatory=True
                    ),
         'y': Param('Aperture y-position',
                    type=float,
+                   default=0.0,
                    settable=True,
                    unit='mm',
-                   mandatory=True
                    ),
         'width': Param('Aperture width',
                        type=float,
+                       default=0.0,
                        settable=True,
                        unit='mm',
-                       mandatory=True
                        ),
         'height': Param('Aperture height',
                         type=float,
+                        default=0.0,
                         settable=True,
                         unit='mm',
-                        mandatory=True
                         ),
         'offset': Param('Detector offset',
                         type=float,
+                        default=0.0,
                         settable=True,
                         unit='mm',
-                        mandatory=True
                         ),
     }
 
