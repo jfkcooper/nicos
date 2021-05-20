@@ -26,7 +26,7 @@
 import itertools
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QLineEdit, Qt, pyqtSlot, QMessageBox
+from nicos.guisupport.qt import QLineEdit, QMessageBox, Qt, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
