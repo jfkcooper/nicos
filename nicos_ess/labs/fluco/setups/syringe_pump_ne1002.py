@@ -74,7 +74,7 @@ devices = dict(
         epicstimeout=3.0,
     ),
     start_purge=device(
-        'nicos_ess.devices.epics.pva.EpicsMappedMoveable',
+        'nicos_ess.devices.epics.extensions.EpicsMappedMoveable',
         description='Start purging',
         readpv='{}PURGE'.format(pv_root),
         writepv='{}PURGE'.format(pv_root),
