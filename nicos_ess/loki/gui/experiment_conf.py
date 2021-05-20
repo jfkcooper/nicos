@@ -26,11 +26,14 @@
 import itertools
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QLineEdit, Qt
+from nicos.guisupport.qt import QLineEdit, Qt, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.utilities.validators import DoubleValidator
+
+DEVICES = ('InstrumentSettings',)
+INST_SET_KEYS = ('x', 'y', 'width', 'height', 'offset')
 
 
 class LokiExperimentPanel(LokiPanelBase):
@@ -113,10 +116,9 @@ class LokiExperimentPanel(LokiPanelBase):
             box.textChanged.connect(lambda: self.instSetApply.setEnabled(True))
 
     def _set_cached_values_to_ui(self):
-        apt_keys = ('x', 'y', 'width', 'height', 'offset')
         inst_settings = [
-            self.client.getDeviceParam('InstrumentSettings', param)
-            for param in apt_keys
+            self.client.getDeviceParam(DEVICES[0], param)
+            for param in INST_SET_KEYS
         ]
         for index, box in enumerate(self._get_editable_settings()):
             box.setText(f'{inst_settings[index]}')
@@ -124,9 +126,26 @@ class LokiExperimentPanel(LokiPanelBase):
         # wanna re-apply already cached values.
         self.instSetApply.setEnabled(False)
 
+    def _set_ui_values_to_cache(self):
+        _key_values = self._get_current_values_of_instrument_settings()
+        _commands = [
+            f'session.getDevice("{DEVICES[0]}")'
+            f'._set_parameter("{param}", "{val}")'
+            for param, val in zip(INST_SET_KEYS, _key_values)
+        ]
+        for cmd in _commands:
+            self.client.eval(cmd)
+
+    def _get_current_values_of_instrument_settings(self):
+        _box_values = [
+            box.text() for box in self._get_editable_settings()
+        ]
+        return _box_values
+
     def _get_editable_settings(self):
         _editable_settings = itertools.chain(
-                self.aptGroupBox.findChildren(QLineEdit),
+                # QT returns the boxes in reverse order for some reason.
+                reversed(self.aptGroupBox.findChildren(QLineEdit)),
                 self.detGroupBox.findChildren(QLineEdit)
             )
         return _editable_settings
@@ -155,3 +174,8 @@ class LokiExperimentPanel(LokiPanelBase):
 
     def _set_ref_pos_y(self, value):
         pass
+
+    @pyqtSlot()
+    def on_instSetApply_clicked(self):
+        self._set_ui_values_to_cache()
+        self.instSetApply.setEnabled(False)
