@@ -102,7 +102,7 @@ devices = dict(
         mapping={'OFF': 0, 'ON': 1},
     ),
     seconds_to_pause=device(
-        'nicos_ess.devices.epics.pva.EpicsAnalogMoveable',
+        'nicos_ess.devices.epics.extensions.EpicsMappedMoveable',
         description='How long to pause for',
         readpv='{}SET_PAUSE'.format(pv_root),
         writepv='{}SET_PAUSE'.format(pv_root),
