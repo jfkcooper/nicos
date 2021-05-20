@@ -26,7 +26,7 @@
 import itertools
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QLineEdit, Qt, pyqtSlot
+from nicos.guisupport.qt import QLineEdit, Qt, pyqtSlot, QMessageBox
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
@@ -159,6 +159,14 @@ class LokiExperimentPanel(LokiPanelBase):
         self.refPosGroupBox.setEnabled(True)
         self.refCellSpinBox.setFocus()
 
+    def _is_empty(self):
+        for box in self._get_editable_settings():
+            if not box.text():
+                QMessageBox.warning(self, 'Error',
+                                    'A property cannot be empty.')
+                box.setFocus()
+                return True
+
     def _set_cell_indices(self):
         # Setting minimum and maximum values for the number of cells not only
         # ensures we have the correct numbers to choose from in the UI but also
@@ -177,5 +185,7 @@ class LokiExperimentPanel(LokiPanelBase):
 
     @pyqtSlot()
     def on_instSetApply_clicked(self):
+        if self._is_empty():
+            return
         self._set_ui_values_to_cache()
         self.instSetApply.setEnabled(False)
