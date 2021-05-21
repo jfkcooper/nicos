@@ -241,9 +241,6 @@ class ExpPanel(Panel):
         if changes:
             self.showInfo('\n'.join(changes))
         self._update_proposal_info()
-
-        self.applyWarningLabel.setVisible(False)
-        self.discardButton.setVisible(False)
         self.exp_proposal_activated.emit()
 
     def _update_title(self, changes):
