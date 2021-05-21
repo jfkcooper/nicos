@@ -123,7 +123,7 @@ class LokiExperimentPanel(LokiPanelBase):
         for index, box in enumerate(self._get_editable_settings()):
             box.setText(f'{inst_settings[index]}')
         # Setting cached values will trigger `textChanged`. However, we do not
-        # wanna re-apply already cached values.
+        # want to re-apply already cached values.
         self.instSetApply.setEnabled(False)
 
     def _set_ui_values_to_cache(self):
