@@ -157,8 +157,6 @@ class ExpPanel(Panel):
         for control in self._text_controls:
             control.setText("")
         self.notifEmails.setPlainText('')
-        self.applyWarningLabel.setVisible(False)
-        self.discardButton.setVisible(False)
         self.setViewOnly(True)
 
     def setViewOnly(self, is_view_only):
