@@ -116,12 +116,9 @@ class LokiExperimentPanel(LokiPanelBase):
             box.textChanged.connect(lambda: self.instSetApply.setEnabled(True))
 
     def _set_cached_values_to_ui(self):
-        inst_settings = [
-            self.client.getDeviceParam(DEVICES[0], param)
-            for param in INST_SET_KEYS
-        ]
+        _cached_values = self._get_cached_values_of_instrument_settings()
         for index, box in enumerate(self._get_editable_settings()):
-            box.setText(f'{inst_settings[index]}')
+            box.setText(f'{_cached_values[index]}')
         # Setting cached values will trigger `textChanged`. However, we do not
         # want to re-apply already cached values.
         self.instSetApply.setEnabled(False)
@@ -135,6 +132,13 @@ class LokiExperimentPanel(LokiPanelBase):
         ]
         for cmd in _commands:
             self.client.eval(cmd)
+
+    def _get_cached_values_of_instrument_settings(self):
+        _cached_param_values = [
+            self.client.getDeviceParam(DEVICES[0], param)
+            for param in INST_SET_KEYS
+        ]
+        return _cached_param_values
 
     def _get_current_values_of_instrument_settings(self):
         _box_values = [
