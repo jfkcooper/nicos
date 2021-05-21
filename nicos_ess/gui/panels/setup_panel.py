@@ -81,6 +81,7 @@ class ExpPanel(Panel):
 
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
+        self.discardButton.setVisible(False)
 
         self._text_controls = (self.expTitle, self.users, self.localContacts,
                                self.sampleName, self.proposalNum,
@@ -157,6 +158,7 @@ class ExpPanel(Panel):
             control.setText("")
         self.notifEmails.setPlainText('')
         self.applyWarningLabel.setVisible(False)
+        self.discardButton.setVisible(False)
         self.setViewOnly(True)
 
     def setViewOnly(self, is_view_only):
@@ -168,6 +170,7 @@ class ExpPanel(Panel):
         if is_view_only:
             self.applyButton.setEnabled(False)
             self.applyWarningLabel.setVisible(False)
+            self.discardButton.setVisible(False)
         else:
             self._check_for_changes()
 
@@ -242,6 +245,7 @@ class ExpPanel(Panel):
         self._update_proposal_info()
 
         self.applyWarningLabel.setVisible(False)
+        self.discardButton.setVisible(False)
         self.exp_proposal_activated.emit()
 
     def _update_title(self, changes):
@@ -358,9 +362,16 @@ class ExpPanel(Panel):
         if self.new_proposal_settings != self.old_proposal_settings:
             self.applyWarningLabel.setVisible(True)
             self.applyButton.setEnabled(True)
+            self.discardButton.setVisible(True)
         else:
             self.applyWarningLabel.setVisible(False)
             self.applyButton.setEnabled(False)
+            self.discardButton.setVisible(False)
+
+    @pyqtSlot()
+    def on_discardButton_clicked(self):
+        self._update_proposal_info()
+        self._check_for_changes()
 
 
 class SetupsPanel(DefaultSetupsPanel):
