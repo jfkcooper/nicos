@@ -132,7 +132,7 @@ class EpicsMonitorMixin(DeviceMixinBase):
             severity, message = self._epics_wrapper.get_alarm_status(pvname,
                                     self.epicstimeout)
         if severity != status.OK:
-            return severity, f'issue with {pvname}: {message}'
+            return severity, f'Read PV: {message}'
         return severity, ''
 
     def doShutdown(self):
