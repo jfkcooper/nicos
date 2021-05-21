@@ -41,6 +41,9 @@ class EssExperiment(Experiment):
         'instrument': Param('The instrument name in the proposal system',
             type=str, category='experiment', mandatory=True,
         ),
+        'cache_filepath': Param('Path to the proposal cache',
+            type=str, category='experiment', mandatory=True,
+        ),
     }
 
     parameter_overrides = {
@@ -56,7 +59,8 @@ class EssExperiment(Experiment):
         # Get secret from the environment
         token = os.environ.get('YUOS_TOKEN')
         if token:
-            self._client = YuosClient(self.server_url, token, self.instrument)
+            self._client = YuosClient(
+                self.server_url, token, self.instrument, self.cache_filepath)
 
     def _canQueryProposals(self):
         if self._client:
