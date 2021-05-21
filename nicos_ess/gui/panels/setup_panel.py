@@ -142,16 +142,17 @@ class ExpPanel(Panel):
                 '\n'.join(self.old_proposal_settings.notifications))
 
     def on_client_connected(self):
-        # fill proposal
         self._update_proposal_info()
-        # check for capability to ask proposal database
+        self._is_proposal_system_available()
+        self.setViewOnly(self.client.viewonly)
+
+    def _is_proposal_system_available(self):
         if self.client.eval('session.experiment._canQueryProposals()', None):
             self.findProposalBox.setVisible(True)
             self.proposalNum.setReadOnly(True)
         else:
             self.findProposalBox.setVisible(False)
             self.proposalNum.setReadOnly(False)
-        self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
         for control in self._text_controls:
