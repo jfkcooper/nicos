@@ -359,14 +359,10 @@ class ExpPanel(Panel):
         self._check_for_changes()
 
     def _check_for_changes(self):
-        if self.new_proposal_settings != self.old_proposal_settings:
-            self.applyWarningLabel.setVisible(True)
-            self.applyButton.setEnabled(True)
-            self.discardButton.setVisible(True)
-        else:
-            self.applyWarningLabel.setVisible(False)
-            self.applyButton.setEnabled(False)
-            self.discardButton.setVisible(False)
+        has_changed = self.new_proposal_settings != self.old_proposal_settings
+        self.applyWarningLabel.setVisible(has_changed)
+        self.applyButton.setEnabled(has_changed)
+        self.discardButton.setVisible(has_changed)
 
     @pyqtSlot()
     def on_discardButton_clicked(self):
