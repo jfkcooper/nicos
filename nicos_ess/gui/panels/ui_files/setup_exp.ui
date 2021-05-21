@@ -283,6 +283,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>proposalQuery</tabstop>
+  <tabstop>queryDBButton</tabstop>
+  <tabstop>proposalNum</tabstop>
+  <tabstop>expTitle</tabstop>
+  <tabstop>users</tabstop>
+  <tabstop>localContacts</tabstop>
+  <tabstop>sampleName</tabstop>
+  <tabstop>notifEmails</tabstop>
+  <tabstop>errorAbortBox</tabstop>
+  <tabstop>applyButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
