@@ -166,6 +166,7 @@ class LokiExperimentPanel(LokiPanelBase):
                                     'A property cannot be empty.')
                 box.setFocus()
                 return True
+        return False
 
     def _set_cell_indices(self):
         # Setting minimum and maximum values for the number of cells not only
