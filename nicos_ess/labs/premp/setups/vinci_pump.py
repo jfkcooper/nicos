@@ -10,7 +10,13 @@ devices = dict(
     ),
     vinci_flow=device(
         'nicos_ess.devices.epics.pva.EpicsReadable',
-        description='The volume',
+        description='The flow',
         readpv='{}Flow'.format(pv_root),
+    ),
+    vinci_pressure=device(
+        'nicos_ess.devices.epics.pva.EpicsAnalogmoveable',
+        description='The pressure',
+        readpv='{}Pressure'.format(pv_root),
+        writepv='{}PM_Press_SP'.format(pv_root)
     ),
 )
