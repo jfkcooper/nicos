@@ -119,6 +119,12 @@ class LokiExperimentPanel(LokiPanelBase):
         _cached_values = self._get_cached_values_of_instrument_settings()
         for index, box in enumerate(self._get_editable_settings()):
             box.setText(f'{_cached_values[index]}')
+
+        if not self._verify_instrument_settings():
+            QMessageBox.warning('Error',
+                                'Current values of the instrument settings are '
+                                'different than the values in the cache. Try '
+                                'to reconnect to the server.')
         # Setting cached values will trigger `textChanged`. However, we do not
         # want to re-apply already cached values.
         self.instSetApply.setEnabled(False)
@@ -132,6 +138,10 @@ class LokiExperimentPanel(LokiPanelBase):
         ]
         for cmd in _commands:
             self.client.eval(cmd)
+
+        if not self._verify_instrument_settings():
+            QMessageBox.warning(self, 'Error', 'Applied changes in instrument '
+                                               'settings have not been cached.')
 
     def _get_cached_values_of_instrument_settings(self):
         _cached_param_values = [
@@ -171,6 +181,15 @@ class LokiExperimentPanel(LokiPanelBase):
                 box.setFocus()
                 return True
         return False
+
+    def _verify_instrument_settings(self):
+        _settings_at_ui = set(
+            float(x) for x in self._get_current_values_of_instrument_settings()
+        )
+        _settings_at_cache = set(
+            self._get_cached_values_of_instrument_settings()
+        )
+        return _settings_at_ui == _settings_at_cache
 
     def _set_cell_indices(self):
         # Setting minimum and maximum values for the number of cells not only
