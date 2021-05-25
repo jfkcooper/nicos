@@ -33,7 +33,7 @@ devices = dict(
 
     InstrumentSettings=device('nicos_ess.loki.devices.'
                               'experiment_configuration.InstrumentSettings',
-                              description='aperture settings',
+                              description='aperture and offset settings',
                               lowlevel=True,
                               ),
 
