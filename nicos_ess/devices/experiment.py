@@ -62,10 +62,8 @@ class EssExperiment(Experiment):
             try:
                 self._client = YuosClient(
                     self.server_url, token, self.instrument, self.cache_filepath)
-            except Exception as error:
+            except BaseYuosException as error:
                 self.log.warn(f'QueryDB not available: {error}')
-                # not to raise? Since if client is not instantiated,
-                # QueryDB button will be disabled _canQueryProposals
 
     def _canQueryProposals(self):
         if self._client:
