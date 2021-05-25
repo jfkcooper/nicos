@@ -25,16 +25,82 @@
 """NICOS GUI experiment setup window."""
 from copy import deepcopy
 
+from PyQt5.QtWidgets import QHeaderView
+
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import \
     SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, \
-    pyqtSignal, pyqtSlot
+    pyqtSignal, pyqtSlot, QAbstractTableModel
 from nicos.utils import decodeAny, findResource
 
 from nicos_ess.gui import uipath
+
+
+class SamplesModel(QAbstractTableModel):
+    def __init__(self):
+        super().__init__()
+        self.sample_properties = ["name", "formula", "number of", "mass/volume",
+                         "density"]
+        self.samples = []
+        self._table_data = self.empty_table(len(self.sample_properties),
+                                            len(self.samples))
+
+    @property
+    def table_data(self):
+        return self._table_data
+
+    @table_data.setter
+    def table_data(self, samples):
+        self.samples = samples
+
+        new_table = self.empty_table(len(self.sample_properties),
+                                     len(samples))
+        for i, sample in enumerate(samples):
+            for j, key in enumerate(sample.keys()):
+                new_table[j][i] = sample[key]
+
+        self._table_data = new_table
+        self.layoutChanged.emit()
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            return self._table_data[index.row()][index.column()]
+
+    def setData(self, index, value, role):
+        if role == Qt.EditRole:
+            self._table_data[index.row()][index.column()] = value
+            return True
+
+    def rowCount(self, index):
+        return len(self._table_data)
+
+    def columnCount(self, index):
+        return len(self.samples)
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+
+    def headerData(self, section, orientation, role):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            return section + 1
+        if role == Qt.DisplayRole and orientation == Qt.Vertical:
+            return self.sample_properties[section]
+
+    def setHeaderData(self, section, orientation, value, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            self._header_data[section] = value
+            self.headerDataChanged.emit(orientation, section, section)
+        return True
+
+    def empty_table(self, rows, columns):
+        return [[""] * columns for _ in range(rows)]
+
+    @property
+    def num_rows(self):
+        return len(self._table_data)
 
 
 class ProposalSettings:
@@ -78,6 +144,10 @@ class ExpPanel(Panel):
 
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = ProposalSettings()
+
+        self.model = SamplesModel()
+        self.sampleTable.setModel(self.model)
+        self.sampleTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
@@ -288,6 +358,8 @@ class ExpPanel(Panel):
             result = self.client.eval(
                 'session.experiment._queryProposals(%r, {})' % proposal)
 
+
+
             if result:
                 if len(result) != 1:
                     result = self.chooseProposal(result)
@@ -310,6 +382,7 @@ class ExpPanel(Panel):
                     combineUsers(result.get('users', [])))
                 self.localContacts.setText(
                     combineUsers(result.get('localcontacts', [])))
+                self.model.table_data = result['samples']
             else:
                 self.showError('Querying proposal management system failed')
         except Exception as e:
