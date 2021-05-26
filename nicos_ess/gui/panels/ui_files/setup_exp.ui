@@ -77,13 +77,6 @@
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="7" column="0">
-         <widget class="QLabel" name="sampleLabel">
-          <property name="text">
-           <string>Sample name:</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
@@ -189,9 +182,6 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
-         <widget class="QLineEdit" name="sampleName"/>
-        </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="expTitle"/>
         </item>
@@ -221,6 +211,13 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="sampleLabel">
+          <property name="text">
+           <string>Sample information:</string>
           </property>
          </widget>
         </item>
@@ -307,7 +304,6 @@
   <tabstop>expTitle</tabstop>
   <tabstop>users</tabstop>
   <tabstop>localContacts</tabstop>
-  <tabstop>sampleName</tabstop>
   <tabstop>notifEmails</tabstop>
   <tabstop>errorAbortBox</tabstop>
   <tabstop>applyButton</tabstop>

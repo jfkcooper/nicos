@@ -159,8 +159,7 @@ class ExpPanel(Panel):
         self.discardButton.setVisible(False)
 
         self._text_controls = (self.expTitle, self.users, self.localContacts,
-                               self.sampleName, self.proposalNum,
-                               self.proposalQuery)
+                               self.proposalNum, self.proposalQuery)
 
         if options.get('hide_sample', False):
             self._hide_sample_info()
@@ -168,7 +167,7 @@ class ExpPanel(Panel):
         self.initialise_connection_status_listeners()
 
     def _hide_sample_info(self):
-        self.sampleName.hide()
+        self.sampleTable.hide()
         self.sampleLabel.hide()
         self.sampleLine.hide()
 
@@ -425,11 +424,6 @@ class ExpPanel(Panel):
     @pyqtSlot(str)
     def on_localContacts_textChanged(self, value):
         self.new_proposal_settings.local_contacts = value.strip()
-        self._check_for_changes()
-
-    @pyqtSlot(str)
-    def on_sampleName_textChanged(self, value):
-        self.new_proposal_settings.sample_name = value.strip()
         self._check_for_changes()
 
     @pyqtSlot()
