@@ -152,11 +152,6 @@ class LokiExperimentPanel(LokiPanelBase):
             )
         return _editable_settings
 
-    def _activate_environment_settings(self):
-        # Enable sample environments
-        self.descriptionGroupBox.setVisible(True)
-        self.settingsGroupBox.setVisible(True)
-
     def _is_empty(self):
         for box in self._get_editable_settings():
             if not box.text():
@@ -174,6 +169,20 @@ class LokiExperimentPanel(LokiPanelBase):
             self._get_cached_values_of_instrument_settings()
         )
         return _settings_at_ui == _settings_at_cache
+
+    def _activate_environment_settings(self):
+        # Enable sample environments
+        loadUi(self.settingsFrame, findResource(self._map_settings_to_ui()))
+        self.descriptionGroupBox.setVisible(True)
+        self.settingsGroupBox.setVisible(True)
+
+    def _map_settings_to_ui(self):
+        _mappings = {
+            'Thermostated Cell Holder': 'nicos_ess/loki/gui/'
+                                        'ui_files/sample_changers/'
+                                        'thermo_cell_holder_settings.ui',
+        }
+        return _mappings[self.envComboBox.currentText()]
 
     @pyqtSlot()
     def on_instSetApply_clicked(self):
