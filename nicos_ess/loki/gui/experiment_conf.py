@@ -33,6 +33,7 @@ from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.utilities.validators import DoubleValidator
 
 DEVICES = ('InstrumentSettings',)
+SAMPLE_CHANGERS = ('Thermostated Cell Holder',)
 INST_SET_KEYS = ('x', 'y', 'width', 'height', 'offset')
 
 
@@ -48,30 +49,17 @@ class LokiExperimentPanel(LokiPanelBase):
         self.initialise_connection_status_listeners()
         self.initialise_markups()
 
-        self.envComboBox.addItems(['Sample Changer A', 'Sample Changer B'])
+        self.envComboBox.addItems([_changer for _changer in SAMPLE_CHANGERS])
         # Start with a "no item", ie, empty selection.
         self.envComboBox.setCurrentIndex(-1)
 
-        # Hide read-only properties and hide and disable reference cell
-        # positions until a sample environment is chosen by the user.
-        self.propertiesGroupBox.setVisible(False)
-
-        # Hide and disable cell position properties which shall be only
-        # available for sample environments that holds them.
-        self.refPosGroupBox.setVisible(False)
-
-        self.refCellSpinBox.valueChanged.connect(
-            self._set_sample_changer_ref_cell
-        )
+        self.descriptionGroupBox.setVisible(False)
+        self.settingsGroupBox.setVisible(False)
 
         self.envComboBox.activated.connect(self._activate_environment_settings)
 
         # Listen to changes in Aperture and Detector Offset values
         self.listen_instrument_settings()
-
-        # Listen to changes in environments
-        self.refPosXBox.textChanged.connect(self._set_ref_pos_x)
-        self.refPosYBox.textChanged.connect(self._set_ref_pos_y)
 
         # Disable apply buttons in both settings until an action taken by the
         # user.
@@ -166,12 +154,8 @@ class LokiExperimentPanel(LokiPanelBase):
 
     def _activate_environment_settings(self):
         # Enable sample environments
-        self.propertiesGroupBox.setVisible(True)
-
-        self._set_cell_indices()
-        self.refPosGroupBox.setVisible(True)
-        self.refPosGroupBox.setEnabled(True)
-        self.refCellSpinBox.setFocus()
+        self.descriptionGroupBox.setVisible(True)
+        self.settingsGroupBox.setVisible(True)
 
     def _is_empty(self):
         for box in self._get_editable_settings():
@@ -190,22 +174,6 @@ class LokiExperimentPanel(LokiPanelBase):
             self._get_cached_values_of_instrument_settings()
         )
         return _settings_at_ui == _settings_at_cache
-
-    def _set_cell_indices(self):
-        # Setting minimum and maximum values for the number of cells not only
-        # ensures we have the correct numbers to choose from in the UI but also
-        # prevents user errors as any integer that is not in [min, max] is not
-        # allowed (or non-integer types).
-        self.refCellSpinBox.setMinimum(1)
-
-    def _set_sample_changer_ref_cell(self):
-        pass
-
-    def _set_ref_pos_x(self, value):
-        pass
-
-    def _set_ref_pos_y(self, value):
-        pass
 
     @pyqtSlot()
     def on_instSetApply_clicked(self):
