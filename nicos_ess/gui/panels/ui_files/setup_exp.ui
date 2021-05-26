@@ -51,7 +51,7 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Query the Proposal Database for Information about this proposal number.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Query DB</string>
+         <string>Search</string>
         </property>
        </widget>
       </item>

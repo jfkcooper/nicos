@@ -43,22 +43,22 @@ class SamplesModel(QAbstractTableModel):
     def __init__(self):
         super().__init__()
         self.sample_properties = ["name", "formula", "number of", "mass/volume",
-                         "density"]
-        self.samples = []
+                                  "density"]
+        self._samples = []
         self._table_data = self.empty_table(len(self.sample_properties),
-                                            len(self.samples))
+                                            len(self._samples))
 
     @property
-    def table_data(self):
-        return self._table_data
+    def samples(self):
+        return self._samples
 
-    @table_data.setter
-    def table_data(self, samples):
-        self.samples = samples
+    @samples.setter
+    def samples(self, samples):
+        self._samples = samples
 
         new_table = self.empty_table(len(self.sample_properties),
-                                     len(samples))
-        for i, sample in enumerate(samples):
+                                     len(self._samples))
+        for i, sample in enumerate(self._samples):
             for j, key in enumerate(sample.keys()):
                 new_table[j][i] = sample[key]
 
@@ -72,13 +72,14 @@ class SamplesModel(QAbstractTableModel):
     def setData(self, index, value, role):
         if role == Qt.EditRole:
             self._table_data[index.row()][index.column()] = value
+            self._samples[index.column()][self.sample_properties[index.row()]] = value
             return True
 
     def rowCount(self, index):
         return len(self._table_data)
 
     def columnCount(self, index):
-        return len(self.samples)
+        return len(self._samples)
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
@@ -105,12 +106,12 @@ class SamplesModel(QAbstractTableModel):
 
 class ProposalSettings:
     def __init__(self, proposal_id='', title='', users='', local_contacts='',
-                 sample_name='', notifications='', abort_on_error=''):
+                 notifications='', abort_on_error='', samples=None):
         self.proposal_id = proposal_id
         self.title = title
         self.users = users
         self.local_contacts = local_contacts
-        self.sample_name = sample_name
+        self.samples = samples if samples else []
         self.notifications = notifications
         self.abort_on_error = abort_on_error
 
@@ -119,11 +120,15 @@ class ProposalSettings:
                 or self.title != other.title \
                 or self.users != other.users \
                 or self.local_contacts != other.local_contacts \
-                or self.sample_name != other.sample_name \
                 or self.notifications != other.notifications \
-                or self.abort_on_error != other.abort_on_error:
+                or self.abort_on_error != other.abort_on_error\
+                or self._samples_changed(other):
             return False
         return True
+
+    def _samples_changed(self, other):
+        # TODO: this
+        return False
 
 
 class ExpPanel(Panel):
@@ -143,7 +148,7 @@ class ExpPanel(Panel):
         loadUi(self, findResource('nicos_ess/gui/panels/ui_files/setup_exp.ui'))
 
         self.old_proposal_settings = ProposalSettings()
-        self.new_proposal_settings = ProposalSettings()
+        self.new_proposal_settings = deepcopy(self.old_proposal_settings)
 
         self.model = SamplesModel()
         self.sampleTable.setModel(self.model)
@@ -159,9 +164,6 @@ class ExpPanel(Panel):
 
         if options.get('hide_sample', False):
             self._hide_sample_info()
-
-        # Additional dialog panel to pop up after NewExperiment()
-        self._new_exp_panel = options.get('new_exp_panel')
 
         self.initialise_connection_status_listeners()
 
@@ -183,33 +185,44 @@ class ExpPanel(Panel):
                                   'session.experiment.title, '
                                   'session.experiment.users, '
                                   'session.experiment.localcontact, '
-                                  'session.experiment.sample.samplename, '
                                   'session.experiment.errorbehavior', None)
         notif_emails = self.client.eval(
             'session.experiment.propinfo["notif_emails"]', [])
+        samples_dict = self.client.eval('Exp.sample.samples', {})
 
         if values:
             self.old_proposal_settings = ProposalSettings(decodeAny(values[0]),
                                                           decodeAny(values[1]),
                                                           decodeAny(values[2]),
                                                           decodeAny(values[3]),
-                                                          decodeAny(values[4]),
                                                           notif_emails,
-                                                          values[5] == 'abort',
+                                                          values[4] == 'abort',
                                                           )
-
+            self.old_proposal_settings.samples = self._extract_samples(samples_dict)
             self.new_proposal_settings = deepcopy(self.old_proposal_settings)
             # Update GUI
             self.proposalNum.setText(self.old_proposal_settings.proposal_id)
             self.expTitle.setText(self.old_proposal_settings.title)
             self.users.setText(self.old_proposal_settings.users)
-            self.sampleName.setText(self.old_proposal_settings.sample_name)
             self.localContacts.setText(
                 self.old_proposal_settings.local_contacts)
             self.errorAbortBox.setChecked(
                 self.old_proposal_settings.abort_on_error)
             self.notifEmails.setPlainText(
                 '\n'.join(self.old_proposal_settings.notifications))
+            self.model.samples = self.old_proposal_settings.samples
+
+    def _extract_samples(self, samples_dict):
+        samples = []
+        for sample in samples_dict.values():
+            samples.append({
+                'name': sample.get('sample_name', ''),
+                'formula': sample.get('formula', ''),
+                'number of': sample.get('number_of', 1),
+                'mass/volume': sample.get('mass_volume', ''),
+                'density': sample.get('density', ''),
+            })
+        return samples
 
     def on_client_connected(self):
         self._update_proposal_info()
@@ -304,7 +317,7 @@ class ExpPanel(Panel):
             self._update_title(changes)
             self._update_users(users, changes)
             self._update_local_contacts(local_contacts, changes)
-        self._update_sample_name(changes)
+        self._update_samples(changes)
         self._update_notification_receivers(changes)
         self._update_abort_on_error(changes)
 
@@ -313,6 +326,18 @@ class ExpPanel(Panel):
             self.showInfo('\n'.join(changes))
         self._update_proposal_info()
         self.exp_proposal_activated.emit()
+
+    def _update_samples(self, changes):
+        # TODO: if changed
+        for index, sample in enumerate(self.model.samples):
+            set_sample_cmd = f'SetSample({index}, {index}, ' \
+                             f'sample_name=\'{sample["name"]}\', ' \
+                             f'formula=\'{sample["formula"]}\', ' \
+                             f'number_of={sample["number of"]}, ' \
+                             f'mass_volume=\'{sample["mass/volume"]}\', ' \
+                             f'density=\'{sample["density"]}\')'
+            self.client.run(set_sample_cmd)
+        changes.append('Samples updated.')
 
     def _update_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
@@ -330,12 +355,6 @@ class ExpPanel(Panel):
                     self.old_proposal_settings.local_contacts:
             self.client.run('Exp.update(localcontacts=%r)' % local_contacts)
             changes.append('New local contact(s) set.')
-
-    def _update_sample_name(self, changes):
-        sample_name = self.new_proposal_settings.sample_name
-        if sample_name != self.old_proposal_settings.sample_name:
-            self.client.run('NewSample(%r)' % sample_name)
-            changes.append('New sample name set.')
 
     def _update_abort_on_error(self, changes):
         abort_on_error = self.new_proposal_settings.abort_on_error
@@ -357,8 +376,6 @@ class ExpPanel(Panel):
             proposal = self.proposalQuery.text()
             result = self.client.eval(
                 'session.experiment._queryProposals(%r, {})' % proposal)
-
-
 
             if result:
                 if len(result) != 1:
@@ -382,7 +399,7 @@ class ExpPanel(Panel):
                     combineUsers(result.get('users', [])))
                 self.localContacts.setText(
                     combineUsers(result.get('localcontacts', [])))
-                self.model.table_data = result['samples']
+                self.model.samples = result['samples']
             else:
                 self.showError('Querying proposal management system failed')
         except Exception as e:
