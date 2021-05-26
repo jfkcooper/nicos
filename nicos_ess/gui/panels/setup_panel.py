@@ -290,6 +290,7 @@ class ExpPanel(Panel):
 
             if result:
                 if len(result) != 1:
+                    # chooseProposal is not defined
                     result = self.chooseProposal(result)
                     if not result:
                         return
@@ -310,6 +311,7 @@ class ExpPanel(Panel):
                     combineUsers(result.get('users', [])))
                 self.localContacts.setText(
                     combineUsers(result.get('localcontacts', [])))
+                # should experiment device be updated?
             else:
                 self.showError('Querying proposal management system failed')
         except Exception as e:
@@ -365,6 +367,9 @@ class ExpPanel(Panel):
         self._update_proposal_info()
         self._check_for_changes()
 
+    def on_experiment_finished(self):
+        pass
+
 
 class SetupsPanel(DefaultSetupsPanel):
     def finishUi(self):
@@ -387,6 +392,7 @@ class FinishPanel(Panel):
     """
 
     panelName = 'Finish experiment'
+    experiment_finished = pyqtSignal()
     ui = '%s/panels/ui_files/finish_exp.ui' % uipath
 
     def __init__(self, parent, client, options):
@@ -428,6 +434,7 @@ class FinishPanel(Panel):
         else:
             self.finishButton.setEnabled(False)
             self.show_finish_message()
+            self.experiment_finished.emit()
 
     def show_finish_message(self):
         msg_box = QMessageBox()

@@ -61,6 +61,9 @@ class MainWindow(DefaultMainWindow):
         self.getPanel('Experiment setup').exp_proposal_activated.connect(
             self.getPanel('Finish experiment').on_new_experiment_proposal
         )
+        self.getPanel('Finish experiment').experiment_finished.connect(
+            self.getPanel('Experiment setup').on_experiment_finished
+        )
 
         # Cheeseburger menu
         dropdown = QMenu('')
