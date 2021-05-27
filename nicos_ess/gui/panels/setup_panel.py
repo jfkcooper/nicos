@@ -320,12 +320,12 @@ class ExpPanel(Panel):
                 return
             changes.append('New experiment started.')
         else:
-            self._update_title(changes)
-            self._update_users(users, changes)
-            self._update_local_contacts(local_contacts, changes)
-        self._update_samples(changes)
-        self._update_notification_receivers(changes)
-        self._update_abort_on_error(changes)
+            self._set_title(changes)
+            self._set_users(users, changes)
+            self._set_local_contacts(local_contacts, changes)
+        self._set_samples(changes)
+        self._set_notification_receivers(changes)
+        self._set_abort_on_error(changes)
 
         # tell user about everything we did
         if changes:
@@ -333,7 +333,7 @@ class ExpPanel(Panel):
         self._update_proposal_info()
         self.exp_proposal_activated.emit()
 
-    def _update_samples(self, changes):
+    def _set_samples(self, changes):
         if self.hide_samples:
             return
 
@@ -348,30 +348,30 @@ class ExpPanel(Panel):
                 self.client.run(set_sample_cmd)
             changes.append('Samples updated.')
 
-    def _update_title(self, changes):
+    def _set_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
             self.client.run('Exp.update(title=%r)' %
                             self.new_proposal_settings.title)
             changes.append('New experiment title set.')
 
-    def _update_users(self, users, changes):
+    def _set_users(self, users, changes):
         if self.new_proposal_settings.users != self.old_proposal_settings.users:
             self.client.run('Exp.update(users=%r)' % users)
             changes.append('New users set.')
 
-    def _update_local_contacts(self, local_contacts, changes):
+    def _set_local_contacts(self, local_contacts, changes):
         if self.new_proposal_settings.local_contacts != \
                     self.old_proposal_settings.local_contacts:
             self.client.run('Exp.update(localcontacts=%r)' % local_contacts)
             changes.append('New local contact(s) set.')
 
-    def _update_abort_on_error(self, changes):
+    def _set_abort_on_error(self, changes):
         abort_on_error = self.new_proposal_settings.abort_on_error
         if abort_on_error != self.old_proposal_settings.abort_on_error:
             self.client.run('SetErrorAbort(%s)' % abort_on_error)
             changes.append('New error behavior set.')
 
-    def _update_notification_receivers(self, changes):
+    def _set_notification_receivers(self, changes):
         notifications = self.new_proposal_settings.notifications
         if notifications != self.old_proposal_settings.notifications:
             self.client.run('SetMailReceivers(%s)' %
