@@ -152,7 +152,7 @@ class ExpPanel(Panel):
         self.samples_model = SamplesModel()
         self.samples_model.data_updated.connect(self.on_samples_changed)
         self.sampleTable.setModel(self.samples_model)
-        self.sampleTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.sampleTable.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
 
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
@@ -212,6 +212,13 @@ class ExpPanel(Panel):
         self.notifEmails.setPlainText(
             '\n'.join(self.old_proposal_settings.notifications))
         self._update_samples_model(self.old_proposal_settings.samples)
+        self._format_sample_table()
+
+    def _format_sample_table(self):
+        num_samples = len(self.samples_model.samples)
+        width = self.sampleTable.width() - self.sampleTable.verticalHeader().width()
+        for i in range(num_samples):
+            self.sampleTable.setColumnWidth(i, width / num_samples)
 
     def _extract_samples(self, samples_dict):
         samples = []
@@ -402,6 +409,7 @@ class ExpPanel(Panel):
                 self.localContacts.setText(
                     combineUsers(result.get('localcontacts', [])))
                 self._update_samples_model(result['samples'])
+                self._format_sample_table()
             else:
                 self.showError('Querying proposal management system failed')
         except Exception as e:
