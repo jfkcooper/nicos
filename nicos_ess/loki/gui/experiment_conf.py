@@ -30,6 +30,7 @@ from nicos.guisupport.qt import QLineEdit, QMessageBox, Qt, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
+from nicos_ess.loki.gui.loki_sample_changers import ThermoCellHolderSettings
 from nicos_ess.utilities.validators import DoubleValidator
 
 DEVICES = ('InstrumentSettings',)
@@ -42,6 +43,8 @@ class LokiExperimentPanel(LokiPanelBase):
 
     def __init__(self, parent, client, options):
         LokiPanelBase.__init__(self, parent, client, options)
+        self.parent = parent
+        self.options = options
         loadUi(self, findResource('nicos_ess/loki/gui/ui_files/exp_config.ui'))
 
         self.holder_info = options.get('holder_info', [])
@@ -172,17 +175,18 @@ class LokiExperimentPanel(LokiPanelBase):
 
     def _activate_environment_settings(self):
         # Enable sample environments
-        loadUi(self.settingsFrame, findResource(self._map_settings_to_ui()))
+        self._map_settings_to_ui()
         self.descriptionGroupBox.setVisible(True)
         self.settingsGroupBox.setVisible(True)
 
     def _map_settings_to_ui(self):
         _mappings = {
-            'Thermostated Cell Holder': 'nicos_ess/loki/gui/'
-                                        'ui_files/sample_changers/'
-                                        'thermo_cell_holder_settings.ui',
+            'Thermostated Cell Holder': ThermoCellHolderSettings,
         }
-        return _mappings[self.envComboBox.currentText()]
+        _ui = _mappings[self.envComboBox.currentText()](
+            self.client, self.settingsFrame, self.parent, self.options
+        )
+        return _ui
 
     @pyqtSlot()
     def on_instSetApply_clicked(self):

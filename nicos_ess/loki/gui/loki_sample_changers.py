@@ -26,13 +26,33 @@
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
 from nicos.guisupport.qt import QDialog
+from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 
 
 class ThermoCellHolderPositions(QDialog):
-    panelName = 'Thermostated Cell Holder Cartridge Positions'
 
     def __init__(self, parent, client):
         QDialog.__init__(self, parent)
         self.client = client
-        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/sample_changers/'
-                                  'thermos_cell_holder_positions.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/'
+                                  'ui_files/sample_changers/'
+                                  'thermo_cell_holder_positions.ui'))
+        self.setWindowTitle('Cartridge Settings')
+
+
+class ThermoCellHolderSettings(LokiPanelBase):
+    def __init__(self, client, frame, parent, options):
+        super().__init__(parent, client, options)
+        self.client = client
+        self.frame = frame
+        loadUi(self.frame, findResource('nicos_ess/loki/gui/'
+                                        'ui_files/sample_changers/'
+                                        'thermo_cell_holder_settings.ui'))
+        self.frame.cartridgeSettings.clicked.connect(
+            self._active_holder_position_settings)
+
+    def _active_holder_position_settings(self):
+        dlg = ThermoCellHolderPositions(self, self.client)
+        if not dlg.exec_():
+            return
+
