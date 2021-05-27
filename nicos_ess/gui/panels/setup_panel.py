@@ -190,26 +190,25 @@ class ExpPanel(Panel):
         samples_dict = self.client.eval('Exp.sample.samples', {})
 
         if values:
-            self.old_proposal_settings = ProposalSettings(decodeAny(values[0]),
-                                                          decodeAny(values[1]),
-                                                          decodeAny(values[2]),
-                                                          decodeAny(values[3]),
-                                                          notif_emails,
-                                                          values[4] == 'abort',
-                                                          )
-            self.old_proposal_settings.samples = self._extract_samples(samples_dict)
+            self.old_proposal_settings = \
+                ProposalSettings(decodeAny(values[0]), decodeAny(values[1]),
+                                 decodeAny(values[2]), decodeAny(values[3]),
+                                 notif_emails, values[4] == 'abort',
+                                 self._extract_samples(samples_dict))
             self.new_proposal_settings = deepcopy(self.old_proposal_settings)
-            # Update GUI
-            self.proposalNum.setText(self.old_proposal_settings.proposal_id)
-            self.expTitle.setText(self.old_proposal_settings.title)
-            self.users.setText(self.old_proposal_settings.users)
-            self.localContacts.setText(
-                self.old_proposal_settings.local_contacts)
-            self.errorAbortBox.setChecked(
-                self.old_proposal_settings.abort_on_error)
-            self.notifEmails.setPlainText(
-                '\n'.join(self.old_proposal_settings.notifications))
-            self.samples_model.samples = self.old_proposal_settings.samples
+            self._update_panel()
+
+    def _update_panel(self):
+        self.proposalNum.setText(self.old_proposal_settings.proposal_id)
+        self.expTitle.setText(self.old_proposal_settings.title)
+        self.users.setText(self.old_proposal_settings.users)
+        self.localContacts.setText(
+            self.old_proposal_settings.local_contacts)
+        self.errorAbortBox.setChecked(
+            self.old_proposal_settings.abort_on_error)
+        self.notifEmails.setPlainText(
+            '\n'.join(self.old_proposal_settings.notifications))
+        self.samples_model.samples = self.old_proposal_settings.samples
 
     def _extract_samples(self, samples_dict):
         samples = []
