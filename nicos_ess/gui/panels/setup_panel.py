@@ -44,6 +44,8 @@ from nicos_ess.gui import uipath
 
 
 class SamplesModel(QAbstractTableModel):
+    data_updated = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.sample_properties = ["name", "formula", "number of", "mass/volume",
@@ -77,6 +79,7 @@ class SamplesModel(QAbstractTableModel):
         if role == Qt.EditRole:
             self._table_data[index.row()][index.column()] = value
             self._samples[index.column()][self.sample_properties[index.row()]] = value
+            self.data_updated.emit()
             return True
 
     def rowCount(self, index):
@@ -130,10 +133,6 @@ class ProposalSettings:
             return False
         return True
 
-    def _samples_changed(self, other):
-        # TODO: this
-        return False
-
 
 class ExpPanel(Panel):
     """Provides a panel with several input fields for the experiment settings.
@@ -155,6 +154,7 @@ class ExpPanel(Panel):
         self.new_proposal_settings = deepcopy(self.old_proposal_settings)
 
         self.model = SamplesModel()
+        self.model.data_updated.connect(self.on_samples_changed)
         self.sampleTable.setModel(self.model)
         self.sampleTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
@@ -423,6 +423,9 @@ class ExpPanel(Panel):
     @pyqtSlot(str)
     def on_users_textChanged(self, value):
         self.new_proposal_settings.users = value.strip()
+        self._check_for_changes()
+
+    def on_samples_changed(self):
         self._check_for_changes()
 
     @pyqtSlot(str)
