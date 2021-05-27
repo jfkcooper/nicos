@@ -149,9 +149,9 @@ class ExpPanel(Panel):
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = deepcopy(self.old_proposal_settings)
 
-        self.model = SamplesModel()
-        self.model.data_updated.connect(self.on_samples_changed)
-        self.sampleTable.setModel(self.model)
+        self.samples_model = SamplesModel()
+        self.samples_model.data_updated.connect(self.on_samples_changed)
+        self.sampleTable.setModel(self.samples_model)
         self.sampleTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.applyWarningLabel.setStyleSheet('color: red')
@@ -209,7 +209,7 @@ class ExpPanel(Panel):
                 self.old_proposal_settings.abort_on_error)
             self.notifEmails.setPlainText(
                 '\n'.join(self.old_proposal_settings.notifications))
-            self.model.samples = self.old_proposal_settings.samples
+            self.samples_model.samples = self.old_proposal_settings.samples
 
     def _extract_samples(self, samples_dict):
         samples = []
@@ -239,7 +239,7 @@ class ExpPanel(Panel):
     def on_client_disconnected(self):
         for control in self._text_controls:
             control.setText('')
-        self.model.samples = []
+        self.samples_model.samples = []
         self.notifEmails.setPlainText('')
         self.setViewOnly(True)
 
@@ -330,7 +330,7 @@ class ExpPanel(Panel):
 
     def _update_samples(self, changes):
         if self.new_proposal_settings.samples != self.old_proposal_settings.samples:
-            for index, sample in enumerate(self.model.samples):
+            for index, sample in enumerate(self.samples_model.samples):
                 set_sample_cmd = f'SetSample({index}, {index}, ' \
                                  f'sample_name=\'{sample["name"]}\', ' \
                                  f'formula=\'{sample["formula"]}\', ' \
@@ -400,7 +400,7 @@ class ExpPanel(Panel):
                     combineUsers(result.get('users', [])))
                 self.localContacts.setText(
                     combineUsers(result.get('localcontacts', [])))
-                self.model.samples = result['samples']
+                self.samples_model.samples = result['samples']
             else:
                 self.showError('Querying proposal management system failed')
         except Exception as e:
