@@ -243,6 +243,7 @@ class ExpPanel(Panel):
     def on_client_disconnected(self):
         for control in self._text_controls:
             control.setText("")
+        self.model.samples = []
         self.notifEmails.setPlainText('')
         self.setViewOnly(True)
 
@@ -252,6 +253,7 @@ class ExpPanel(Panel):
         self.notifEmails.setEnabled(not is_view_only)
         self.errorAbortBox.setEnabled(not is_view_only)
         self.queryDBButton.setEnabled(not is_view_only)
+        self.sampleTable.setEnabled(not is_view_only)
         if is_view_only:
             self.applyButton.setEnabled(False)
             self.applyWarningLabel.setVisible(False)
