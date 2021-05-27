@@ -48,10 +48,10 @@ class SamplesModel(QAbstractTableModel):
 
     def __init__(self):
         super().__init__()
-        self.sample_properties = ["name", "formula", "number of", "mass/volume",
-                                  "density"]
+        self.sample_properties = ['name', 'formula', 'number of', 'mass/volume',
+                                  'density']
         self._samples = []
-        self._table_data = self.empty_table(len(self.sample_properties),
+        self._table_data = self._empty_table(len(self.sample_properties),
                                             len(self._samples))
 
     @property
@@ -62,7 +62,7 @@ class SamplesModel(QAbstractTableModel):
     def samples(self, samples):
         self._samples = samples
 
-        new_table = self.empty_table(len(self.sample_properties),
+        new_table = self._empty_table(len(self.sample_properties),
                                      len(self._samples))
         for i, sample in enumerate(self._samples):
             for j, key in enumerate(sample.keys()):
@@ -103,12 +103,8 @@ class SamplesModel(QAbstractTableModel):
             self.headerDataChanged.emit(orientation, section, section)
         return True
 
-    def empty_table(self, rows, columns):
-        return [[""] * columns for _ in range(rows)]
-
-    @property
-    def num_rows(self):
-        return len(self._table_data)
+    def _empty_table(self, rows, columns):
+        return [[''] * columns for _ in range(rows)]
 
 
 class ProposalSettings:
@@ -242,7 +238,7 @@ class ExpPanel(Panel):
 
     def on_client_disconnected(self):
         for control in self._text_controls:
-            control.setText("")
+            control.setText('')
         self.model.samples = []
         self.notifEmails.setPlainText('')
         self.setViewOnly(True)
