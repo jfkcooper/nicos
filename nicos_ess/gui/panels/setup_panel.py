@@ -312,10 +312,6 @@ class ExpPanel(Panel):
                                'still running.')
                 return
             changes.append('New experiment started.')
-            if self._new_exp_panel:
-                dlg = PanelDialog(self, self.client, self._new_exp_panel,
-                                  'New experiment')
-                dlg.exec_()
         else:
             self._update_title(changes)
             self._update_users(users, changes)
