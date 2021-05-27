@@ -129,7 +129,7 @@ class ProposalSettings:
                 or self.local_contacts != other.local_contacts \
                 or self.notifications != other.notifications \
                 or self.abort_on_error != other.abort_on_error\
-                or self._samples_changed(other):
+                or self.samples != other.samples:
             return False
         return True
 
@@ -331,16 +331,16 @@ class ExpPanel(Panel):
         self.exp_proposal_activated.emit()
 
     def _update_samples(self, changes):
-        # TODO: if changed
-        for index, sample in enumerate(self.model.samples):
-            set_sample_cmd = f'SetSample({index}, {index}, ' \
-                             f'sample_name=\'{sample["name"]}\', ' \
-                             f'formula=\'{sample["formula"]}\', ' \
-                             f'number_of={sample["number of"]}, ' \
-                             f'mass_volume=\'{sample["mass/volume"]}\', ' \
-                             f'density=\'{sample["density"]}\')'
-            self.client.run(set_sample_cmd)
-        changes.append('Samples updated.')
+        if self.new_proposal_settings.samples != self.old_proposal_settings.samples:
+            for index, sample in enumerate(self.model.samples):
+                set_sample_cmd = f'SetSample({index}, {index}, ' \
+                                 f'sample_name=\'{sample["name"]}\', ' \
+                                 f'formula=\'{sample["formula"]}\', ' \
+                                 f'number_of={sample["number of"]}, ' \
+                                 f'mass_volume=\'{sample["mass/volume"]}\', ' \
+                                 f'density=\'{sample["density"]}\')'
+                self.client.run(set_sample_cmd)
+            changes.append('Samples updated.')
 
     def _update_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
