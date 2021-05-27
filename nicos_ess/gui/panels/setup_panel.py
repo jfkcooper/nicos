@@ -204,7 +204,7 @@ class ExpPanel(Panel):
     def _update_panel(self):
         self.proposalNum.setText(self.old_proposal_settings.proposal_id)
         self.expTitle.setText(self.old_proposal_settings.title)
-        self.users.setText(self.old_proposal_settings.users)
+        self.users.setText(self.old_proposal_settings.users.replace(',', ';'))
         self.localContacts.setText(
             self.old_proposal_settings.local_contacts)
         self.errorAbortBox.setChecked(
@@ -467,6 +467,10 @@ class ExpPanel(Panel):
     def on_discardButton_clicked(self):
         self._update_proposal_info()
         self._check_for_changes()
+
+    @pyqtSlot()
+    def on_proposalQuery_returnPressed(self):
+        self.on_queryDBButton_clicked()
 
 
 class SetupsPanel(DefaultSetupsPanel):
