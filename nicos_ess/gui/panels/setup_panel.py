@@ -161,7 +161,8 @@ class ExpPanel(Panel):
         self._text_controls = (self.expTitle, self.users, self.localContacts,
                                self.proposalNum, self.proposalQuery)
 
-        if options.get('hide_sample', False):
+        self.hide_samples = options.get('hide_sample', False)
+        if self.hide_samples:
             self._hide_sample_info()
 
         self.initialise_connection_status_listeners()
@@ -187,7 +188,9 @@ class ExpPanel(Panel):
                                   'session.experiment.errorbehavior', None)
         notif_emails = self.client.eval(
             'session.experiment.propinfo["notif_emails"]', [])
-        samples_dict = self.client.eval('Exp.sample.samples', {})
+
+        samples_dict = {} if self.hide_samples \
+            else self.client.eval('Exp.sample.samples', {})
 
         if values:
             self.old_proposal_settings = \
@@ -208,7 +211,7 @@ class ExpPanel(Panel):
             self.old_proposal_settings.abort_on_error)
         self.notifEmails.setPlainText(
             '\n'.join(self.old_proposal_settings.notifications))
-        self.samples_model.samples = self.old_proposal_settings.samples
+        self._update_samples_model(self.old_proposal_settings.samples)
 
     def _extract_samples(self, samples_dict):
         samples = []
@@ -238,7 +241,7 @@ class ExpPanel(Panel):
     def on_client_disconnected(self):
         for control in self._text_controls:
             control.setText('')
-        self.samples_model.samples = []
+        self._update_samples_model([])
         self.notifEmails.setPlainText('')
         self.setViewOnly(True)
 
@@ -328,6 +331,9 @@ class ExpPanel(Panel):
         self.exp_proposal_activated.emit()
 
     def _update_samples(self, changes):
+        if self.hide_samples:
+            return
+
         if self.new_proposal_settings.samples != self.old_proposal_settings.samples:
             for index, sample in enumerate(self.samples_model.samples):
                 set_sample_cmd = f'SetSample({index}, {index}, ' \
@@ -399,13 +405,17 @@ class ExpPanel(Panel):
                     combineUsers(result.get('users', [])))
                 self.localContacts.setText(
                     combineUsers(result.get('localcontacts', [])))
-                self.samples_model.samples = result['samples']
+                self._update_samples_model(result['samples'])
             else:
                 self.showError('Querying proposal management system failed')
         except Exception as e:
             self.log.warning('error in proposal query', exc=1)
             self.showError('Querying proposal management system failed: '
                            + str(e))
+
+    def _update_samples_model(self, samples):
+        if not self.hide_samples:
+            self.samples_model.samples = samples
 
     @pyqtSlot(str)
     def on_proposalNum_textChanged(self, value):
