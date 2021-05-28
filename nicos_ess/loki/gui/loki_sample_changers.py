@@ -27,8 +27,26 @@ import itertools
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
-from nicos.guisupport.qt import QDialog, QTableWidget
+from nicos.guisupport.qt import QDialog, QTableWidget, QItemDelegate, QLineEdit
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
+from nicos_ess.utilities.validators import DoubleValidator
+
+
+class TableDelegate(QItemDelegate):
+    def createEditor(self, parent, option, index):
+        delegated_table = QLineEdit(parent)
+        self.validate(delegated_table)
+        return delegated_table
+
+    @staticmethod
+    def validate(delegated_table):
+        _validator_values = {  # in units of mm
+            'bottom': 0.0,
+            'top': 1000.0,
+            'decimal': 5,
+        }
+        validator = DoubleValidator(**_validator_values)
+        delegated_table.setValidator(validator)
 
 
 class ThermoCellHolderPositions(QDialog):
@@ -40,6 +58,8 @@ class ThermoCellHolderPositions(QDialog):
                                   'ui_files/sample_changers/'
                                   'thermo_cell_holder_positions.ui'))
         self.initialise_markups()
+        for table in self._get_all_tables():
+            table.setItemDelegate(TableDelegate())
 
     def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
@@ -70,4 +90,3 @@ class ThermoCellHolderSettings(LokiPanelBase):
         dlg = ThermoCellHolderPositions(self, self.client)
         if not dlg.exec_():
             return
-
