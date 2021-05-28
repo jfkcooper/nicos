@@ -23,9 +23,11 @@
 # *****************************************************************************
 
 """LoKI Sample Changers dialog."""
+import itertools
+
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
-from nicos.guisupport.qt import QDialog
+from nicos.guisupport.qt import QDialog, QTableWidget
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 
 
@@ -37,7 +39,20 @@ class ThermoCellHolderPositions(QDialog):
         loadUi(self, findResource('nicos_ess/loki/gui/'
                                   'ui_files/sample_changers/'
                                   'thermo_cell_holder_positions.ui'))
+        self.initialise_markups()
+
+    def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
+        self.setStyleSheet("background-color: whitesmoke;")
+        for table in self._get_all_tables():
+            table.setStyleSheet("background-color: white;")
+
+    def _get_all_tables(self):
+        _tables = itertools.chain(
+                self.topRowGroup.findChildren(QTableWidget),
+                self.bottomRowGroup.findChildren(QTableWidget)
+            )
+        return _tables
 
 
 class ThermoCellHolderSettings(LokiPanelBase):
