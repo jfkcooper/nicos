@@ -66,6 +66,8 @@ class ThermoCellHolderPositions(QDialog):
 
         self._disable_all_positions_but_first()
 
+        self.dialogButtonBox.rejected.connect(self.reject)
+
     def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
         self.setStyleSheet("background-color: whitesmoke;")
