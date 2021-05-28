@@ -112,7 +112,7 @@ class ProposalSettings:
                  notifications='', abort_on_error='', samples=None):
         self.proposal_id = proposal_id
         self.title = title
-        self.users = users
+        self.users = users.replace(',', ';')
         self.local_contacts = local_contacts
         self.samples = samples if samples else []
         self.notifications = notifications
@@ -204,7 +204,7 @@ class ExpPanel(Panel):
     def _update_panel(self):
         self.proposalNum.setText(self.old_proposal_settings.proposal_id)
         self.expTitle.setText(self.old_proposal_settings.title)
-        self.users.setText(self.old_proposal_settings.users.replace(',', ';'))
+        self.users.setText(self.old_proposal_settings.users)
         self.localContacts.setText(
             self.old_proposal_settings.local_contacts)
         self.errorAbortBox.setChecked(
