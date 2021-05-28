@@ -27,12 +27,15 @@ import itertools
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
-from nicos.guisupport.qt import QDialog, QTableWidget, QItemDelegate, QLineEdit
+from nicos.guisupport.qt import QDialog, QTableWidget, QItemDelegate,\
+    QLineEdit, QTableWidgetItem, Qt
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.utilities.validators import DoubleValidator
 
 
 class TableDelegate(QItemDelegate):
+    # There is no direct validation call for `QTableWidget`. One straightforward
+    # method is the use of delegations. Here, our delegate is a `QLineEdit`.
     def createEditor(self, parent, option, index):
         delegated_table = QLineEdit(parent)
         self.validate(delegated_table)
@@ -61,6 +64,8 @@ class ThermoCellHolderPositions(QDialog):
         for table in self._get_all_tables():
             table.setItemDelegate(TableDelegate())
 
+        self._disable_all_positions_but_first()
+
     def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
         self.setStyleSheet("background-color: whitesmoke;")
@@ -73,6 +78,25 @@ class ThermoCellHolderPositions(QDialog):
                 self.bottomRowGroup.findChildren(QTableWidget)
             )
         return _tables
+
+    def _disable_all_positions_but_first(self):
+        for table in self._get_all_tables():
+            self._disable(table)
+
+    def _disable(self, table):
+        # Whenever an item is set to a `QTableWidget`, that widget takes the
+        # ownership and the item cannot be set to another widget. Thus, we
+        # create an instance of an item for each cell.
+        for i in range(1, self.firstRowFirstTable.rowCount()):
+            for j in range(self.firstRowFirstTable.columnCount()):
+                table.setItem(i, j, self._configure_item())
+
+    @staticmethod
+    def _configure_item():
+        item = QTableWidgetItem(str(0.0))
+        item.setFlags(Qt.ItemIsEnabled)
+        item.setBackground(Qt.lightGray)
+        return item
 
 
 class ThermoCellHolderSettings(LokiPanelBase):
