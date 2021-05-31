@@ -175,7 +175,7 @@ class LokiExperimentPanel(LokiPanelBase):
 
     def _activate_environment_settings(self):
         # Enable sample environments
-        self._map_settings_to_ui()
+        self.settings = self._map_settings_to_ui()
         self.descriptionGroupBox.setVisible(True)
         self.settingsGroupBox.setVisible(True)
 
@@ -184,7 +184,7 @@ class LokiExperimentPanel(LokiPanelBase):
             'Thermostated Cell Holder': ThermoCellHolderSettings,
         }
         _ui = _mappings[self.envComboBox.currentText()](
-            self.client, self.settingsFrame, self.parent, self.options
+            self.parent, self.client, self.options, self.settingsFrame
         )
         return _ui
 

@@ -77,7 +77,7 @@ class ThermoCellHolderPositions(QDialog):
 
     def _get_all_tables(self):
         _tables = itertools.chain(
-                reversed(self.topRowGroup.findChildren(QTableWidget)),
+                self.topRowGroup.findChildren(QTableWidget),
                 self.bottomRowGroup.findChildren(QTableWidget)
             )
         return _tables
@@ -103,7 +103,7 @@ class ThermoCellHolderPositions(QDialog):
 
 
 class ThermoCellHolderSettings(LokiPanelBase):
-    def __init__(self, client, frame, parent, options):
+    def __init__(self, parent, client, options, frame):
         super().__init__(parent, client, options)
         self.client = client
         self.frame = frame
@@ -122,15 +122,15 @@ class ThermoCellHolderSettings(LokiPanelBase):
 
     def _set_first_positions(self, dialog):
         values = self._get_first_position_values(dialog)
-        print(values)
+        if not values:
+            return
         _table = self.frame.firstPosTable
         for i in range(_table.rowCount()):
             for j in (0, 1):
                 _item = QTableWidgetItem(values[i][j])
                 _table.setItem(i, j, _item)
 
-    @staticmethod
-    def _get_first_position_values(dialog):
+    def _get_first_position_values(self, dialog):
         # We need the values in a specific order. Besides, QT's algorithm of
         # returning children is not clear.
         ordered_tables = (
@@ -143,10 +143,20 @@ class ThermoCellHolderSettings(LokiPanelBase):
             dialog.firstRowFourthTable,
             dialog.secondRowFourthTable,
         )
-        column_indices = (0, 1)
         first_position_values = []
         for table in ordered_tables:
-            first_position_values.append(
-                [table.item(0, j).text() for j in column_indices]
-            )
+            first_position_values.append(self._read_values(table))
         return first_position_values
+
+    @staticmethod
+    def _read_values(table):
+        # todo: This function will change upon implementation of the
+        # todo: corresponding device.
+        first_positions = []
+        column_indices = (0, 1)
+        for j in column_indices:
+            if table.item(0, j):
+                first_positions.append(table.item(0, j).text())
+            else:
+                first_positions.append('0')
+        return first_positions
