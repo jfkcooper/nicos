@@ -33,23 +33,23 @@ from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.utilities.validators import DoubleValidator
 
 
+def validate(ui_element):
+    _validator_values = {  # in units of mm
+        'bottom': 0.0,
+        'top': 1000.0,
+        'decimal': 5,
+    }
+    validator = DoubleValidator(**_validator_values)
+    ui_element.setValidator(validator)
+
+
 class TableDelegate(QItemDelegate):
     # There is no direct validation call for `QTableWidget`. One straightforward
     # method is the use of delegations. Here, our delegate is a `QLineEdit`.
     def createEditor(self, parent, option, index):
         delegated_table = QLineEdit(parent)
-        self.validate(delegated_table)
+        validate(delegated_table)
         return delegated_table
-
-    @staticmethod
-    def validate(delegated_table):
-        _validator_values = {  # in units of mm
-            'bottom': 0.0,
-            'top': 1000.0,
-            'decimal': 5,
-        }
-        validator = DoubleValidator(**_validator_values)
-        delegated_table.setValidator(validator)
 
 
 class ThermoCellHolderPositions(QDialog):
@@ -110,8 +110,13 @@ class ThermoCellHolderSettings(LokiPanelBase):
         loadUi(self.frame, findResource('nicos_ess/loki/gui/'
                                         'ui_files/sample_changers/'
                                         'thermo_cell_holder_settings.ui'))
+        self.initialise_validators()
         self.frame.cartridgeSettings.clicked.connect(
             self._active_holder_position_settings)
+
+    def initialise_validators(self):
+        for box in self.frame.findChildren(QLineEdit):
+            validate(box)
 
     def _active_holder_position_settings(self):
         dialog = ThermoCellHolderPositions(self, self.client)
@@ -124,6 +129,7 @@ class ThermoCellHolderSettings(LokiPanelBase):
         values = self._get_first_position_values(dialog)
         if not values:
             return
+
         _table = self.frame.firstPosTable
         for i in range(_table.rowCount()):
             for j in (0, 1):
