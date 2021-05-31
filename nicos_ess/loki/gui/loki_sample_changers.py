@@ -77,7 +77,7 @@ class ThermoCellHolderPositions(QDialog):
 
     def _get_all_tables(self):
         _tables = itertools.chain(
-                self.topRowGroup.findChildren(QTableWidget),
+                reversed(self.topRowGroup.findChildren(QTableWidget)),
                 self.bottomRowGroup.findChildren(QTableWidget)
             )
         return _tables
@@ -117,3 +117,36 @@ class ThermoCellHolderSettings(LokiPanelBase):
         dialog = ThermoCellHolderPositions(self, self.client)
         if not dialog.exec_():
             return
+
+        self._set_first_positions(dialog)
+
+    def _set_first_positions(self, dialog):
+        values = self._get_first_position_values(dialog)
+        print(values)
+        _table = self.frame.firstPosTable
+        for i in range(_table.rowCount()):
+            for j in (0, 1):
+                _item = QTableWidgetItem(values[i][j])
+                _table.setItem(i, j, _item)
+
+    @staticmethod
+    def _get_first_position_values(dialog):
+        # We need the values in a specific order. Besides, QT's algorithm of
+        # returning children is not clear.
+        ordered_tables = (
+            dialog.firstRowFirstTable,
+            dialog.secondRowFirstTable,
+            dialog.firstRowSecondTable,
+            dialog.secondRowSecondTable,
+            dialog.firstRowThirdTable,
+            dialog.secondRowThirdTable,
+            dialog.firstRowFourthTable,
+            dialog.secondRowFourthTable,
+        )
+        column_indices = (0, 1)
+        first_position_values = []
+        for table in ordered_tables:
+            first_position_values.append(
+                [table.item(0, j).text() for j in column_indices]
+            )
+        return first_position_values

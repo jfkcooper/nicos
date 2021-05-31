@@ -55,7 +55,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_25">
          <item row="1" column="0">
-          <widget class="QTableWidget" name="tableWidget_14">
+          <widget class="QTableWidget" name="secondRowSecondTable">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -135,7 +135,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QTableWidget" name="tableWidget_13">
+          <widget class="QTableWidget" name="secondRowFirstTable">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -198,7 +198,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_27">
          <item row="1" column="0">
-          <widget class="QTableWidget" name="tableWidget_15">
+          <widget class="QTableWidget" name="secondRowThirdTable">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -278,7 +278,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QTableWidget" name="tableWidget_16">
+          <widget class="QTableWidget" name="secondRowFourthTable">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -441,7 +441,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="1" column="0">
-          <widget class="QTableWidget" name="tableWidget_4">
+          <widget class="QTableWidget" name="firstRowFourthTable">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -511,7 +511,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="1" column="0">
-          <widget class="QTableWidget" name="tableWidget_2">
+          <widget class="QTableWidget" name="firstRowSecondTable">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -584,7 +584,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="1" column="0">
-          <widget class="QTableWidget" name="tableWidget_3">
+          <widget class="QTableWidget" name="firstRowThirdTable">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
