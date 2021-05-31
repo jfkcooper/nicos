@@ -67,6 +67,7 @@ class ThermoCellHolderPositions(QDialog):
         self._disable_all_positions_but_first()
 
         self.dialogButtonBox.rejected.connect(self.reject)
+        self.dialogButtonBox.accepted.connect(self.accept)
 
     def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
@@ -113,6 +114,6 @@ class ThermoCellHolderSettings(LokiPanelBase):
             self._active_holder_position_settings)
 
     def _active_holder_position_settings(self):
-        dlg = ThermoCellHolderPositions(self, self.client)
-        if not dlg.exec_():
+        dialog = ThermoCellHolderPositions(self, self.client)
+        if not dialog.exec_():
             return
