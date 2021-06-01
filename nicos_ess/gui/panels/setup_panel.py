@@ -192,6 +192,11 @@ class ExpPanel(Panel):
         samples_dict = {} if self.hide_samples \
             else self.client.eval('Exp.sample.samples', {})
 
+        # FinishExperiment() sets the samples to [0: {'name':''}]
+        # EssSample device may fix this.
+        if len(samples_dict) == 1 and 'sample_name' not in samples_dict[0]:
+            samples_dict = {}
+
         if values:
             self.old_proposal_settings = \
                 ProposalSettings(decodeAny(values[0]), decodeAny(values[1]),
@@ -470,7 +475,9 @@ class ExpPanel(Panel):
         self._check_for_changes()
 
     def on_experiment_finished(self):
-        pass
+        self._update_proposal_info()
+        self._check_for_changes()
+        self.proposalQuery.setText("")
 
     @pyqtSlot()
     def on_proposalQuery_returnPressed(self):
