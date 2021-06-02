@@ -29,16 +29,16 @@
 """NICOS GUI experiment setup window."""
 from copy import deepcopy
 
-from PyQt5.QtWidgets import QHeaderView
+from PyQt5.QtWidgets import QHeaderView, QListWidgetItem
 
 from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel, PanelDialog
-from nicos.clients.gui.panels.setup_panel import \
+from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
     SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, \
-    pyqtSignal, pyqtSlot, QAbstractTableModel
+from nicos.guisupport.qt import QAbstractTableModel, QDialogButtonBox, \
+    QMessageBox, Qt, pyqtSignal, pyqtSlot
 from nicos.utils import decodeAny, findResource
 
 
@@ -215,7 +215,8 @@ class ExpPanel(Panel):
 
     def _format_sample_table(self):
         num_samples = len(self.samples_model.samples)
-        width = self.sampleTable.width() - self.sampleTable.verticalHeader().width()
+        width = self.sampleTable.width() - \
+                self.sampleTable.verticalHeader().width()
         for i in range(num_samples):
             self.sampleTable.setColumnWidth(i, width / num_samples)
 
@@ -379,7 +380,6 @@ class ExpPanel(Panel):
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
-        # read values from proposal system
         try:
             proposal = self.proposalQuery.text()
             result = self.client.eval(
@@ -387,7 +387,7 @@ class ExpPanel(Panel):
 
             if result:
                 if len(result) != 1:
-                    result = self.chooseProposal(result)
+                    result = self.choose_proposal(result)
                     if not result:
                         return
                 else:
@@ -415,6 +415,19 @@ class ExpPanel(Panel):
             self.log.warning('error in proposal query', exc=1)
             self.showError('Querying proposal management system failed: '
                            + str(e))
+
+    def choose_proposal(self, proposals):
+        dlg = dialogFromUi(self, 'panels/setup_exp_proposal.ui')
+        dlg.list.setItemDelegate(ProposalDelegate(dlg))
+        for prop in proposals:
+            prop_copy = deepcopy(prop)
+            prop_copy['users'] = [{'name': combineUsers(prop['users'])}]
+            item = QListWidgetItem('', dlg.list)
+            item.setData(Qt.UserRole, prop_copy)
+        if not dlg.exec_():
+            return
+        sel = dlg.list.currentRow()
+        return proposals[sel]
 
     def _update_samples_model(self, samples):
         if not self.hide_samples:
