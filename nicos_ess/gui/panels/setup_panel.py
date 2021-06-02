@@ -31,6 +31,7 @@ from copy import deepcopy
 
 from PyQt5.QtWidgets import QHeaderView
 
+from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import \
     SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
@@ -39,8 +40,6 @@ from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, \
     pyqtSignal, pyqtSlot, QAbstractTableModel
 from nicos.utils import decodeAny, findResource
-
-from nicos_ess.gui import uipath
 
 
 class SamplesModel(QAbstractTableModel):
