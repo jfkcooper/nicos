@@ -392,7 +392,6 @@ class ExpPanel(Panel):
 
             if result:
                 if len(result) != 1:
-                    # chooseProposal is not defined
                     result = self.chooseProposal(result)
                     if not result:
                         return
