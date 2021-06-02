@@ -201,9 +201,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         self.offset -= diff
 
     def _get_valid_speed(self, newValue):
-        min_speed = self._get_pvctrl('speed', 'lower_ctrl_limit', 0.0)
-        max_speed = self._get_pvctrl('speed', 'upper_ctrl_limit', 0.0)
-
+        min_speed, max_speed = self._get_speed_limits()
         valid_speed = newValue
         if min_speed != 0.0:
             valid_speed = max(min_speed, valid_speed)
