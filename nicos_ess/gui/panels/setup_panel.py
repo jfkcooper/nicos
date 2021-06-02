@@ -178,7 +178,6 @@ class ExpPanel(Panel):
             self.on_client_disconnected()
         self.client.connected.connect(self.on_client_connected)
         self.client.disconnected.connect(self.on_client_disconnected)
-        self.client.experiment.connect(self.on_client_experiment)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -252,11 +251,6 @@ class ExpPanel(Panel):
         self._update_samples_model([])
         self.notifEmails.setPlainText('')
         self.setViewOnly(True)
-
-    def on_client_experiment(self, data):
-        self._update_proposal_info()
-        self._check_for_changes()
-        self.proposalQuery.setText("")
 
     def setViewOnly(self, is_view_only):
         for control in self._text_controls:
