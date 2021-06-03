@@ -104,7 +104,7 @@ class ThermoCellHolderPositions(QDialog):
 
 class ThermoCellHolderSettings(LokiPanelBase):
     def __init__(self, parent, client, options, frame):
-        super().__init__(parent, client, options)
+        LokiPanelBase.__init__(self, parent, client, options)
         self.client = client
         self.frame = frame
         loadUi(self.frame, findResource('nicos_ess/loki/gui/'
