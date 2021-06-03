@@ -178,6 +178,7 @@ class ExpPanel(Panel):
             self.on_client_disconnected()
         self.client.connected.connect(self.on_client_connected)
         self.client.disconnected.connect(self.on_client_disconnected)
+        self.client.experiment.connect(self.on_experiment_finished)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -498,7 +499,6 @@ class FinishPanel(Panel):
     """
 
     panelName = 'Finish experiment'
-    experiment_finished = pyqtSignal()
     ui = '%s/panels/ui_files/finish_exp.ui' % uipath
 
     def __init__(self, parent, client, options):
@@ -540,7 +540,6 @@ class FinishPanel(Panel):
         else:
             self.finishButton.setEnabled(False)
             self.show_finish_message()
-            self.experiment_finished.emit()
 
     def show_finish_message(self):
         msg_box = QMessageBox()
