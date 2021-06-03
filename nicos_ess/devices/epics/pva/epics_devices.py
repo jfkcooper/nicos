@@ -314,10 +314,6 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
 
         return {'readpv', 'writepv'}
 
-    def _get_speed_limits(self):
-        return self._epics_wrapper.get_limits(self._get_pv_name('speed'),
-                                              timeout=self.epicstimeout)
-
     def doInit(self, mode):
         if mode == SIMULATION:
             return

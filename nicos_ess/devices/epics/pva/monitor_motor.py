@@ -298,6 +298,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             return status.UNKNOWN
         return status.OK
 
+    def _get_speed_limits(self):
+        return self._epics_wrapper.get_limits(self._get_pv_name('speed'),
+                                              timeout=self.epicstimeout)
+
     def doStop(self):
         self._put_pv('stop', 1, False)
 
