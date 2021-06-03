@@ -34,12 +34,12 @@ from nicos_ess.utilities.validators import DoubleValidator
 
 
 def validate(ui_element):
-    _validator_values = {  # in units of mm
+    validator_values = {  # in units of mm
         'bottom': 0.0,
         'top': 1000.0,
         'decimal': 5,
     }
-    validator = DoubleValidator(**_validator_values)
+    validator = DoubleValidator(**validator_values)
     ui_element.setValidator(validator)
 
 
