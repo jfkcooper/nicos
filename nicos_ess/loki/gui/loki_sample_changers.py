@@ -26,9 +26,10 @@
 import itertools
 
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialog, QItemDelegate, QLineEdit, Qt, \
+    QTableWidget, QTableWidgetItem
 from nicos.utils import findResource
-from nicos.guisupport.qt import QDialog, QTableWidget, QItemDelegate,\
-    QLineEdit, QTableWidgetItem, Qt
+
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.utilities.validators import DoubleValidator
 
