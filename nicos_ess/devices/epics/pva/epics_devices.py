@@ -211,8 +211,8 @@ class EpicsDevice(DeviceMixinBase):
                 self._pvs[key] = HardwareStub(self)
 
     def _get_limits(self, pvparam):
-        self._epics_wrapper.get_limits(self._get_pv_name(pvparam),
-                                       timeout=self.epicstimeout)
+        return self._epics_wrapper.get_limits(self._get_pv_name(pvparam),
+                                              timeout=self.epicstimeout)
 
     def _get_pv(self, pvparam, as_string=False):
         return self._epics_wrapper.get_pv_value(self._pvs[pvparam],
