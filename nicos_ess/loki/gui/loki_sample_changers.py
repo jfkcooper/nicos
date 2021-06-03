@@ -159,8 +159,7 @@ class ThermoCellHolderSettings(LokiPanelBase):
         # todo: This function will change upon implementation of the
         # todo: corresponding device.
         first_positions = []
-        column_indices = (0, 1)
-        for j in column_indices:
+        for j in range(0, 2):
             if table.item(0, j):
                 first_positions.append(table.item(0, j).text())
             else:
