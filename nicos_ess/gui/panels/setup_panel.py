@@ -34,11 +34,11 @@ from PyQt5.QtWidgets import QHeaderView, QListWidgetItem
 from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
-    SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
+    combineUsers, splitUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QAbstractTableModel, QDialogButtonBox, \
-    QMessageBox, Qt, pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QAbstractTableModel, QMessageBox, Qt, \
+    pyqtSignal, pyqtSlot
 from nicos.utils import decodeAny, findResource
 
 
@@ -131,11 +131,6 @@ class ProposalSettings:
 
 class ExpPanel(Panel):
     """Provides a panel with several input fields for the experiment settings.
-
-    Options:
-
-    * ``new_exp_panel`` -- class name of the panel which should be opened after
-      a new experiment has been started.
     """
 
     panelName = 'Experiment setup'
@@ -489,17 +484,6 @@ class ExpPanel(Panel):
     @pyqtSlot()
     def on_proposalQuery_returnPressed(self):
         self.on_queryDBButton_clicked()
-
-
-class SetupsPanel(DefaultSetupsPanel):
-    def finishUi(self):
-        self.buttonBox.setLayoutDirection(Qt.RightToLeft)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Apply)
-        self.buttonBox.addButton(self._reload_btn, QDialogButtonBox.ResetRole)
-
-    def setViewOnly(self, value):
-        for button in self.buttonBox.buttons():
-            button.setEnabled(not value)
 
 
 class FinishPanel(Panel):
