@@ -292,6 +292,10 @@ class ExpPanel(Panel):
 
     @pyqtSlot()
     def on_applyButton_clicked(self):
+        if self.mainwindow.current_status != 'idle':
+            self.showInfo('Cannot change settings while a script is running!')
+            return
+
         changes = []
 
         proposal_id = self.new_proposal_settings.proposal_id
