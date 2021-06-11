@@ -69,6 +69,7 @@ class SamplesModel(QAbstractTableModel):
 
         self._table_data = new_table
         self.layoutChanged.emit()
+        self.data_updated.emit()
 
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:
