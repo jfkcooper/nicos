@@ -31,8 +31,6 @@ class EssSample(Sample):
     """
 
     parameters = {
-        'sample_name': Param('name', type=str, settable=True,
-                             category='sample'),
         'sample_formula': Param('formula', type=str, settable=True,
                                 category='sample'),
         'number_of': Param('number_of', type=int, settable=True,

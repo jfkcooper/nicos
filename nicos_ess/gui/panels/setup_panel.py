@@ -221,7 +221,7 @@ class ExpPanel(Panel):
         samples = []
         for sample in samples_dict.values():
             samples.append({
-                'name': sample.get('sample_name', ''),
+                'name': sample.get('name', ''),
                 'formula': sample.get('formula', ''),
                 'number of': sample.get('number_of', 1),
                 'mass/volume': sample.get('mass_volume', ''),
@@ -336,14 +336,18 @@ class ExpPanel(Panel):
 
         if self.samples_model.samples != self.old_proposal_settings.samples:
             for index, sample in enumerate(self.samples_model.samples):
-                set_sample_cmd = f'SetSample({index}, {index}, ' \
-                                 f'sample_name=\'{sample["name"]}\', ' \
-                                 f'formula=\'{sample["formula"]}\', ' \
-                                 f'number_of={sample["number of"]}, ' \
-                                 f'mass_volume=\'{sample["mass/volume"]}\', ' \
-                                 f'density=\'{sample["density"]}\')'
+                set_sample_cmd = self._create_set_sample_command(index, sample)
                 self.client.run(set_sample_cmd)
             changes.append('Samples updated.')
+
+    def _create_set_sample_command(self, index, sample):
+        name = sample.get('name', '')
+        name = name if name else f'sample {index + 1}'
+        return f'SetSample({index}, \'{name}\', ' \
+               f'formula=\'{sample["formula"]}\', ' \
+               f'number_of={sample["number of"]}, ' \
+               f'mass_volume=\'{sample["mass/volume"]}\', ' \
+               f'density=\'{sample["density"]}\')'
 
     def _set_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
