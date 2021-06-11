@@ -41,10 +41,3 @@ class EssSample(Sample):
                              category='sample'),
         'density': Param('density', type=str, settable=True, category='sample'),
     }
-
-    def new(self, parameters):
-        # EssSample being set using NewSample should have sample_name?
-        # i.e. parameter in NewSample(name, **parameters) must also have
-        # sample_name key.
-        if 'sample_name' in parameters:
-            Sample.new(self, parameters)
