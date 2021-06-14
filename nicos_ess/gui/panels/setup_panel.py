@@ -29,16 +29,14 @@
 """NICOS GUI experiment setup window."""
 from copy import deepcopy
 
-from PyQt5.QtWidgets import QHeaderView, QListWidgetItem
-
 from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
     combineUsers, splitUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QAbstractTableModel, QMessageBox, Qt, \
-    pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QAbstractTableModel, QHeaderView, \
+    QListWidgetItem, QMessageBox, Qt, pyqtSignal, pyqtSlot
 from nicos.utils import decodeAny, findResource
 
 
@@ -109,13 +107,13 @@ class SamplesModel(QAbstractTableModel):
 
 class ProposalSettings:
     def __init__(self, proposal_id='', title='', users='', local_contacts='',
-                 notifications='', abort_on_error='', samples=None):
+                 abort_on_error='', notifications=None, samples=None):
         self.proposal_id = proposal_id
         self.title = title
         self.users = users.replace(',', ';')
         self.local_contacts = local_contacts
         self.samples = samples if samples else []
-        self.notifications = notifications
+        self.notifications = notifications if notifications else []
         self.abort_on_error = abort_on_error
 
     def __eq__(self, other):
@@ -192,7 +190,7 @@ class ExpPanel(Panel):
             self.old_proposal_settings = \
                 ProposalSettings(decodeAny(values[0]), decodeAny(values[1]),
                                  decodeAny(values[2]), decodeAny(values[3]),
-                                 notif_emails, values[4] == 'abort',
+                                 values[4] == 'abort', notif_emails,
                                  self._extract_samples(samples_dict))
             self.new_proposal_settings = deepcopy(self.old_proposal_settings)
             self._update_panel()
