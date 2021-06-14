@@ -131,8 +131,6 @@ class EssExperiment(Experiment):
             )
         return users
 
-    @usermethod
-    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
-        Experiment.new(
-            self, proposal, title=None, localcontact=None, user=None, **kwds)
+    def new(self, *args, **kwargs):  # pylint: disable=signature-differs
+        Experiment.new(self, *args, **kwargs)
         self.sample.clear()
