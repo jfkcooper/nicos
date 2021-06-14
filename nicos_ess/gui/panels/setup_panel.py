@@ -45,11 +45,11 @@ class SamplesModel(QAbstractTableModel):
 
     def __init__(self):
         super().__init__()
-        self.sample_properties = ['name', 'formula', 'number of', 'mass/volume',
-                                  'density']
+        self.sample_fields = ['name', 'formula', 'number of', 'mass/volume',
+                              'density']
         self._samples = []
-        self._table_data = self._empty_table(len(self.sample_properties),
-                                            len(self._samples))
+        self._table_data = self._empty_table(len(self.sample_fields),
+                                             len(self._samples))
 
     @property
     def samples(self):
@@ -59,8 +59,8 @@ class SamplesModel(QAbstractTableModel):
     def samples(self, samples):
         self._samples = samples
 
-        new_table = self._empty_table(len(self.sample_properties),
-                                     len(self._samples))
+        new_table = self._empty_table(len(self.sample_fields),
+                                      len(self._samples))
         for i, sample in enumerate(self._samples):
             for j, key in enumerate(sample.keys()):
                 new_table[j][i] = sample[key]
@@ -76,7 +76,8 @@ class SamplesModel(QAbstractTableModel):
     def setData(self, index, value, role):
         if role == Qt.EditRole:
             self._table_data[index.row()][index.column()] = value
-            self._samples[index.column()][self.sample_properties[index.row()]] = value
+            self._samples[index.column()][self.sample_fields[index.row()]] = \
+                value
             self.data_updated.emit()
             return True
 
@@ -93,7 +94,7 @@ class SamplesModel(QAbstractTableModel):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
             return section + 1
         if role == Qt.DisplayRole and orientation == Qt.Vertical:
-            return self.sample_properties[section]
+            return self.sample_fields[section]
 
     def setHeaderData(self, section, orientation, value, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
