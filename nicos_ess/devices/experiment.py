@@ -29,7 +29,7 @@ import os
 from yuos_query.exceptions import BaseYuosException
 from yuos_query.yuos_client import YuosClient
 
-from nicos.core import Override, Param, usermethod
+from nicos.core import Override, Param
 from nicos.devices.experiment import Experiment
 
 
@@ -133,4 +133,5 @@ class EssExperiment(Experiment):
 
     def new(self, *args, **kwargs):  # pylint: disable=signature-differs
         Experiment.new(self, *args, **kwargs)
-        self.sample.clear()
+        if self.proptype == 'service':
+            self.sample.clear()
