@@ -474,7 +474,8 @@ class ExpPanel(Panel):
 
     def _check_for_changes(self):
         has_changed = self.new_proposal_settings != self.old_proposal_settings
-        has_changed |= self.samples_model.samples != self.old_proposal_settings.samples
+        has_changed |= \
+            self.samples_model.samples != self.old_proposal_settings.samples
         self.applyWarningLabel.setVisible(has_changed)
         self.applyButton.setEnabled(has_changed)
         self.discardButton.setVisible(has_changed)
