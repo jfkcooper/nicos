@@ -29,7 +29,7 @@ import os
 from yuos_query.exceptions import BaseYuosException
 from yuos_query.yuos_client import YuosClient
 
-from nicos.core import Override, Param
+from nicos.core import Override, Param, usermethod
 from nicos.devices.experiment import Experiment
 
 
@@ -130,3 +130,9 @@ class EssExperiment(Experiment):
                 }
             )
         return users
+
+    @usermethod
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
+        Experiment.new(
+            self, proposal, title=None, localcontact=None, user=None, **kwds)
+        self.sample.clear()
