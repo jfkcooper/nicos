@@ -27,7 +27,7 @@ import itertools
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QDialog, QItemDelegate, QLineEdit, Qt, \
-    QTableWidget, QTableWidgetItem
+    QTableWidget, QTableWidgetItem, QComboBox
 from nicos.utils import findResource
 
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
@@ -55,6 +55,12 @@ class TableDelegate(QItemDelegate):
 
 class ThermoCellHolderPositions(QDialog):
 
+    cartridge_types = {
+        'Narrow Cell': 10,  # Number of positions
+        'Wide Cell': 4,
+        'Rotating Cell': 3,
+    }
+
     def __init__(self, parent, client):
         QDialog.__init__(self, parent)
         self.client = client
@@ -70,18 +76,34 @@ class ThermoCellHolderPositions(QDialog):
         self.dialogButtonBox.rejected.connect(self.reject)
         self.dialogButtonBox.accepted.connect(self.accept)
 
+        for box in self._get_all_combo_boxes():
+            box.addItems(list(self.cartridge_types.keys()))
+            box.activated.connect(self._activate_cartridge_settings)
+
     def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
         self.setStyleSheet("background-color: whitesmoke;")
         for table in self._get_all_tables():
             table.setStyleSheet("background-color: white;")
+        for box in self._get_all_combo_boxes():
+            box.setStyleSheet("QComboBox:Item"
+                              "{"
+                              "color: black;"
+                              "}")
 
     def _get_all_tables(self):
         _tables = itertools.chain(
-                self.topRowGroup.findChildren(QTableWidget),
-                self.bottomRowGroup.findChildren(QTableWidget)
-            )
+            self.topRowGroup.findChildren(QTableWidget),
+            self.bottomRowGroup.findChildren(QTableWidget)
+        )
         return _tables
+
+    def _get_all_combo_boxes(self):
+        _boxes = itertools.chain(
+            self.topRowGroup.findChildren(QComboBox),
+            self.bottomRowGroup.findChildren(QComboBox)
+        )
+        return _boxes
 
     def _disable_all_positions_but_first(self):
         for table in self._get_all_tables():
@@ -94,6 +116,9 @@ class ThermoCellHolderPositions(QDialog):
         for i in range(1, self.firstRowFirstTable.rowCount()):
             for j in range(self.firstRowFirstTable.columnCount()):
                 table.setItem(i, j, self._configure_item())
+
+    def _activate_cartridge_settings(self):
+        self.firstRowFirstTable.setRowCount(5)
 
     @staticmethod
     def _configure_item():
