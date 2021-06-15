@@ -180,18 +180,18 @@ class ThermoCellHolderSettings(LokiPanelBase):
     def _get_first_position_values(self, dialog):
         # We need the values in a specific order. Besides, QT's algorithm of
         # returning children is not clear.
-        # ordered_tables = (
-        #     dialog.firstRowFirstTable,
-        #     dialog.secondRowFirstTable,
-        #     dialog.firstRowSecondTable,
-        #     dialog.secondRowSecondTable,
-        #     dialog.firstRowThirdTable,
-        #     dialog.secondRowThirdTable,
-        #     dialog.firstRowFourthTable,
-        #     dialog.secondRowFourthTable,
-        # )
+        ordered_tables = (
+            dialog.table_11,
+            dialog.table_12,
+            dialog.table_13,
+            dialog.table_14,
+            dialog.table_21,
+            dialog.table_22,
+            dialog.table_23,
+            dialog.table_24,
+        )
         first_position_values = []
-        for table in dialog._get_all_tables():
+        for table in ordered_tables:
             first_position_values.append(self._read_values(table))
         return first_position_values
 
