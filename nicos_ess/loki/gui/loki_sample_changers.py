@@ -76,9 +76,14 @@ class ThermoCellHolderPositions(QDialog):
         self.dialogButtonBox.rejected.connect(self.reject)
         self.dialogButtonBox.accepted.connect(self.accept)
 
+        self.initialise_dialog_tables()
+
+    def initialise_dialog_tables(self):
         for box in self._get_all_combo_boxes():
             box.addItems(list(self.cartridge_types.keys()))
-            box.activated.connect(self._activate_cartridge_settings)
+            box.activated.connect(
+                self._activate_cartridge_settings
+            )
 
     def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
@@ -113,12 +118,21 @@ class ThermoCellHolderPositions(QDialog):
         # Whenever an item is set to a `QTableWidget`, that widget takes the
         # ownership and the item cannot be set to another widget. Thus, we
         # create an instance of an item for each cell.
-        for i in range(1, self.firstRowFirstTable.rowCount()):
-            for j in range(self.firstRowFirstTable.columnCount()):
+        for i in range(1, self.table_11.rowCount()):
+            for j in range(self.table_11.columnCount()):
                 table.setItem(i, j, self._configure_item())
 
     def _activate_cartridge_settings(self):
-        self.firstRowFirstTable.setRowCount(5)
+        combo_to_table = {
+            self.combo_11: self.table_11, self.combo_12: self.table_12,
+            self.combo_13: self.table_13, self.combo_14: self.table_14,
+            self.combo_21: self.table_21, self.combo_22: self.table_22,
+            self.combo_23: self.table_23, self.combo_24: self.table_24
+        }
+        for box in self._get_all_combo_boxes():
+            combo_to_table[box].setRowCount(
+                self.cartridge_types[box.currentText()]
+            )
 
     @staticmethod
     def _configure_item():
@@ -165,18 +179,18 @@ class ThermoCellHolderSettings(LokiPanelBase):
     def _get_first_position_values(self, dialog):
         # We need the values in a specific order. Besides, QT's algorithm of
         # returning children is not clear.
-        ordered_tables = (
-            dialog.firstRowFirstTable,
-            dialog.secondRowFirstTable,
-            dialog.firstRowSecondTable,
-            dialog.secondRowSecondTable,
-            dialog.firstRowThirdTable,
-            dialog.secondRowThirdTable,
-            dialog.firstRowFourthTable,
-            dialog.secondRowFourthTable,
-        )
+        # ordered_tables = (
+        #     dialog.firstRowFirstTable,
+        #     dialog.secondRowFirstTable,
+        #     dialog.firstRowSecondTable,
+        #     dialog.secondRowSecondTable,
+        #     dialog.firstRowThirdTable,
+        #     dialog.secondRowThirdTable,
+        #     dialog.firstRowFourthTable,
+        #     dialog.secondRowFourthTable,
+        # )
         first_position_values = []
-        for table in ordered_tables:
+        for table in dialog._get_all_tables():
             first_position_values.append(self._read_values(table))
         return first_position_values
 

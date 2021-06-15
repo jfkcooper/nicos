@@ -74,10 +74,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart6comboBox"/>
+          <widget class="QComboBox" name="combo_22"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="secondRowSecondTable">
+          <widget class="QTableWidget" name="table_22">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -156,10 +156,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart5ComboBox"/>
+          <widget class="QComboBox" name="combo_21"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="secondRowFirstTable">
+          <widget class="QTableWidget" name="table_21">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -235,10 +235,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart7ComboBox"/>
+          <widget class="QComboBox" name="combo_23"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="secondRowThirdTable">
+          <widget class="QTableWidget" name="table_23">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -317,10 +317,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart8ComboBox"/>
+          <widget class="QComboBox" name="combo_24"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="secondRowFourthTable">
+          <widget class="QTableWidget" name="table_24">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -411,10 +411,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart1ComboBox"/>
+          <widget class="QComboBox" name="combo_11"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="firstRowFirstTable">
+          <widget class="QTableWidget" name="table_11">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -505,10 +505,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart4ComboBox"/>
+          <widget class="QComboBox" name="combo_14"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="firstRowFourthTable">
+          <widget class="QTableWidget" name="table_14">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -584,10 +584,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart2ComboBox"/>
+          <widget class="QComboBox" name="combo_12"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="firstRowSecondTable">
+          <widget class="QTableWidget" name="table_12">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -666,10 +666,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cart3ComboBox"/>
+          <widget class="QComboBox" name="combo_13"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="firstRowThirdTable">
+          <widget class="QTableWidget" name="table_13">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
