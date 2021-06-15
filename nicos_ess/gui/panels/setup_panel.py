@@ -185,7 +185,7 @@ class ExpPanel(Panel):
             'session.experiment.propinfo["notif_emails"]', [])
 
         samples_dict = {} if self.hide_samples \
-            else self.client.eval('Exp.sample.samples', {})
+            else self.client.eval('session.experiment.sample.samples', {})
 
         if values:
             self.old_proposal_settings = \
