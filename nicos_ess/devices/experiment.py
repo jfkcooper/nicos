@@ -46,11 +46,8 @@ class EssExperiment(Experiment):
         'cache_filepath': Param('Path to the proposal cache',
             type=str, category='experiment', mandatory=True,
         ),
-<<<<<<< HEAD
-=======
         'update_interval': Param('Time interval (in hrs.) for cache updates',
             default=1.0, type=float)
->>>>>>> upstream/master
     }
 
     parameter_overrides = {
@@ -71,10 +68,7 @@ class EssExperiment(Experiment):
             try:
                 self._client = YuosClient(
                     self.server_url, token, self.instrument, self.cache_filepath)
-<<<<<<< HEAD
-=======
                 self._update_cache_worker.start()
->>>>>>> upstream/master
             except BaseYuosException as error:
                 self.log.warn(f'QueryDB not available: {error}')
 
