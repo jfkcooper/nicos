@@ -118,8 +118,8 @@ class ThermoCellHolderPositions(QDialog):
         # Whenever an item is set to a `QTableWidget`, that widget takes the
         # ownership and the item cannot be set to another widget. Thus, we
         # create an instance of an item for each cell.
-        for i in range(1, self.table_11.rowCount()):
-            for j in range(self.table_11.columnCount()):
+        for i in range(1, table.rowCount()):
+            for j in range(table.columnCount()):
                 table.setItem(i, j, self._configure_item())
 
     def _activate_cartridge_settings(self):
@@ -133,6 +133,7 @@ class ThermoCellHolderPositions(QDialog):
             combo_to_table[box].setRowCount(
                 self.cartridge_types[box.currentText()]
             )
+            self._disable(combo_to_table[box])
 
     @staticmethod
     def _configure_item():
