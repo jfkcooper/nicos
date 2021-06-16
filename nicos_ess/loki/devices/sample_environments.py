@@ -23,4 +23,28 @@
 # *****************************************************************************
 
 """LoKI Sample Environment Devices."""
-from nicos.core import Device, Param
+from nicos.core import Device, Param, listof, tupleof
+
+
+class ThermoStatedCellHolder(Device):
+    parameters = {
+        'cell_type_indices': Param('Cell type indices',
+                                   type=listof(int),
+                                   default=[0] * 8,
+                                   settable=False
+                                   ),
+        'cell_type_names': Param('Cell types',
+                                 type=listof(str),
+                                 default=['Narrow Cell'] * 8,
+                                 settable=False
+                                 ),
+        'first_positions': Param('Scanned first positions',
+                                 type=listof(tupleof(float, float)),
+                                 default=[(0.0, 0.0)] * 8,
+                                 settable=False
+                                 ),
+        'positions': Param('Calculated positions',
+                           type=listof(listof(tupleof(float, float))),
+                           settable=False
+                           )
+    }
