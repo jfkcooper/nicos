@@ -29,8 +29,7 @@
 """NICOS GUI experiment setup window."""
 from copy import deepcopy
 
-from nicos.clients.flowui import uipath
-from nicos.clients.gui.panels import Panel, PanelDialog
+from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
     combineUsers, splitUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
@@ -146,7 +145,8 @@ class ExpPanel(Panel):
         self.samples_model = SamplesModel()
         self.samples_model.data_updated.connect(self.on_samples_changed)
         self.sampleTable.setModel(self.samples_model)
-        self.sampleTable.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.sampleTable.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Interactive)
 
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
@@ -282,12 +282,12 @@ class ExpPanel(Panel):
                 raise ConfigurationError from None
         return []
 
-    def _experiment_in_progress(self, proposal_id):
-        if self.client.eval('session.experiment.serviceexp', True) and \
-           self.client.eval('session.experiment.proptype', 'user') == 'user' and \
-           self.client.eval('session.experiment.proposal', '') != proposal_id:
-            return True
-        return False
+    def _experiment_in_progress(self, prop_id):
+        return (
+            self.client.eval('session.experiment.serviceexp', True) and
+            self.client.eval('session.experiment.proptype', 'user') == 'user'
+            and self.client.eval('session.experiment.proposal', '') != prop_id
+        )
 
     @pyqtSlot()
     def on_applyButton_clicked(self):
