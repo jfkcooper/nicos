@@ -137,7 +137,7 @@ class ExpPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_ess/gui/panels/ui_files/setup_exp.ui'))
+        loadUi(self, findResource('nicos_ess/gui/panels/ui_files/exp_panel.ui'))
 
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = deepcopy(self.old_proposal_settings)
@@ -283,11 +283,9 @@ class ExpPanel(Panel):
         return []
 
     def _experiment_in_progress(self, prop_id):
-        return (
-            self.client.eval('session.experiment.serviceexp', True) and
-            self.client.eval('session.experiment.proptype', 'user') == 'user'
+        return self.client.eval('session.experiment.serviceexp', True) and \
+            self.client.eval('session.experiment.proptype', 'user') == 'user' \
             and self.client.eval('session.experiment.proposal', '') != prop_id
-        )
 
     @pyqtSlot()
     def on_applyButton_clicked(self):

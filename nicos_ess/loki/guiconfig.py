@@ -5,7 +5,7 @@ main_window = docked(
     tabbed(
         (
             'Experiment',
-            vsplit(panel('nicos_ess.gui.panels.setup_panel.ExpPanel',
+            vsplit(panel('nicos_ess.gui.panels.exp_panel.ExpPanel',
                          hide_sample=True),
                    ),  # vsplit
         ),
