@@ -29,8 +29,7 @@
 """NICOS GUI experiment setup window."""
 from copy import deepcopy
 
-from nicos.clients.flowui import uipath
-from nicos.clients.gui.panels import Panel, PanelDialog
+from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
     combineUsers, splitUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
@@ -138,7 +137,7 @@ class ExpPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_ess/gui/panels/ui_files/setup_exp.ui'))
+        loadUi(self, findResource('nicos_ess/gui/panels/ui_files/exp_panel.ui'))
 
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = deepcopy(self.old_proposal_settings)
@@ -146,7 +145,8 @@ class ExpPanel(Panel):
         self.samples_model = SamplesModel()
         self.samples_model.data_updated.connect(self.on_samples_changed)
         self.sampleTable.setModel(self.samples_model)
-        self.sampleTable.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.sampleTable.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Interactive)
 
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
@@ -185,7 +185,7 @@ class ExpPanel(Panel):
             'session.experiment.propinfo["notif_emails"]', [])
 
         samples_dict = {} if self.hide_samples \
-            else self.client.eval('Exp.sample.samples', {})
+            else self.client.eval('session.experiment.sample.samples', {})
 
         if values:
             self.old_proposal_settings = \
@@ -282,12 +282,10 @@ class ExpPanel(Panel):
                 raise ConfigurationError from None
         return []
 
-    def _experiment_in_progress(self, proposal_id):
-        if self.client.eval('session.experiment.serviceexp', True) and \
-           self.client.eval('session.experiment.proptype', 'user') == 'user' and \
-           self.client.eval('session.experiment.proposal', '') != proposal_id:
-            return True
-        return False
+    def _experiment_in_progress(self, prop_id):
+        return self.client.eval('session.experiment.serviceexp', True) and \
+            self.client.eval('session.experiment.proptype', 'user') == 'user' \
+            and self.client.eval('session.experiment.proposal', '') != prop_id
 
     @pyqtSlot()
     def on_applyButton_clicked(self):
@@ -493,62 +491,3 @@ class ExpPanel(Panel):
     @pyqtSlot()
     def on_proposalQuery_returnPressed(self):
         self.on_queryDBButton_clicked()
-
-
-class FinishPanel(Panel):
-    """Provides a panel to finish the experiment.
-
-    Options:
-
-    * ``finish_exp_panel`` -- class name of the panel which should be opened
-      before an experiment is finished.
-    """
-
-    panelName = 'Finish experiment'
-    ui = '%s/panels/ui_files/finish_exp.ui' % uipath
-    def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
-        loadUi(self, self.ui)
-        self._finish_exp_panel = None
-
-        # Additional dialog panels to pop up after FinishExperiment().
-        self._finish_exp_panel = options.get('finish_exp_panel')
-        self.finishButton.setEnabled(False)
-        client.connected.connect(self.on_client_connected)
-        client.disconnected.connect(self.on_client_disconnected)
-        client.setup.connect(self.on_client_connected)
-
-        self._experiment_finished = False
-
-    def on_client_connected(self):
-        self.finishButton.setEnabled(not self._experiment_finished)
-
-    def on_client_disconnected(self):
-        self.finishButton.setEnabled(False)
-
-    def setViewOnly(self, value):
-        self.finishButton.setEnabled(self.client.isconnected and not value)
-
-    def on_new_experiment_proposal(self):
-        if not self.client.viewonly:
-            self.finishButton.setEnabled(True)
-        self._experiment_finished = False
-
-    @pyqtSlot()
-    def on_finishButton_clicked(self):
-        if self._finish_exp_panel:
-            dlg = PanelDialog(self, self.client, self._finish_exp_panel,
-                              'Finish experiment')
-            dlg.exec_()
-        if self.client.run('FinishExperiment()', noqueue=True) is None:
-            self.showError('Could not finish experiment, a script '
-                           'is still running.')
-        else:
-            self.finishButton.setEnabled(False)
-            self._experiment_finished = True
-            self.show_finish_message()
-
-    def show_finish_message(self):
-        msg_box = QMessageBox()
-        msg_box.setText('Experiment successfully finished.')
-        return msg_box.exec_()
