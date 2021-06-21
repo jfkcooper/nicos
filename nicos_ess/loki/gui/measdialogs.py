@@ -38,7 +38,7 @@ from nicos.utils import findResource, formatDuration
 
 from nicos_ess.loki.gui.measelement import Collimation, Detector, \
     Device, MeasTime, Mode, Polarizer, Sample
-from nicos_ess.loki.gui.sampleconf import parse_sampleconf
+from nicos_ess.loki.gui.legacy.sampleconf import parse_sampleconf
 
 SAMPLES = 'samples'
 DETSETS = 'instrument configuration'
