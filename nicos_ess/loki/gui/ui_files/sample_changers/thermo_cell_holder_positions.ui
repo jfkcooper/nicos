@@ -48,7 +48,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Calculate and Apply</string>
+         <string>Apply</string>
         </property>
        </widget>
       </item>
@@ -77,8 +77,8 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_22">
-      <item row="0" column="1">
-       <widget class="QFrame" name="frame_22">
+      <item row="0" column="0">
+       <widget class="QFrame" name="frame_20">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -91,19 +91,22 @@
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_8">
+        <property name="lineWidth">
+         <number>2</number>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_20">
+          <widget class="QLabel" name="label_19">
            <property name="text">
-            <string>Cartridge 2</string>
+            <string>Cartridge 1</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="combo_22"/>
+          <widget class="QComboBox" name="combo_21"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="table_22">
+          <widget class="QTableWidget" name="table_21">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -317,8 +320,8 @@
         </layout>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QFrame" name="frame_20">
+      <item row="0" column="1">
+       <widget class="QFrame" name="frame_22">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -331,22 +334,19 @@
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <property name="lineWidth">
-         <number>2</number>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_7">
+        <layout class="QGridLayout" name="gridLayout_8">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_19">
+          <widget class="QLabel" name="label_20">
            <property name="text">
-            <string>Cartridge 1</string>
+            <string>Cartridge 2</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="combo_21"/>
+          <widget class="QComboBox" name="combo_22"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="table_21">
+          <widget class="QTableWidget" name="table_22">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -399,13 +399,6 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="checkBox">
-        <property name="text">
-         <string>Use bottom row only</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -418,8 +411,8 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_21">
-      <item row="0" column="2">
-       <widget class="QFrame" name="frame_4">
+      <item row="0" column="3">
+       <widget class="QFrame" name="frame_5">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -432,19 +425,19 @@
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_4">
+        <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Cartridge 3</string>
+            <string>Cartridge 4</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="combo_13"/>
+          <widget class="QComboBox" name="combo_14"/>
          </item>
          <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="table_13">
+          <widget class="QTableWidget" name="table_14">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -594,85 +587,6 @@
         </layout>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QFrame" name="frame_5">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Cartridge 4</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="combo_14"/>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QTableWidget" name="table_14">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::AdjustToContents</enum>
-           </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
-           </property>
-           <property name="cornerButtonEnabled">
-            <bool>false</bool>
-           </property>
-           <property name="rowCount">
-            <number>10</number>
-           </property>
-           <property name="columnCount">
-            <number>2</number>
-           </property>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <column>
-            <property name="text">
-             <string>x</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>y</string>
-            </property>
-           </column>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
       <item row="0" column="1">
        <widget class="QFrame" name="frame_3">
         <property name="sizePolicy">
@@ -755,11 +669,83 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="checkBox_2">
-        <property name="text">
-         <string>Use top row only</string>
+      <item row="0" column="2">
+       <widget class="QFrame" name="frame_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Cartridge 3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="combo_13"/>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QTableWidget" name="table_13">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAsNeeded</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+           </property>
+           <property name="cornerButtonEnabled">
+            <bool>false</bool>
+           </property>
+           <property name="rowCount">
+            <number>10</number>
+           </property>
+           <property name="columnCount">
+            <number>2</number>
+           </property>
+           <row/>
+           <row/>
+           <row/>
+           <row/>
+           <row/>
+           <row/>
+           <row/>
+           <row/>
+           <row/>
+           <row/>
+           <column>
+            <property name="text">
+             <string>x</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>y</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
