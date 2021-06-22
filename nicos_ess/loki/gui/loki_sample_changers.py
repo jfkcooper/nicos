@@ -87,14 +87,14 @@ class ThermoCellHolderPositions(QDialog):
 
     def initialise_markups(self):
         self.setWindowTitle('Cartridge Settings')
-        self.setStyleSheet("background-color: whitesmoke;")
+        self.setStyleSheet('background-color: whitesmoke;')
         for table in self._get_all_tables():
-            table.setStyleSheet("background-color: white;")
+            table.setStyleSheet('background-color: white;')
         for box in self._get_all_combo_boxes():
-            box.setStyleSheet("QComboBox:Item"
-                              "{"
-                              "color: black;"
-                              "}")
+            box.setStyleSheet('QComboBox:Item'
+                              '{'
+                              'color: black;'
+                              '}')
 
     def _get_all_tables(self):
         _tables = itertools.chain(
