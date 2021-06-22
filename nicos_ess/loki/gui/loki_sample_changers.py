@@ -123,6 +123,11 @@ class ThermoCellHolderPositions(QDialog):
                 table.setItem(i, j, self._configure_item())
 
     def _activate_cartridge_settings(self):
+        """
+        We need to map the number of positions that each cell type has to the
+        corresponding tables. To that end, we create a pointer dictionary
+        with object names set in the UI.
+        """
         combo_to_table = {
             self.combo_11: self.table_11, self.combo_12: self.table_12,
             self.combo_13: self.table_13, self.combo_14: self.table_14,
