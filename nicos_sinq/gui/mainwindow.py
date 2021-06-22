@@ -18,24 +18,19 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Matt Clarke <matt.clarke@ess.eu>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-from nicos.core import Param
-from nicos.devices.sample import Sample
+
+from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS, \
+    get_icon
 
 
-class EssSample(Sample):
-    """Device that collects the various sample properties specific to
-    samples at ESS.
-    """
+class MainWindowSINQ(MainWindowESS):
 
-    parameters = {
-        'sample_formula': Param('formula', type=str, settable=True,
-                                category='sample'),
-        'number_of': Param('number_of', type=int, settable=True,
-                           category='sample'),
-        'mass_volume': Param('mass/volume', type=str, settable=True,
-                             category='sample'),
-        'density': Param('density', type=str, settable=True, category='sample'),
-    }
+    def set_icons(self):
+        print(f"uifile: {self.ui}")
+        MainWindowESS.set_icons(self)
+        self.actionEmergencyStop.setIcon(
+            get_icon('emergency_stop_cross_red-24px.svg')
+        )
