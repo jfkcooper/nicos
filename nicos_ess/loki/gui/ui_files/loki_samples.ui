@@ -22,7 +22,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>373</height>
+       <height>374</height>
       </size>
      </property>
     </spacer>
@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -46,12 +46,19 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Add Data</string>
+         <string>Add Data:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="optionalComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -64,7 +71,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>373</height>
+       <height>374</height>
       </size>
      </property>
     </spacer>

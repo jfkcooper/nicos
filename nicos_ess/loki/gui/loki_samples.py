@@ -27,7 +27,10 @@
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
+from nicos_ess.loki.gui.loki_data_model import LokiDataModel
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
+from nicos.guisupport.qt import QAction, QApplication, QCursor, QFileDialog, \
+    QHeaderView, QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -38,3 +41,39 @@ class LokiSamplePanel(LokiPanelBase):
         loadUi(self,
                findResource('nicos_ess/loki/gui/ui_files/loki_samples.ui')
                )
+        self.window = parent
+
+        self.permanent_columns = {
+            'sample_name': 'Sample Name',
+            'chemical_formula': 'Chemical Formula',
+            'concentration': 'Concentration'
+        }
+
+        self.optional_columns = {
+            'background': 'Background',
+            'comments': 'Comments',
+            'extra-metadata': 'Extra Metadata',
+            'other': 'Other'
+        }
+
+        self.columns_in_order = list(self.permanent_columns.keys())
+        self.optionalComboBox.addItems(self.optional_columns.values())
+        self.optionalComboBox.setCurrentIndex(-1)
+        self._init_table_panel()
+
+    def _init_table_panel(self):
+        headers = [
+            self.permanent_columns[name]
+            for name in self.columns_in_order
+        ]
+
+        self.model = LokiDataModel(headers)
+        self.samplesTableView.setModel(self.model)
+        self.samplesTableView.setSelectionMode(QTableView.ContiguousSelection)
+
+        self.samplesTableView.horizontalHeader().setStretchLastSection(True)
+        self.samplesTableView.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
+        self.samplesTableView.resizeColumnsToContents()
+        self.samplesTableView.setAlternatingRowColors(True)
+        self.samplesTableView.setStyleSheet(TABLE_QSS)
