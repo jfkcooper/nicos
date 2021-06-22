@@ -27,10 +27,19 @@ from nicos.core import Device, Param, listof, tupleof
 
 
 class ThermoStatedCellHolder(Device):
+    """
+    The device holds fundamental parameters for the sample environment
+    `Thermo Stated Cell Holder`. This holder has two rows. Each row can have
+    four cartridges (thus in total of eight cartridges).
+
+    Each cartridge can be loaded with three different kind of cell holder,
+    namely, `Narrow Cell` with 10 positions, `Wide Cell` with four positions and
+    `Rotating Cell` with three positions.
+    """
     parameters = {
         'cell_type_indices': Param('Cell type indices',
                                    type=listof(int),
-                                   default=[0] * 8,
+                                   default=[0] * 8,  # Number of cartridges
                                    settable=False
                                    ),
         'cell_type_names': Param('Cell types',
