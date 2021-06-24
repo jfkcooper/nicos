@@ -29,8 +29,7 @@ from nicos.clients.gui.utils import loadUi
 from nicos.utils import findResource
 from nicos_ess.loki.gui.loki_data_model import LokiDataModel
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
-from nicos.guisupport.qt import QAction, QApplication, QCursor, QFileDialog, \
-    QHeaderView, QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
+from nicos.guisupport.qt import QHeaderView, QTableView
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -52,7 +51,6 @@ class LokiSamplePanel(LokiPanelBase):
         self.optional_columns = {
             'background': 'Background',
             'comments': 'Comments',
-            'extra-metadata': 'Extra Metadata',
             'other': 'Other'
         }
 
@@ -69,8 +67,10 @@ class LokiSamplePanel(LokiPanelBase):
 
         self.model = LokiDataModel(headers)
         self.samplesTableView.setModel(self.model)
-        self.samplesTableView.setSelectionMode(QTableView.ContiguousSelection)
+        self._init_tableview_markups()
 
+    def _init_tableview_markups(self):
+        self.samplesTableView.setSelectionMode(QTableView.ContiguousSelection)
         self.samplesTableView.horizontalHeader().setStretchLastSection(True)
         self.samplesTableView.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
