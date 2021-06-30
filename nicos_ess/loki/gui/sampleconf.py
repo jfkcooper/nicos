@@ -88,7 +88,7 @@ class ConfigEditDialog(QDialog):
         layout = QVBoxLayout()
         self.frm = QFrame(self)
         loadUi(self.frm, findResource(
-            'nicos_ess/loki/gui/legacy/ui_files/sampleconf_one.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_one.ui'))
         self.frm.addDevBtn.clicked.connect(self.on_addDevBtn_clicked)
         self.frm.delDevBtn.clicked.connect(self.on_delDevBtn_clicked)
         self.frm.readDevsBtn.clicked.connect(self.on_readDevsBtn_clicked)
@@ -157,7 +157,7 @@ class ConfigEditDialog(QDialog):
         dev_list = [item for item in dev_list
                     if item.startswith('sc_') and 'motor' in item]
         dlg = dialogFromUi(self, findResource(
-            'nicos_ess/loki/gui/legacy/ui_files/sampleconf_adddev.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_adddev.ui'))
         dlg.widget = None
 
         def callback(index):
@@ -192,7 +192,7 @@ class ConfigEditDialog(QDialog):
 
     def on_readDevsBtn_clicked(self):
         dlg = dialogFromUi(self, findResource(
-            'nicos_ess/loki/gui/legacy/ui_files/sampleconf_readpos.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_readpos.ui'))
         if self.instrument == 'kws1':
             dlg.kws3Box.hide()
         elif self.instrument == 'kws2':
@@ -225,13 +225,13 @@ class LokiSamplePanel(LokiPanelBase):
     def __init__(self, parent, client, options):
         LokiPanelBase.__init__(self, parent, client, options)
         loadUi(self,
-               findResource('nicos_ess/loki/gui/legacy/ui_files/sampleconf.ui'))
+               findResource('nicos_ess/loki/gui/ui_files/sampleconf.ui'))
         self.sampleGroup.setEnabled(False)
         self.frame.setLayout(QVBoxLayout())
         
         self.sample_frame = QFrame(self)
         loadUi(self.sample_frame, findResource(
-            'nicos_ess/loki/gui/legacy/ui_files/sampleconf_summary.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
 
         layout = self.frame.layout()
         layout.addWidget(self.sample_frame)
@@ -318,7 +318,7 @@ class LokiSamplePanel(LokiPanelBase):
             return
 
         dlg = dialogFromUi(self, findResource(
-            'nicos_ess/loki/gui/legacy/ui_files/sampleconf_gen.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_gen.ui'))
         dlg.ax1Box.setValidator(DoubleValidator(self))
         dlg.ax2Box.setValidator(DoubleValidator(self))
         dlg.readBtn.clicked.connect(read_axes)
