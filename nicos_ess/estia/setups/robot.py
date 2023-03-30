@@ -3,6 +3,22 @@ description = 'Motors for the robot adjuster'
 pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
 
 devices = dict(
+    robot_pos=device(
+        'nicos_ess.devices.epics.motor.EpicsMotor',
+        description='M6 Robot1 Position',
+        motorpv=f'{pvprefix}m6',
+        errormsgpv=f'{pvprefix}m6-MsgTxt',
+        errorbitpv=f'{pvprefix}m6-Err',
+        reseterrorpv=f'{pvprefix}m6-ErrRst',
+    ),
+    robot_vert=device(
+        'nicos_ess.devices.epics.motor.EpicsMotor',
+        description='M7 Robot1 Vertical',
+        motorpv=f'{pvprefix}m7',
+        errormsgpv=f'{pvprefix}m7-MsgTxt',
+        errorbitpv=f'{pvprefix}m7-Err',
+        reseterrorpv=f'{pvprefix}m7-ErrRst',
+    ),
     robot_y=device(
         'nicos_ess.devices.epics.motor.EpicsMotor',
         description='M14 Selene1 Mover Y',
