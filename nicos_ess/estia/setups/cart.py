@@ -3,9 +3,9 @@ description = 'Motors for the metrology cart'
 pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
 
 devices = dict(
-    mapproach=device(
+    mpos=device(
         'nicos_ess.devices.epics.motor.EpicsMotor',
-        description='Rotator for approach',
+        description='Cart positioning',
         motorpv=f'{pvprefix}m12',
         errormsgpv=f'{pvprefix}m12-MsgTxt',
         errorbitpv=f'{pvprefix}m12-Err',
@@ -13,9 +13,9 @@ devices = dict(
         unit='deg',
         fmtstr='%.1f',
     ),
-    mpos=device(
+    mapproach=device(
         'nicos_ess.devices.epics.motor.EpicsMotor',
-        description='Cart positioning',
+        description='Rotator for approach',
         motorpv=f'{pvprefix}m13',
         errormsgpv=f'{pvprefix}m13-MsgTxt',
         errorbitpv=f'{pvprefix}m13-Err',
