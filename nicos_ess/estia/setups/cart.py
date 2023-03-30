@@ -10,8 +10,6 @@ devices = dict(
         errormsgpv=f'{pvprefix}m12-MsgTxt',
         errorbitpv=f'{pvprefix}m12-Err',
         reseterrorpv=f'{pvprefix}m12-ErrRst',
-        unit='deg',
-        fmtstr='%.1f',
     ),
     mapproach=device(
         'nicos_ess.devices.epics.motor.EpicsMotor',
@@ -20,6 +18,8 @@ devices = dict(
         errormsgpv=f'{pvprefix}m13-MsgTxt',
         errorbitpv=f'{pvprefix}m13-Err',
         reseterrorpv=f'{pvprefix}m13-ErrRst',
+        unit='deg',
+        fmtstr='%.1f',
     ),
     mcart=device(
         'nicos.devices.generic.sequence.LockedDevice',
