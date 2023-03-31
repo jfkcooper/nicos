@@ -39,4 +39,24 @@ devices = dict(
         reseterrorpv=f'{pvprefix}m11-ErrRst',
         unit='mm',
     ),
+    driver1_1_collision_bwd=device(
+        'nicos.devices.epics.EpicsStringReadable',
+        description='collisionBwd',
+        readpv=f'{pvprefix}m8-NamAuxBit0',
+    ),
+    driver1_1_collision_fwd=device(
+        'nicos.devices.epics.EpicsStringReadable',
+        description='collisionFwd',
+        readpv=f'{pvprefix}m8-NamAuxBit1',
+    ),
+    driver1_2_collision_bwd=device(
+        'nicos.devices.epics.EpicsStringReadable',
+        description='collisionBwd',
+        readpv=f'{pvprefix}m9-NamAuxBit0',
+    ),
+    driver1_2_collision_fwd=device(
+        'nicos.devices.epics.EpicsStringReadable',
+        description='collisionFwd',
+        readpv=f'{pvprefix}m9-NamAuxBit1',
+    ),
 )
