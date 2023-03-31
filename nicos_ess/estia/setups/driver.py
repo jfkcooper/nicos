@@ -59,24 +59,14 @@ devices = dict(
         monitor=True,
         pva=True,
     ),
-    driver1_1_collision_bwd=device(
-        'nicos.devices.epics.EpicsStringReadable',
-        description='collisionBwd',
-        readpv=f'{pvprefix}m8-NamAuxBit0',
+    driver1_1_pos_switch=device(
+        'nicos_ess.estia.devices.position_switch.EpicsPositionSwitch',
+        description='Position switch',
+        readpv=f'{pvprefix}m8-StatusBits',
     ),
-    driver1_1_collision_fwd=device(
-        'nicos.devices.epics.EpicsStringReadable',
-        description='collisionFwd',
-        readpv=f'{pvprefix}m8-NamAuxBit1',
-    ),
-    driver1_2_collision_bwd=device(
-        'nicos.devices.epics.EpicsStringReadable',
-        description='collisionBwd',
-        readpv=f'{pvprefix}m9-NamAuxBit0',
-    ),
-    driver1_2_collision_fwd=device(
-        'nicos.devices.epics.EpicsStringReadable',
-        description='collisionFwd',
-        readpv=f'{pvprefix}m9-NamAuxBit1',
+    driver1_2_pos_switch=device(
+        'nicos_ess.estia.devices.position_switch.EpicsPositionSwitch',
+        description='Position switch',
+        readpv=f'{pvprefix}m8-StatusBits',
     ),
 )
