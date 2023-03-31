@@ -30,7 +30,7 @@ from nicos_ess.devices.epics.base import EpicsReadableEss
 
 class EpicsPositionSwitch(EpicsReadableEss):
     parameters = {
-        'statusbitpv':
+        'readpv':
             Param('Name of the status PV.',
                   type=pvname,
                   mandatory=True,
