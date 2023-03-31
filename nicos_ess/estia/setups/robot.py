@@ -4,20 +4,26 @@ pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
 
 devices = dict(
     robot_pos=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description='M6 Robot1 Position',
         motorpv=f'{pvprefix}m6',
         errormsgpv=f'{pvprefix}m6-MsgTxt',
         errorbitpv=f'{pvprefix}m6-Err',
         reseterrorpv=f'{pvprefix}m6-ErrRst',
+        pollinterval=None,
+        monitor=True,
+        pva=True,
     ),
     robot_vert=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description='M7 Robot1 Vertical',
         motorpv=f'{pvprefix}m7',
         errormsgpv=f'{pvprefix}m7-MsgTxt',
         errorbitpv=f'{pvprefix}m7-Err',
         reseterrorpv=f'{pvprefix}m7-ErrRst',
+        pollinterval=None,
+        monitor=True,
+        pva=True,
     ),
     # robot_y=device(
     #     'nicos_ess.devices.epics.motor.EpicsMotor',

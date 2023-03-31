@@ -4,15 +4,18 @@ pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
 
 devices = dict(
     mpos=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description='Cart positioning',
         motorpv=f'{pvprefix}m12',
         errormsgpv=f'{pvprefix}m12-MsgTxt',
         errorbitpv=f'{pvprefix}m12-Err',
         reseterrorpv=f'{pvprefix}m12-ErrRst',
+        pollinterval=None,
+        monitor=True,
+        pva=True,
     ),
     mapproach=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         description='Rotator for approach',
         motorpv=f'{pvprefix}m13',
         errormsgpv=f'{pvprefix}m13-MsgTxt',
@@ -20,6 +23,9 @@ devices = dict(
         reseterrorpv=f'{pvprefix}m13-ErrRst',
         unit='deg',
         fmtstr='%.1f',
+        pollinterval=None,
+        monitor=True,
+        pva=True,
     ),
     mcart=device(
         'nicos.devices.generic.sequence.LockedDevice',
