@@ -16,37 +16,37 @@ devices = dict(
         },
         visibility=()
     ),
-    ih1=device(
-        'nicos_ess.estia.devices.attocube.IDS3010Axis',
-        axis=1,
-        description='Horizontal IF axis top',
-        readpv='ESTIA-ATTOCUBE-001:Axis1:Displacement_RBV',
-        pvprefix='ESTIA-ATTOCUBE-001'
-    ),
-    ih2=device(
-        'nicos_ess.estia.devices.attocube.IDS3010Axis',
-        axis=2,
-        description='Horizontal IF axis bottom',
-        readpv='ESTIA-ATTOCUBE-001:Axis2:Displacement_RBV',
-        pvprefix='ESTIA-ATTOCUBE-001'
-    ),
-    ih3=device(
-        'nicos_ess.estia.devices.attocube.IDS3010Axis',
-        axis=3,
-        description='Cart position top',
-        readpv='ESTIA-ATTOCUBE-001:Axis3:Displacement_RBV',
-        pvprefix='ESTIA-ATTOCUBE-001'
-    ),
-    dhtop=device(
-        'nicos_ess.estia.devices.attocube.MirrorDistance',
-        axis='ih1',
-        description='Horizontal distance top',
-    ),
-    dhbottom=device(
-        'nicos_ess.estia.devices.attocube.MirrorDistance',
-        axis='ih2',
-        description='Horizontal distance bottom',
-    ),
+    # ih1=device(
+    #     'nicos_ess.estia.devices.attocube.IDS3010Axis',
+    #     axis=1,
+    #     description='Horizontal IF axis top',
+    #     readpv='ESTIA-ATTOCUBE-001:Axis1:Displacement_RBV',
+    #     pvprefix='ESTIA-ATTOCUBE-001'
+    # ),
+    # ih2=device(
+    #     'nicos_ess.estia.devices.attocube.IDS3010Axis',
+    #     axis=2,
+    #     description='Horizontal IF axis bottom',
+    #     readpv='ESTIA-ATTOCUBE-001:Axis2:Displacement_RBV',
+    #     pvprefix='ESTIA-ATTOCUBE-001'
+    # ),
+    # ih3=device(
+    #     'nicos_ess.estia.devices.attocube.IDS3010Axis',
+    #     axis=3,
+    #     description='Cart position top',
+    #     readpv='ESTIA-ATTOCUBE-001:Axis3:Displacement_RBV',
+    #     pvprefix='ESTIA-ATTOCUBE-001'
+    # ),
+    # dhtop=device(
+    #     'nicos_ess.estia.devices.attocube.MirrorDistance',
+    #     axis='ih1',
+    #     description='Horizontal distance top',
+    # ),
+    # dhbottom=device(
+    #     'nicos_ess.estia.devices.attocube.MirrorDistance',
+    #     axis='ih2',
+    #     description='Horizontal distance bottom',
+    # ),
     env_humidity=device(
         'nicos.devices.epics.EpicsReadable',
         description='Environmental humidity',
