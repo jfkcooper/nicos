@@ -59,14 +59,20 @@ devices = dict(
         monitor=True,
         pva=True,
     ),
-    driver1_1_pos_switch=device(
-        'nicos_ess.estia.devices.position_switch.EpicsPositionSwitch',
-        description='Position switch',
-        readpv=f'{pvprefix}m8-StatusBits',
+    driver1_1_hex_state=device(
+        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        description='Hexscrew state',
+        readpv=f'{pvprefix}m8-HexScrew',
+        monitor=True,
+        pollinterval=None,
+        pva=True,
     ),
-    driver1_2_pos_switch=device(
-        'nicos_ess.estia.devices.position_switch.EpicsPositionSwitch',
-        description='Position switch',
-        readpv=f'{pvprefix}m8-StatusBits',
+    driver1_2_hex_state=device(
+        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        description='Hexscrew state',
+        readpv=f'{pvprefix}m9-HexScrew',
+        monitor=True,
+        pollinterval=None,
+        pva=True,
     ),
 )
