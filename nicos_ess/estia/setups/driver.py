@@ -60,7 +60,7 @@ devices = dict(
         pva=True,
     ),
     driver1_1_hex_state=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.pva.EpicsMappedReadable',
         description='Hexscrew state',
         readpv=f'{pvprefix}Mtr8-HexScrew',
         monitor=True,
@@ -68,7 +68,7 @@ devices = dict(
         pva=True,
     ),
     driver1_2_hex_state=device(
-        'nicos.devices.epics.pva.EpicsMappedMoveable',
+        'nicos.devices.epics.pva.EpicsMappedReadable',
         description='Hexscrew state',
         readpv=f'{pvprefix}Mtr9-HexScrew',
         monitor=True,
