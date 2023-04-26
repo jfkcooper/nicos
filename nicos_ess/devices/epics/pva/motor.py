@@ -42,12 +42,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     record. The PV names for the fields of the record (readback, speed, etc.)
     are derived by combining the motorpv-parameter with the predefined field
     names.
-
     The errorbitpv and reseterrorpv can be provided optionally in case the
     controller supports reporting errors and a reset-mechanism that tries to
     recover from certain errors. If present, these are used when calling the
     reset()-method.
-
     Another optional PV is the errormsgpv, which contains an error message that
     may originate from the motor controller or the IOC. If it is present,
     doStatus uses it for some of the status messages.
@@ -59,6 +57,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             Param('Name of the motor record PV.',
                   type=pvname,
                   mandatory=True,
+                  settable=False,
+                  userparam=False),
+        'powerautopv':
+            Param('Optional PV for auto enable power.',
+                  type=pvname,
+                  mandatory=False,
                   settable=False,
                   userparam=False),
         'errormsgpv':
@@ -144,10 +148,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         """
         Implementation of inherited method to automatically account for fields
         present in motor record.
-
         :return: List of PV aliases.
         """
         pvs = set(self._record_fields.keys())
+
+        if self.powerautopv:
+            pvs.add('powerautopv')
 
         if self.errormsgpv:
             pvs.add('errormsgpv')
@@ -181,7 +187,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         Implementation of inherited method that translates between PV aliases
         and actual PV names. Automatically adds a prefix to the PV name
         according to the motorpv parameter.
-
         :param pvparam: PV alias.
         :return: Actual PV name.
         """
@@ -270,8 +275,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                 return status.BUSY, message or 'homing'
             return status.BUSY, message or f'moving to {self.target}'
 
-        enabled = self._get_pv('enable')
-        if not enabled:
+        if self.powerautopv:
+            powerauto_enabled = self._get_pv('powerautopv')
+        else:
+            powerauto_enabled = 0
+
+        if not powerauto_enabled and not self._get_pv('enable'):
             return status.WARN, 'motor is not enabled'
 
         miss = self._get_pv('miss')
