@@ -49,6 +49,7 @@ builders = pipeline_builder.createBuilders { container ->
       python --version
       python -m pip install -r ${project}/nicos_ess/requirements.txt
       python -m pip install pytest pytest-timeout mock lxml Pillow
+      python -m pip install 'requests<2.30.0'
     """
   } // stage
 
