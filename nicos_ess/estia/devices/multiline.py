@@ -53,10 +53,7 @@ class PilotLaser(HasDisablePv, EpicsReadableEss):
         'unit': Override(mandatory=False),
     }
 
-    _record_fields = {}
-
-    def _get_record_fields(self):
-        return {
+    _record_fields = {
             'uncertainty_fix': 'LaserUncertFix-R',
             'uncertainty_variable': 'LaserUncertLDep-R',
             'connected': 'IsConnected-R',
@@ -64,7 +61,7 @@ class PilotLaser(HasDisablePv, EpicsReadableEss):
 
     def _get_pv_parameters(self):
         return HasDisablePv._get_pv_parameters(self) | set(
-            self._get_record_fields().keys())
+            self._record_fields.keys())
 
     def _get_pv_name(self, pvparam):
         record_prefix = getattr(self, 'pvprefix')
@@ -136,8 +133,6 @@ class MultilineChannel(EpicsReadableEss):
                   mandatory=True,
                   userparam=False),
     }
-
-    _record_fields = {}
 
     def _get_pv_parameters(self):
         return {'readpv', 'latest_valid_pv', 'gain_pv'}
@@ -249,10 +244,7 @@ class MultilineController(EpicsReadableEss):
         'temperature': Attach('Environmental temperature', Readable),
     }
 
-    _record_fields = {}
-
-    def _get_record_fields(self):
-        return {
+    _record_fields = {
             'front_end_splitter': 'FrontEndSplitter-S',
             'fes_option': 'FESOption-S',
             'single_measurement': 'SingleMeasurement-S',
@@ -264,7 +256,7 @@ class MultilineController(EpicsReadableEss):
         }
 
     def _get_pv_parameters(self):
-        parameters = set(self._get_record_fields().keys())
+        parameters = set(self._record_fields.keys())
         return parameters | {'readpv'}
 
     def _get_pv_name(self, pvparam):
