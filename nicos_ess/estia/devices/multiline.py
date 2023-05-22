@@ -53,6 +53,8 @@ class PilotLaser(HasDisablePv, EpicsReadableEss):
         'unit': Override(mandatory=False),
     }
 
+    _record_fields = {}
+
     def _get_record_fields(self):
         return {
             'uncertainty_fix': 'LaserUncertFix-R',
@@ -134,6 +136,8 @@ class MultilineChannel(EpicsReadableEss):
                   mandatory=True,
                   userparam=False),
     }
+
+    _record_fields = {}
 
     def _get_pv_parameters(self):
         return {'readpv', 'latest_valid_pv', 'gain_pv'}
@@ -244,6 +248,8 @@ class MultilineController(EpicsReadableEss):
         'pressure': Attach('Environmental pressure', Readable),
         'temperature': Attach('Environmental temperature', Readable),
     }
+
+    _record_fields = {}
 
     def _get_record_fields(self):
         return {
