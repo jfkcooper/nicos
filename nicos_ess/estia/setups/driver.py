@@ -1,6 +1,6 @@
 description = 'Motors for Driver1'
 
-pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
+pvprefix = 'ESTIA-Sel1:MC-MCU-01:'
 
 devices = dict(
     driver1_1_approach=device(
@@ -68,7 +68,7 @@ devices = dict(
         pva=True,
     ),
     driver1_1_hex_state=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.pva.EpicsStringReadable',
         description='Hexscrew state',
         readpv=f'{pvprefix}Mtr8-HexScrew',
         maxage=None,
@@ -77,7 +77,7 @@ devices = dict(
         pva=True,
     ),
     driver1_2_hex_state=device(
-        'nicos.devices.epics.pva.EpicsMappedReadable',
+        'nicos.devices.epics.pva.EpicsStringReadable',
         description='Hexscrew state',
         readpv=f'{pvprefix}Mtr9-HexScrew',
         maxage=None,

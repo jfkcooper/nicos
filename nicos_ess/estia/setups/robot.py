@@ -1,6 +1,6 @@
 description = 'Motors for the robot adjuster'
 
-pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
+pvprefix = 'ESTIA-Sel1:MC-MCU-01:'
 
 devices = dict(
     robot_pos=device(

@@ -1,6 +1,6 @@
 description = 'Prototype actuator motors'
 
-pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
+pvprefix = 'ESTIA-Sel1:MC-MCU-01:'
 
 devices = dict(
     am1=device(

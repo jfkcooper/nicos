@@ -1,6 +1,6 @@
 description = 'Selene1 mover motors'
 
-pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
+pvprefix = 'ESTIA-Sel1:MC-MCU-01:'
 
 devices = dict(
     mover_fl_re_us=device(
