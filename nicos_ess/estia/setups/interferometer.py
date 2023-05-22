@@ -1,18 +1,20 @@
 description = 'Prototype interferometer measurement'
 
+etalon_prefix = 'ESTIA-Sel1:Mech-GU-001'
+
 devices = dict(
     pilot_laser=device(
         'nicos_ess.estia.devices.multiline.PilotLaser',
         description='Pilot laser',
-        pvprefix='ESTIA-ETALON-001',
-        readpv='ESTIA-ETALON-001:LaserReady-R',
+        pvprefix=etalon_prefix,
+        readpv=f'{etalon_prefix}:LaserReady-R',
         switchstates={
             'enable': 1,
             'disable': 0
         },
         switchpvs={
-            'read': 'ESTIA-ETALON-001:RedPilotLaser-S',
-            'write': 'ESTIA-ETALON-001:RedPilotLaser-S'
+            'read': f'{etalon_prefix}:RedPilotLaser-S',
+            'write': f'{etalon_prefix}:RedPilotLaser-S'
         },
         visibility=()
     ),
@@ -50,46 +52,46 @@ devices = dict(
     env_humidity=device(
         'nicos.devices.epics.EpicsReadable',
         description='Environmental humidity',
-        readpv='ESTIA-ETALON-001:EnvDataHum-R',
+        readpv=f'{etalon_prefix}:EnvDataHum-R',
         visibility=(),
     ),
     env_pressure=device(
         'nicos.devices.epics.EpicsReadable',
         description='Environmental pressure',
-        readpv='ESTIA-ETALON-001:EnvDataPress-R',
+        readpv=f'{etalon_prefix}:EnvDataPress-R',
         visibility=(),
     ),
     env_temperature=device(
         'nicos.devices.epics.EpicsReadable',
         description='Environmental temperature',
-        readpv='ESTIA-ETALON-001:EnvDataTemp-R',
+        readpv=f'{etalon_prefix}:EnvDataTemp-R',
         visibility=(),
     ),
     temp_1=device(
         'nicos.devices.epics.EpicsReadable',
         description='First temperature sensor',
-        readpv='ESTIA-ETALON-001:TempSensorS1-R'
+        readpv=f'{etalon_prefix}:TempSensorS1-R'
     ),
     temp_2=device(
         'nicos.devices.epics.EpicsReadable',
         description='Second temperature sensor',
-        readpv='ESTIA-ETALON-001:TempSensorS2-R'
+        readpv=f'{etalon_prefix}:TempSensorS2-R'
     ),
     temp_3=device(
         'nicos.devices.epics.EpicsReadable',
         description='Third temperature sensor',
-        readpv='ESTIA-ETALON-001:TempSensorS3-R'
+        readpv=f'{etalon_prefix}:TempSensorS3-R'
     ),
     temp_4=device(
         'nicos.devices.epics.EpicsReadable',
         description='Fourth emperature sensor',
-        readpv='ESTIA-ETALON-001:TempSensorS4-R'
+        readpv=f'{etalon_prefix}:TempSensorS4-R'
     ),
     multiline=device(
         'nicos_ess.estia.devices.multiline.MultilineController',
         description='Multiline interferometer controller',
-        pvprefix='ESTIA-ETALON-001',
-        readpv='ESTIA-ETALON-001:SelectedChannels-R',
+        pvprefix=etalon_prefix,
+        readpv=f'{etalon_prefix}:SelectedChannels-R',
         pilot_laser='pilot_laser',
         temperature='env_temperature',
         pressure='env_pressure',
@@ -97,12 +99,14 @@ devices = dict(
     ),
 )
 
-for ch in range(1, 9):
+channels = [17, 18, 19, 20, 21, 22, 23, 24, 27, 28]
+
+for ch in channels:
     devices[f'ch{ch:02}'] = device(
         'nicos_ess.estia.devices.multiline.MultilineChannel',
         description=f'Value of channel {ch}',
-        readpv=f'ESTIA-ETALON-001:Ch{ch}DataLength-R',
-        latest_valid_pv=f'ESTIA-ETALON-001:Ch{ch}DataLenValid-R',
-        gain_pv=f'ESTIA-ETALON-001:Ch{ch}Gain-R',
+        readpv=f'{etalon_prefix}:Ch{ch}DataLength-R',
+        latest_valid_pv=f'{etalon_prefix}:Ch{ch}DataLenValid-R',
+        gain_pv=f'{etalon_prefix}:Ch{ch}Gain-R',
         unit='mm',
     )
