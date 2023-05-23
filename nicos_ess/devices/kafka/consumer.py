@@ -19,21 +19,50 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
+import os
 import time
 import uuid
 
-from confluent_kafka import Consumer, KafkaException, TopicPartition, OFFSET_END
+from confluent_kafka import OFFSET_END, Consumer, KafkaException, \
+    TopicPartition
 
 from nicos.core import DeviceMixinBase, Param, host, listof
 from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError
 from nicos.utils import createThread
 
+from nicos_ess.devices.kafka.utils import create_sasl_config
+
 
 class KafkaConsumer:
     """Class for wrapping the Confluent Kafka consumer."""
+
+    @staticmethod
+    def create(cls, brokers,  starting_offset='latest', **options):
+        """Factory method for creating a consumer.
+
+        Will automatically apply SSL settings if they are defined in the
+        nicos.conf file.
+
+        :param brokers: The broker addresses to connect to.
+        :param starting_offset: Either 'latest' (default) or 'earliest'.
+        :param options: Extra configuration options. See the Confluent Kafka
+            documents for the full list of options.
+        """
+        ssl_protocol = os.environment.get("KAFKA_SSL_PROTOCOL")
+        if ssl_protocol:
+            ssl_mechanism = os.environment.get("KAFKA_SSL_MECHANISM")
+            ssl_config = create_sasl_config(ssl_protocol,
+                                            ssl_mechanism,
+                                            "user_name goes here",
+                                            "password goes here",
+                                            )
+            options = {**options, **ssl_config}
+
+        return KafkaConsumer(brokers, starting_offset, **options)
 
     def __init__(self, brokers, starting_offset='latest', **options):
         """
@@ -154,7 +183,7 @@ class KafkaSubscriber(DeviceMixinBase):
 
     def doPreinit(self, mode):
         if mode != SIMULATION:
-            self._consumer = KafkaConsumer(self.brokers)
+            self._consumer = KafkaConsumer.create(self.brokers)
         else:
             self._consumer = None
 
