@@ -42,9 +42,10 @@ builders = pipeline_builder.createBuilders { container ->
     // Install test related stuff separately as we don't need all the other dev stuff
     // Also need to install some dependencies relating to other facilities.
     container.sh """
-      which python
+      pyenv global 3.9
       python -m venv venv
       . venv/bin/activate
+      which python
       python -m pip install --upgrade pip
       python --version
       python -m pip install -r ${project}/nicos_ess/requirements.txt
