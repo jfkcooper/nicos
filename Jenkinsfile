@@ -42,13 +42,11 @@ builders = pipeline_builder.createBuilders { container ->
     // Install test related stuff separately as we don't need all the other dev stuff
     // Also need to install some dependencies relating to other facilities.
     container.sh """
-      pyenv global 3.9
-      export PATH="/home/jenkins/.pyenv/shims:$PATH"
       which python
       python -m venv venv
       . venv/bin/activate
-      python --version
       python -m pip install --upgrade pip
+      python --version
       python -m pip install -r ${project}/nicos_ess/requirements.txt
       python -m pip install pytest pytest-timeout mock lxml Pillow
       python -m pip install 'requests<2.30.0'
