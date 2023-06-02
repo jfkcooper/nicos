@@ -45,7 +45,7 @@ builders = pipeline_builder.createBuilders { container ->
       which python
       python -m venv venv
       . venv/bin/activate
-      pip install pip install --upgrade pip
+      python -m pip install --upgrade pip
       python --version
       python -m pip install -r ${project}/nicos_ess/requirements.txt
       python -m pip install pytest pytest-timeout mock lxml Pillow
