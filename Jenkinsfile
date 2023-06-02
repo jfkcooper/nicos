@@ -43,11 +43,11 @@ builders = pipeline_builder.createBuilders { container ->
     // Also need to install some dependencies relating to other facilities.
     container.sh """
       pyenv global 3.9
+      which python
       python -m venv venv
       . venv/bin/activate
-      which python
-      python -m pip install --upgrade pip
       python --version
+      python -m pip install --upgrade pip
       python -m pip install -r ${project}/nicos_ess/requirements.txt
       python -m pip install pytest pytest-timeout mock lxml Pillow
       python -m pip install 'requests<2.30.0'
