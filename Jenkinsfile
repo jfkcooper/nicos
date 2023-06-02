@@ -43,6 +43,7 @@ builders = pipeline_builder.createBuilders { container ->
     // Also need to install some dependencies relating to other facilities.
     container.sh """
       pyenv global 3.9
+      export PATH="/home/jenkins/.pyenv/shims:$PATH"
       which python
       python -m venv venv
       . venv/bin/activate
