@@ -73,13 +73,19 @@ devices = dict(
     #     unit='deg',
     # ),
     clutch1=device(
-        'nicos.devices.epics.EpicsStringReadable',
+        'nicos.devices.epics.pva.EpicsStringReadable',
         description='Clutch 1',
         readpv=f'{pvprefix}Mtr6-OpenClutch',
+        pollinterval=None,
+        monitor=True,
+        pva=True,
     ),
     clutch2=device(
-        'nicos.devices.epics.EpicsStringReadable',
+        'nicos.devices.epics.pva.EpicsStringReadable',
         description='Clutch 2',
         readpv=f'{pvprefix}Mtr12-OpenClutch',
+        pollinterval=None,
+        monitor=True,
+        pva=True,
     ),
 )

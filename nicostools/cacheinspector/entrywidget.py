@@ -98,9 +98,9 @@ class EntryWidget(base_class, ui_class):
         entry = self.entry
 
         fm = self.labelTime.fontMetrics()
-        margins = self.labelTime.getContentsMargins()
-        self.labelTime.setMinimumWidth(fm.width(entry.convertTime(1.0)) +
-                                       margins[0] + margins[2] +
+        margins = self.labelTime.contentsMargins()
+        self.labelTime.setMinimumWidth(fm.horizontalAdvance(entry.convertTime(1.0)) +
+                                       margins.left() + margins.right() +
                                        self.labelTime.sizeHint().width())
 
         if self.watcher is None:  # widget is already in watcher
@@ -150,7 +150,7 @@ class EntryWidget(base_class, ui_class):
             # automatically refresh the value if the entry has a ttl (we don't
             # get timestamp updates from the server unless the value changes)
             time_to_update = max((entry.time + entry.ttl) - time.time(), 0)
-            self.updateTimer.start(time_to_update * 1000)
+            self.updateTimer.start(int(time_to_update * 1000))
 
     def setKey(self):
         """Sets the key locally and on the server."""

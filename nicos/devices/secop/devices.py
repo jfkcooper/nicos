@@ -48,22 +48,23 @@ SecopMoveable, and the following parameters:
 
 import re
 import time
+from collections import defaultdict
 from math import floor, log10
-from threading import Event
+from threading import Event, RLock
 
 from frappy.client import SecopClient
 from frappy.errors import CommunicationFailedError
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, \
-    HasOffset, HasLimits, NicosError, Override, Param, status, usermethod
+from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, HasLimits, \
+    HasOffset, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import anytype, floatrange, intrange
 from nicos.core.utils import formatStatus
-from nicos.devices.secop.validators import get_validator, Secop_struct
-from nicos.utils import printTable
+from nicos.devices.secop.validators import get_validator
 from nicos.protocols.cache import cache_dump
+from nicos.utils import printTable
 
 SECOP_ERROR = 400
 
@@ -175,6 +176,9 @@ class SecNodeDevice(Readable):
         'visibility_level': Param('level for visibility of created devices',
                                   type=intrange(1, 3), prefercache=False,
                                   default=1, userparam=False),
+        'async_only':  Param('True: inhibit SECoP reads on created devices, '
+                             'use events only', type=bool, prefercache=False,
+                             default=False, userparam=False),
     }
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
@@ -189,6 +193,7 @@ class SecNodeDevice(Readable):
     _value = ''
     _status = status.OK, 'unconnected'   # the nicos status
     _devices = {}
+    _custom_callbacks = defaultdict(list)
 
     def doPreinit(self, mode):
         self._devices = {}
@@ -347,11 +352,11 @@ class SecNodeDevice(Readable):
             updatefunc = getattr(device, '_update_' + parameter,
                                  device._update)
             self._secnode.register_callback((module, parameter),
-                                            updateEvent=updatefunc)
+                                            updateItem=updatefunc)
             try:
                 data = self._secnode.cache[module, parameter]
                 if data:
-                    updatefunc(module, parameter, *data)
+                    updatefunc(module, parameter, data)
                 else:
                     self.log.warning('No data for %s:%s', module, parameter)
             except KeyError:
@@ -359,7 +364,6 @@ class SecNodeDevice(Readable):
 
     def unregisterDevice(self, device):
         self.log.debug('unregister %s from %s', device, self)
-        session.configured_devices.pop(device.name, None)
         if self._devices.pop(device.name, None) is None:
             self.log.info('device %s already removed', device.name)
             return
@@ -372,7 +376,10 @@ class SecNodeDevice(Readable):
             updatefunc = getattr(device, '_update_' + parameter,
                                  device._update)
             self._secnode.unregister_callback((module, parameter),
-                                              updateEvent=updatefunc)
+                                              updateItem=updatefunc)
+            for custom_callback in self._custom_callbacks.pop((module, parameter), []):
+                self._secnode.unregister_callback((module, parameter),
+                                                  updateItem=custom_callback)
 
     def createDevices(self):
         """create drivers and devices
@@ -396,7 +403,11 @@ class SecNodeDevice(Readable):
             params_cfg = {}
             for pname, props in mod_desc['parameters'].items():
                 datainfo = props['datainfo']
-                pargs = dict(datainfo=datainfo, description=props['description'])
+                # take only the first line in description, else it would
+                # messup ListParams
+                # TODO: check whether is not better to do this in ListParams
+                pargs = dict(datainfo=datainfo, description=(
+                        props['description'].splitlines() or [''])[0])
                 if not props.get('readonly', True) and pname != 'target':
                     pargs['settable'] = True
                 unit = datainfo.get('unit', '')
@@ -441,7 +452,8 @@ class SecNodeDevice(Readable):
                         **kwds)
             # the following test may be removed later, when no bugs appear ...
             if 'cache_unpickle("' in cache_dump(desc):
-                self.log.error('module %r skipped - setup info needs pickle', module)
+                self.log.error('module %r skipped - setup info needs pickle',
+                               module)
             else:
                 setup_info[prefix + module] = (
                     'nicos.devices.secop.devices.%s' % cls.__name__, desc)
@@ -542,6 +554,38 @@ class SecNodeDevice(Readable):
         session.setupCallback(list(session.loaded_setups),
                               list(session.explicit_setups))
 
+    def register_custom_callback(self, module, parameter, f):
+        """Register custom callbacks for parameter updates.
+
+        Use the method found on the SecopDevice class instead of this directly.
+        """
+        # TODO: or NameError?
+        if module not in self._secnode.modules:
+            raise ValueError('no module %r found on this SEC node'
+                                     % module)
+        if parameter not in self._secnode.modules[module]['parameters']:
+            raise ValueError('no parameter %r found on module %r of this SEC node'
+                                     % module)
+        self._custom_callbacks[(module,parameter)].append(f)
+        self._secnode.register_callback((module, parameter), updateItem=f)
+        self.log.debug(f'registered callback \'{f.__name__}\' for \'{module}:{parameter}\'')
+
+    def unregister_custom_callback(self, module, parameter, f):
+        """Unregister a custom callback on this Node (prefer function on SecopDevice)."""
+        # TODO: or NameError?
+        if module not in self._secnode.modules:
+            raise ValueError('no module %r found on this SEC node'
+                                     % module)
+        if parameter not in self._secnode.modules[module]['parameters']:
+            raise ValueError('no parameter %r found on module %r of this SEC node'
+                                     % module)
+        try:
+            self._custom_callbacks[(module,parameter)].append(f)
+            self._secnode.register_callback((module, parameter), updateItem=f)
+        except ValueError as e:
+            raise ValueError('function not registered as callback!') from e
+        self.log.debug(f'removed callback \'{f.__name__}\' from \'{module}:{parameter}\'')
+
 
 class SecopDevice(Device):
     # based on Readable instead of Device, as we want to have a status
@@ -564,6 +608,10 @@ class SecopDevice(Device):
     }
     _defunct = False
     _cache = None
+    _inside_read = False
+    # overridden by a dict for the validators of 'value', 'status' and 'target':
+    _maintypes = None
+    __update_error_logged = False
 
     @classmethod
     def makeDevClass(cls, name, **config):
@@ -597,15 +645,20 @@ class SecopDevice(Device):
                     commands_cfg.pop(cname)  # remove commands not mentioned
         devcfg.update(config)
 
-        parameters = {}
         # create parameters and methods
-        attrs = dict(parameters=parameters, __module__=cls.__module__)
-        if 'target_datainfo' in config:
-            attrs['valuetype'] = get_validator(config.pop('target_datainfo'))
+        parameters = {}
+        # validators of special/pseudo parameters
+        maintypes = {'value': anytype, 'status': tuple, 'target': anytype}
+        attrs = dict(parameters=parameters, __module__=cls.__module__, _maintypes=maintypes)
         if 'value_datainfo' in config:
-            attrs['_maintype'] = staticmethod(get_validator(config.pop('value_datainfo')))
+            maintypes['value'] = get_validator(
+                config.pop('value_datainfo'), use_limits=False)
+        if 'target_datainfo' in config:
+            attrs['valuetype'] = maintypes['target'] = get_validator(
+                config.pop('target_datainfo'), use_limits=True)
         for pname, kwargs in params_cfg.items():
-            typ = get_validator(kwargs.pop('datainfo'))
+            typ = get_validator(kwargs.pop('datainfo'),
+                                use_limits=kwargs.get('settable', False))
             if 'fmtstr' not in kwargs and (typ is float or
                                            isinstance(typ, floatrange)):
                 # the fmtstr default differs in SECoP and NICOS
@@ -614,19 +667,16 @@ class SecopDevice(Device):
             parameters[pname] = Param(volatile=True, type=typ, **kwargs)
 
             if pname == 'target':
-                continue  # special treatment of target in SecopWritable.doReadTarget
+                continue  # special treatment of target in doReadTarget
 
-            def do_read(self, maxage=None, pname=pname, validator=typ):
-                return self._read(pname, maxage, validator)
+            def do_read(self, pname=pname):
+                return self._read(pname, None)
 
             attrs['doRead%s' % pname.title()] = do_read
 
             if kwargs.get('settable', False):
-                if isinstance(typ, Secop_struct):
-                    typ = typ.write_validator
-
-                def do_write(self, value, pname=pname, validator=typ):
-                    return self._write(pname, value, validator)
+                def do_write(self, value, pname=pname):
+                    return self._write(pname, value)
 
                 attrs['doWrite%s' % pname.title()] = do_write
 
@@ -635,57 +685,55 @@ class SecopDevice(Device):
             def makecmd(cname, datainfo, description):
                 argument = datainfo.get('argument')
 
-                optional = datainfo.get('optional', ())
-
-                # Check the result type
-                check_result = get_validator(datainfo.get('result'))
+                validate_result = get_validator(
+                    datainfo.get('result'), use_limits=False)
 
                 if argument is None:
                     help_arglist = ''
 
                     def cmd(self):
-                        return check_result(self._call(cname, None))
+                        return validate_result(self._call(cname, None))
 
                 elif argument['type'] == 'tuple':
                     # treat tuple elements as separate arguments
-                    help_arglist = ', '.join('<%s>' % type_name(get_validator(t))
-                                             for t in argument['members'])
+                    help_arglist = ', '.join(
+                        '<%s>' % type_name(get_validator(t, use_limits=False))
+                        for t in argument['members'])
 
                     def cmd(self, *args):
-                        return check_result(self._call(cname, args))
+                        return validate_result(self._call(cname, args))
 
                 elif argument['type'] == 'struct':
                     # treat SECoP struct as keyworded arguments
-                    # varargs will be treated in the order from the dictwith
-                    # original order is kept only in Py >= 3.6
-                    # however, it will correspond to the order in help_arglist
+                    # positional args will be treated in the given order
+                    # which is not guaranteed to be kept in SECoP
+                    optional = datainfo.get('optional')
                     keys = list(argument['members'])
-                    if optional is True:
-                        optional = keys
+                    if optional is None:
+                        optional = list(keys)
                     for key in optional:
                         keys.remove(key)
                     help_arglist = ', '.join(keys + ['%s=None' % k
                                                      for k in optional])
                     keys.extend(optional)
 
-                    def cmd(self, *args, keys_=tuple(keys), **kwds):
-                        if len(args) > len(keys_):
+                    def cmd(self, *args, **kwds):
+                        if len(args) > len(keys):
                             raise ValueError('too many arguments')
-                        for arg, key in zip(args, keys_):
+                        for arg, key in zip(args, keys):
                             if key in kwds:
                                 raise ValueError(
                                     'got multiple values for argument %r'
                                     % key)
                             kwds[key] = arg
-                        return check_result(self._call(cname, kwds))
+                        return validate_result(self._call(cname, kwds))
 
                 else:
-                    argtype = get_validator(argument)
-                    help_arglist = '<%s>' % type_name(argtype) if argtype \
-                                   else ''
+                    help_arglist = '<%s>' % type_name(
+                        get_validator(argument, use_limits=False))
 
-                    def cmd(self, argument=None):
-                        return check_result(self._call(cname, argument))
+                    def cmd(self, arg):
+                        return validate_result(self._call(cname, arg))
 
                 cmd.help_arglist = help_arglist
                 cmd.__doc__ = description
@@ -698,20 +746,27 @@ class SecopDevice(Device):
             elif cname != 'stop':
                 # stop is handled separately, do not complain
                 session.log.warning(
-                    'skip command %s, as it would overwrite method of %r', cname, cls.__name__)
+                    'skip command %s, as it would overwrite method of %r',
+                    cname, cls.__name__)
 
         classname = cls.__name__ + '_' + name
         # create a new class extending SecopDevice, apply DeviceMeta in order
         # to include the added parameters
         features = config['secop_properties'].get('features', [])
-        mixins = tuple(FEATURES[f] for f in features if f in FEATURES)
+        mixins = [FEATURES[f] for f in features if f in FEATURES]
+        if set(params_cfg) & {'target_limits', 'target_min', 'target_max'}:
+            mixins.append(SecopHasLimits)
         if mixins:
             # create class to hold access methods
-            newclass = DeviceMeta.__new__(DeviceMeta, classname + '_base', (cls,), attrs)
-            # create class with mixins, with methods potentially overriding access methods
-            newclass = DeviceMeta.__new__(DeviceMeta, classname, mixins + (newclass,), {})
+            newclass = DeviceMeta.__new__(
+                DeviceMeta, classname + '_base', (cls,), attrs)
+            # create class with mixins, with methods overriding access methods
+            mixins.append(newclass)
+            newclass = DeviceMeta.__new__(
+                DeviceMeta, classname, tuple(mixins), {})
         else:
-            newclass = DeviceMeta.__new__(DeviceMeta, classname, (cls,), attrs)
+            newclass = DeviceMeta.__new__(
+                DeviceMeta, classname, (cls,), attrs)
         newclass._modified_config = devcfg  # store temporarily for __init__
         return newclass
 
@@ -727,6 +782,8 @@ class SecopDevice(Device):
     def __init__(self, name, **config):
         """apply modified config"""
         self._attached_secnode = None
+        self._read_lock = RLock()
+        self._pending_updates = {}
         Device.__init__(self, name, **self._modified_config)
         del self.__class__._modified_config
 
@@ -766,19 +823,46 @@ class SecopDevice(Device):
         if mode != SIMULATION:
             self._attached_secnode.registerDevice(self)
 
-    def _update(self, module, parameter, value, timestamp, readerror):
-        if parameter not in self.parameters:
+    def _cache_update(self, parameter):
+        # trigger nicos cache update and trigger doRead<param>/doRead/doStatus
+        # respecting methods of mixins
+        try:
+            if parameter == 'value':
+                return self.read(0)
+            if parameter == 'status':
+                return self.status(0)
+            return getattr(self, parameter)  # trigger doRead<param>
+        except Exception as e:
+            try:
+                if self._attached_secnode._secnode.cache[
+                        self.secop_module, parameter].readerror:
+                    return  # the error is already handled
+            except Exception:
+                pass
+            if not self.__update_error_logged:
+                # just log once per device, avoid flooding log
+                self.__update_error_logged = True
+                self.log.exception(f'error {e!r} when updating {parameter}')
+
+    def _update(self, module, parameter, item):
+        if parameter not in self.parameters and parameter not in self._maintypes:
             return
-        if readerror:
+        if item.readerror:
             if self._cache:
                 self._cache.invalidate(self, parameter)
             return
-        try:
-            # ignore timestamp for now
-            self._setROParam(parameter, value)
-        except Exception as err:
-            self.log.error('%r', err)
-            self.log.error('can not set %s:%s to %r', module, parameter, value)
+        if self._inside_read:
+            # this thread is inside secnode.getParameter.
+            # indicate to the getter that a cache update has to be done:
+            self._pending_updates[parameter] = True
+        else:
+            with self._read_lock:
+                try:
+                    # do not allow to call getParameter again
+                    self._inside_read = True
+                    self._cache_update(parameter)
+                finally:
+                    self._inside_read = False
 
     def _defunct_error(self):
         if session.devices.get(self.name) == self:
@@ -787,24 +871,72 @@ class SecopDevice(Device):
         return DefunctDevice('refers to a replaced defunct SECoP device %s'
                              % self.name)
 
-    def _read(self, param, maxage, validator):
+    @usermethod
+    def hwread(self, param='value', maxage=0):
+        """read from hw or get from secnode cache, depending on maxage
+
+        :param param: a parameter, 'value' (default) or 'status'
+        :param maxage: do not read when SECoP timestamp is more recent than
+                       indicated by maxage
+        :return: the validated value, after doRead<param> machinery
+        """
+        self._read(param, maxage, True)
+        return self._cache_update(param)
+
+    def _read(self, param, maxage=0, fromhw=True):
+        """read from hw or get from secnode cache
+
+        :param param: a parameter name, 'value' or 'status'
+        :param maxage: do not read when SECoP timestamp is more recent than
+                       indicated by maxage
+        :param fromhw: whether to read from HW or not
+                       None: called from .status() or .read():
+                       depends on secnode.async_only
+        :return: the validated value
+        """
+        try:
+            validator = self._maintypes.get(param) or self.parameters[param].type
+        except KeyError:
+            raise KeyError(f'{param} is no parameter')
         try:
             secnode = self._attached_secnode._secnode
         except AttributeError:
             raise self._defunct_error() from None
         if not secnode.online:
             raise NicosError('no SECoP connection')
+        if maxage is None:
+            fromhw = False
+        elif fromhw is None and not self._attached_secnode.async_only:
+            fromhw = True
         value, timestamp, readerror = secnode.cache[self.secop_module, param]
+        if fromhw and time.time() > (timestamp or 0) + maxage:
+            with self._read_lock:
+                if not self._inside_read:
+                    # this thread is not yet inside calling getParameter
+                    self._inside_read = True
+                    try:
+                        self._pending_updates = {}
+                        value = secnode.getParameter(self.secop_module, param)[0]
+                    finally:
+                        todo = self._pending_updates
+                        self._pending_updates = {}
+                        self._inside_read = False
+                    # updating the cache for pending updates
+                    # respecting overridden methods from mixins
+                    todo.pop(param, None)  # this is handled by the caller
+                    for pname in todo:
+                        self._cache_update(pname)
+
         if readerror:
             raise NicosError(str(readerror)) from None
-        if maxage is not None and time.time() > (timestamp or 0) + maxage:
-            value = secnode.getParameter(self.secop_module, param)[0]
-        value = validator(value)
-        return value
-
-    def _write(self, param, value, validator):
         try:
-            value = validator(value)
+            return validator(value)
+        except Exception:
+            self.log.exception('can not set %r to %r', param, value)
+            raise
+
+    def _write(self, param, value):
+        try:
             self._attached_secnode._secnode.setParameter(self.secop_module,
                                                          param, value)
             return value
@@ -821,6 +953,7 @@ class SecopDevice(Device):
             return
         self._defunct = True
         if self._attached_secnode is not None:
+            session.configured_devices.pop(self.name, None)
             self._attached_secnode.unregisterDevice(self)
             # make defunct
             secnode = self._adevs.pop('secnode', None)
@@ -828,7 +961,6 @@ class SecopDevice(Device):
                 secnode._sdevs.discard(self._name)
             self._adevs = {}
             self._attached_secnode = None
-            self.updateStatus()
             self._cache = None
         self.updateStatus()
 
@@ -858,7 +990,7 @@ class SecopDevice(Device):
         # even when not a Readable, the status in the cache is updated
         # and appears in the device panel
         if self._cache:
-            self._cache.put(self, 'status', self.doStatus())
+            self._cache.put(self, 'status', self.doStatus(0))
 
     def setConnected(self, connected):
         if not connected:
@@ -866,61 +998,53 @@ class SecopDevice(Device):
                 self._cache.clear(self, ['status'])
         self.updateStatus()
 
+    def register_callback(self, parameter, f):
+        """Register a callback for parameter updates.
+
+        The function is executed every time the client receives a new value for
+        the given parameter..
+        """
+        self.secnode.register_custom_callback(self.secop_module , parameter, f)
+
+    def unregister_callback(self, parameter, f):
+        """Unregister a callback for parameter updates."""
+        self.secnode.unregister_custom_callback(self.secop_module , parameter, f)
+
 
 class SecopReadable(SecopDevice, Readable):
     parameter_overrides = {
         # do not force to give unit in setup file
         # (take from SECoP description)
         'unit': Override(default='', mandatory=False),
-        # maxage and pollinterval are unused as polling is done remotely
-        'maxage': Override(default=None, userparam=False),
+        # pollinterval is unused as polling is done remotely
         'pollinterval': Override(default=None, userparam=False),
     }
-    _maintype = staticmethod(anytype)
 
     def doRead(self, maxage=0):
         try:
-            return self._read('value', maxage, self._maintype)
+            return self._read('value', maxage, None)
         except NicosError:
-            st = self.doStatus()
+            st = self.doStatus(0)
             if st[0] in (status.DISABLED, status.ERROR):
                 raise NicosError(st[1]) from None
-            raise
 
     def doStatus(self, maxage=0):
         code, text = SecopDevice.doStatus(self)
         if code != status.OK:
             return code, text
-        cached = self._attached_secnode._secnode.cache.get(
-            (self.secop_module, 'status'))
-        if not cached:
-            return code, text
-        value, _, readerror = cached
-        if value is None:
-            code, text = SECOP_ERROR, str(readerror)
-        else:
-            code, text = value
+        try:
+            code, text = self._read('status', maxage, None)
+        except NicosError as e:
+            return status.ERROR, str(e)
         if 390 <= code < 400:  # SECoP status finalizing
             return status.OK, text
         # treat SECoP code 401 (unknown) as error - should be distinct from
         # NICOS status unknown
         return self.STATUS_MAP.get(code // 100, status.UNKNOWN), text
 
-    def _update_status(self, module, parameter, value, timestamp, readerror):
-        self.updateStatus()
-
-    def _update_value(self, module, parameter, value, timestamp, readerror):
-        if readerror:
-            if self._cache:
-                self._cache.invalidate(self, 'value')
-            return
-        if self._cache:
-            try:
-                # convert enum code to name
-                value = self._maintype(value)
-            except Exception:
-                pass
-            self._cache.put(self, 'value', value)
+    def updateStatus(self):
+        """status update without SECoP read"""
+        self._cache_update('status')
 
     def info(self):
         # override the default NICOS behaviour here:
@@ -938,9 +1062,9 @@ class SecopReadable(SecopDevice, Readable):
 
 class SecopWritable(SecopReadable, Moveable):
 
-    def doReadTarget(self, maxage=None):
+    def doReadTarget(self):
         try:
-            return self._read('target', maxage, anytype)
+            return self._read('target', None)
         except NicosError:
             # this might happen when the target is not initialized
             # if we do not catch here, Moveable.start will raise
@@ -962,8 +1086,8 @@ class SecopMoveable(SecopWritable):
             try:
                 self._attached_secnode._secnode.execCommand(
                     self.secop_module, 'stop')
-            except Exception as e:
-                self.log.error('error while stopping: %r', e)
+            except Exception:
+                self.log.exception('error while stopping')
                 self.updateStatus()
 
 
@@ -972,36 +1096,74 @@ class SecopHasOffset(HasOffset):
 
     goal: make the class to be accepted by the adjust command
     """
+    parameter_overrides = {
+        'offset': Override(prefercache=True, volatile=True),
+    }
+
+    def doRead(self, maxage=0):
+        return super().doRead() - self.offset
+
+    def doReadTarget(self):
+        return super().doReadTarget() - self.offset
+
+    def doStart(self, value):
+        super().doStart(value + self.offset)
 
     def doWriteOffset(self, value):
+        super().doWriteOffset(value)
         # remark: possible adjustments of limits, targets have to be done
         # in the remote implementation
-        self._write('offset', value, float)
+        self._write('offset', value)
 
 
 class SecopHasLimits(HasLimits):
-    """modifed HasLimits mixin
+    """treat target_max and/or target_min
 
-    match the proposed SECoP feature HasOffset, with a limits parameter
-    corresponding to userlimits and the abslimits module _property_
+    accept also target_limits (intermediate draft spec)
     """
     parameter_overrides = {
-        'abslimits': Override(default=(-9e99, 9e99), prefercache=False),
-        'userlimits': Override(default=(-9e99, 9e99), volatile=True),
-        'limits': Override(userparam=False),
+        'abslimits': Override(prefercache=True, mandatory=False,
+                              volatile=True),
+        'userlimits': Override(volatile=True),
+        # only some of the following parameters are available,
+        # but nicos does not complain about superfluous overrides
+        'target_limits': Override(userparam=False),
+        'target_min': Override(userparam=False),
+        'target_max': Override(userparam=False),
     }
 
-    def doPreinit(self, mode):
-        super().doPreinit(mode)
-        if mode != SIMULATION:
-            self._config['abslimits'] = self.secop_properties.get('abslimits', (-9e99, 9e99))
+    def doReadAbslimits(self):
+        dt = self._config.get('target_datainfo')
+        return dt.get('min', float('-inf')), dt.get('max', float('inf'))
 
     def doReadUserlimits(self):
-        return self.limits
+        if hasattr(self, 'target_limits'):
+            min_, max_ = self.target_limits
+        else:
+            min_ = getattr(self, 'target_min', float('-inf'))
+            max_ = getattr(self, 'target_max', float('inf'))
+        offset = self.offset if isinstance(self, SecopHasOffset) else 0
+        return min_ - offset, max_ - offset
+
+    def _adjustLimitsToOffset(self, value, diff):
+        """not needed, as limits are calculated from SECoP parameters"""
 
     def doWriteUserlimits(self, value):
-        self.limits = value
-        return self.limits
+        super().doWriteUserlimits(value)
+        offset = self.offset if isinstance(self, SecopHasOffset) else 0
+        min_ = value[0] + offset
+        max_ = value[1] + offset
+        if hasattr(self, 'target_limits'):
+            self.target_limits = min_, max_
+        if hasattr(self, 'target_min'):
+            self.target_min = min_
+        else:  # silently replace with abslimits
+            min_ = self.abslimits[0]
+        if hasattr(self, 'target_max'):
+            self.target_max = max_
+        else:
+            max_ = self.abslimits[1]
+        return min_ - offset, max_ - offset
 
 
 IF_CLASSES = {
@@ -1014,6 +1176,5 @@ IF_CLASSES = {
 ALL_IF_CLASSES = set(IF_CLASSES.values())
 
 FEATURES = {
-    'HasLimits': SecopHasLimits,
     'HasOffset': SecopHasOffset,
 }

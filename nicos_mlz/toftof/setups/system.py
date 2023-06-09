@@ -4,7 +4,7 @@ description = 'NICOS system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'tofhw.toftof.frm2',
+    cache = 'tofhw.toftof.frm2.tum.de',
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = [
@@ -68,7 +68,7 @@ devices = dict(
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = '/toftofcontrol/log',
+        path = '/control/log',
         visibility = (),
         warnlimits = (0.5, None),
     ),

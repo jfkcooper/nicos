@@ -1,4 +1,4 @@
-"""NICOS GUI default configuration."""
+"""TMR NICOS GUI configuration."""
 
 main_window = tabbed(
     ('Instrument', docked(
@@ -34,6 +34,7 @@ main_window = tabbed(
     )),
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
+    ('Live data', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
     ('Cooling System', panel('nicos_jcns.tmr.gui.coolingsystem.Panel')),
 )
