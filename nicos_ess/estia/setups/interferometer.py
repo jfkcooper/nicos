@@ -80,7 +80,6 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsReadable',
         description='First temperature sensor',
         readpv=f'{etalon_prefix}:TempSensorS1-R'
-        readpv='ESTIA-ETALON-001:TempSensorS1-R',
         pollinterval=None,
         monitor=True,
         pva=True,
