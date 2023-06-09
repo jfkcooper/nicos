@@ -364,7 +364,6 @@ class SecNodeDevice(Readable):
 
     def unregisterDevice(self, device):
         self.log.debug('unregister %s from %s', device, self)
-        session.configured_devices.pop(device.name, None)
         if self._devices.pop(device.name, None) is None:
             self.log.info('device %s already removed', device.name)
             return
@@ -567,7 +566,7 @@ class SecNodeDevice(Readable):
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
                                      % module)
-        self.custom_callbacks[(module,parameter)].append(f)
+        self._custom_callbacks[(module,parameter)].append(f)
         self._secnode.register_callback((module, parameter), updateItem=f)
         self.log.debug(f'registered callback \'{f.__name__}\' for \'{module}:{parameter}\'')
 
@@ -581,7 +580,7 @@ class SecNodeDevice(Readable):
             raise ValueError('no parameter %r found on module %r of this SEC node'
                                      % module)
         try:
-            self.custom_callbacks[(module,parameter)].append(f)
+            self._custom_callbacks[(module,parameter)].append(f)
             self._secnode.register_callback((module, parameter), updateItem=f)
         except ValueError as e:
             raise ValueError('function not registered as callback!') from e
@@ -954,6 +953,7 @@ class SecopDevice(Device):
             return
         self._defunct = True
         if self._attached_secnode is not None:
+            session.configured_devices.pop(self.name, None)
             self._attached_secnode.unregisterDevice(self)
             # make defunct
             secnode = self._adevs.pop('secnode', None)

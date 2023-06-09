@@ -25,7 +25,7 @@
 from numpy import arange, arctan, array, rad2deg as deg
 
 from nicos.core import ArrayDesc, Attach, Readable
-from nicos.core.params import Param
+from nicos.core.params import Param, Value
 from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin
 
 
@@ -33,32 +33,34 @@ class Detector(ImageChannelMixin, ActiveChannel):
 
     attached_devices = {
         'det': Attach('Underlying pixel detector (1 dim)', ActiveChannel),
-        'ttheta': Attach('2Theta axis encoder', Readable)
+        # 'ttheta': Attach('2Theta axis encoder', Readable)
     }
 
     parameters = {
         'radius': Param('Distance detector to the goniometer center (in mm)',
                         type=float, volatile=False, settable=False),
         'pixel_size': Param('Size of a single pixel (in mm)',
-                            type=float, volatile=False, settable=False),
+                            type=float, volatile=False, settable=False,
+                            category='instrument'),
         'pixel_count': Param('Number of detector pixels',
                              type=int, volatile=False, settable=False,
-                             default=1280),
+                             default=1280, category='instrument'),
     }
 
     def doInit(self, mode):
         self._attached_det.doInit(mode)
-        self.arraydesc = ArrayDesc(self.name, (2, self.pixel_count), 'f8')
-        self._ttheta_range = deg(
-            arctan((arange(0, self.pixel_count) - self.pixel_count / 2 + 0.5) *
-                   self.pixel_size / self.radius))
+        # self.arraydesc = ArrayDesc(self.name, (2, self.pixel_count), 'f8')
+        # self._ttheta_range = deg(
+        #     arctan((arange(0, self.pixel_count) - self.pixel_count / 2 + 0.5) *
+        #            self.pixel_size / self.radius))
 
     def doReadArray(self, quality):
-        ttheta = self._attached_ttheta.doRead()
+        # ttheta = self._attached_ttheta.doRead()
         cts = self._attached_det.doReadArray(quality)
-        ttheta_range = self._ttheta_range + ttheta
+        # ttheta_range = self._ttheta_range + ttheta
         self.readresult = self._attached_det.readresult
-        return array([ttheta_range, cts], dtype='f8')
+        # return array([ttheta_range, cts], dtype='f8')
+        return array([cts])
 
     def doStart(self):
         return self._attached_det.doStart()
@@ -83,3 +85,7 @@ class Detector(ImageChannelMixin, ActiveChannel):
 
     def doResume(self):
         return self._attached_det.doResume()
+
+    def valueInfo(self):
+        return (Value(self.name + '.sum', unit='cts', type='counter',
+                      errors='sqrt', fmtstr='%d'), )
