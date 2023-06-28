@@ -574,10 +574,11 @@ class SecNodeDevice(Readable):
                                      % module)
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
-                                     % module)
+                                     % (parameter, module))
         self._custom_callbacks[(module,parameter)].append(f)
         self._secnode.register_callback((module, parameter), updateItem=f)
-        self.log.debug(f'registered callback \'{f.__name__}\' for \'{module}:{parameter}\'')
+        self.log.debug('registered callback %r for %s:%s', f.__name__,
+                       module, parameter)
 
     def unregister_custom_callback(self, module, parameter, f):
         """Unregister a custom callback on this Node (prefer function on SecopDevice)."""
@@ -587,13 +588,14 @@ class SecNodeDevice(Readable):
                                      % module)
         if parameter not in self._secnode.modules[module]['parameters']:
             raise ValueError('no parameter %r found on module %r of this SEC node'
-                                     % module)
+                                     % (parameter, module))
         try:
             self._custom_callbacks[(module,parameter)].append(f)
             self._secnode.register_callback((module, parameter), updateItem=f)
         except ValueError as e:
             raise ValueError('function not registered as callback!') from e
-        self.log.debug(f'removed callback \'{f.__name__}\' from \'{module}:{parameter}\'')
+        self.log.debug('removed callback %r from %s:%s', f.__name__,
+                       module, parameter)
 
 
 class SecopDevice(Device):
@@ -761,6 +763,14 @@ class SecopDevice(Device):
                     'skip command %s, as it would overwrite method of %r',
                     cname, cls.__name__)
 
+        # see if secop_properties exists (the case when auto-created from the
+        # SecNode, or not, where we need to get it from setup_info.
+        if not 'secop_properties' in config:
+            name = secnodedev.prefix + config['secop_module']
+            config["secop_properties"] = secnodedev.setup_info[name][1].get(
+                "secop_properties", {}
+            )
+
         classname = cls.__name__ + '_' + name
         # create a new class extending SecopDevice, apply DeviceMeta in order
         # to include the added parameters
@@ -854,7 +864,7 @@ class SecopDevice(Device):
             if not self.__update_error_logged:
                 # just log once per device, avoid flooding log
                 self.__update_error_logged = True
-                self.log.exception(f'error {e!r} when updating {parameter}')
+                self.log.exception('error when updating %s', parameter)
 
     def _update(self, module, parameter, item):
         if parameter not in self.parameters and parameter not in self._maintypes:
@@ -1016,11 +1026,13 @@ class SecopDevice(Device):
         The function is executed every time the client receives a new value for
         the given parameter..
         """
-        self.secnode.register_custom_callback(self.secop_module , parameter, f)
+        self._attached_secnode.register_custom_callback(self.secop_module,
+                                                        parameter, f)
 
     def unregister_callback(self, parameter, f):
         """Unregister a callback for parameter updates."""
-        self.secnode.unregister_custom_callback(self.secop_module , parameter, f)
+        self._attached_secnode.unregister_custom_callback(self.secop_module,
+                                                          parameter, f)
 
 
 class SecopReadable(SecopDevice, Readable):

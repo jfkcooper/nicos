@@ -22,19 +22,17 @@
 #
 # *****************************************************************************
 
-"""Reseda sample device."""
+"""Virtual Refsans specific sample implementation."""
 
-from nicos.core import Param, oneof
-from nicos.devices.sample import Sample as BaseSample
+from nicos.core.params import Param
+from nicos_mlz.refsans.devices.sample import Sample as BaseSample
 
 
 class Sample(BaseSample):
+    """Virtual Refsans specific sample."""
 
     parameters = {
-        'sampletype': Param('Sample type: '
-                            '1 - Incoherent'
-                            # '2 - Magnon BCC'
-                            '3 - SANS spheres',
-                            type=oneof(1, 3), userparam=True, settable=True,
-                            default=1),
+        'sample_file': Param('Sample definition file',
+                             type=str, settable=True, userparam=True,
+                             default='Si_Ti_Al_Mirror.dat'),
     }
