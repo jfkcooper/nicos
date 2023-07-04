@@ -6,7 +6,6 @@ display_order = 70
 
 
 tango_base = configdata('instrument.values')['tango_base'] + 'box/bruker/'
-excludes = ['hv_gen']
 
 devices = dict(
     gen_voltage = device('nicos.devices.entangle.PowerSupply',
@@ -34,7 +33,7 @@ devices = dict(
         mapping = {
             'Off': (0, 0),
             'Standby': (20, 5),
-            'On': (25, 40),
+            'On': (35, 40),
         },
         blockingmove = False,
     ),
@@ -57,16 +56,16 @@ devices = dict(
         fmtstr = '%.2f',
         visibility=(),
     ),
-    hv_waterflow = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'Cooling water flow',
-        device = 'hv',
-        parameter = 'waterflow',
-        fmtstr = '%.1f',
-    ),
-    hv_heatercurrent = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'Heater current',
-        device = 'hv',
-        parameter = 'heatercurrent',
-        fmtstr = '%.1f',
-    ),
+    # hv_waterflow = device('nicos.devices.generic.ReadonlyParamDevice',
+    #     description = 'Cooling water flow',
+    #     device = 'hv',
+    #     parameter = 'waterflow',
+    #     fmtstr = '%.1f',
+    # ),
+    # hv_heatercurrent = device('nicos.devices.generic.ReadonlyParamDevice',
+    #     description = 'Heater current',
+    #     device = 'hv',
+    #     parameter = 'heatercurrent',
+    #     fmtstr = '%.1f',
+    # ),
 )

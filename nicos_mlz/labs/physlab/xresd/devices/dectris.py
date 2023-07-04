@@ -18,29 +18,27 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Matthias Pomm <matthias.pomm@hzg.de>
+#   Alexander Book <alexander.book@frm2.tum.de>
 #
 # *****************************************************************************
 
-from nicos.core import Override, Param, floatrange
-from nicos.core.utils import ADMIN
-from nicos.devices.generic import ManualSwitch
+
+from nicos.core.params import Param
+from nicos.devices.entangle import ImageChannel
 
 
-class PivotPoint(ManualSwitch):
+class Detector(ImageChannel):
 
     parameters = {
-        'grid': Param('Distance between the possible points',
-                      type=floatrange(0), settable=False, userparam=False,
-                      default=125., unit='mm'),
-        'height': Param('Height above ground level',
-                        type=floatrange(0), settable=False, default=373,
-                        unit='mm'),
+        'pixel_size': Param('Size of a single pixel (in mm)',
+                            type=float, volatile=False, settable=False,
+                            category='instrument'),
+        'pixel_count': Param('Number of detector pixels',
+                             type=int, volatile=True, settable=False,
+                             category='instrument'),
     }
 
-    parameter_overrides = {
-        'requires': Override(default={'level': ADMIN}, settable=False),
-    }
-
-    def doStart(self, target):
-        ManualSwitch.doStart(self, target)
+    def doReadPixel_Count(self):
+        if self.arraydesc:
+            return self.arraydesc.shape[0]
+        return self._dev.detectorSize[0]
