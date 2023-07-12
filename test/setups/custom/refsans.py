@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -221,12 +220,23 @@ devices = dict(
     shutter = device('nicos.devices.generic.ManualSwitch',
         states = ['closed', 'open'],
     ),
+    table_mot = device('nicos.devices.generic.VirtualMotor',
+        abslimits = (620, 11025),
+        unit = 'mm',
+    ),
     table = device('nicos.devices.generic.Axis',
-        motor = device('nicos.devices.generic.VirtualMotor',
-            abslimits = (620, 11025),
-            unit = 'mm',
-        ),
+        motor = 'table_mot',
         precision = 0.05,
+    ),
+    table_pos = device('nicos.devices.generic.VirtualCoder',
+        motor = 'table_mot',
+        offset = 10,
+    ),
+    table_acc = device('nicos_mlz.refsans.devices.accuracy.Accuracy',
+        absolute = True,
+        motor = 'table_mot',
+        analog = 'table_pos',
+        unit = 'mm',
     ),
     tube = device('nicos.devices.generic.VirtualMotor',
         abslimits = (-120, 1000),
@@ -492,6 +502,14 @@ devices = dict(
         right = 'h2r',
         opmode = 'offcentered',
         coordinates = 'opposite',
+    ),
+    ttr = device('nicos_mlz.refsans.devices.converters.Ttr',
+        unit = 'mbar',
+        att = device('nicos.devices.generic.ManualMove',
+            abslimits = (0, 10),
+            unit = 'V',
+            default = 1,
+        ),
     ),
 )
 

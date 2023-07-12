@@ -166,40 +166,9 @@ for i in range(10, 22 + 1):
 
 cryos = []
 for cryo in 'cci3he01 cci3he02 cci3he03 ccidu01 ccidu02'.split():
-    cryos.append(Block(cryo.title(), [
-        BlockRow(
-            Field(name='Setpoint', key='t_%s/setpoint' % cryo,
-                   unitkey='t/unit'),
-            Field(name='Target', key='t_%s/target' % cryo,
-                   unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power', key='t_%s/heaterpower' % cryo,
-                   unitkey='t/unit'),
-        ),
-        BlockRow(
-             Field(name='A', dev='T_%s_A' % cryo),
-             Field(name='B', dev='T_%s_B' % cryo),
-        ),
-        ],
-        setups=cryo,
-    ))
+    cryos.append(SetupBlock(cryo))
 
-_ccm5h = Block('SANS-1 5T Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm5h', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='b_ccm5h/target', width=12),
-        Field(name='Asymmetry', key='b_ccm5h/asymmetry', width=12),
-    ),
-    BlockRow(
-        Field(name='Power Supply 1', dev='I1_ccm5h', width=12),
-        Field(name='Power Supply 2', dev='I2_ccm5h', width=12),
-    ),
-    ],
-    setups='ccm5h',
-)
+_ccm5h = SetupBlock('ccm5h')
 
 _miramagnet = Block('MIRA 0.5T Magnet', [
     BlockRow(

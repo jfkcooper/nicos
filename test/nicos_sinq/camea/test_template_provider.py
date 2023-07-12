@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -24,6 +23,8 @@
 from collections.abc import MutableMapping
 
 import pytest
+
+pytest.importorskip('lxml')
 
 from nicos.core import Param, tupleof
 from nicos.devices.instrument import Instrument

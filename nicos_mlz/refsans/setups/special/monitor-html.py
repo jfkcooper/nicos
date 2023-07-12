@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the HTML status monitor'
 group = 'special'
 
@@ -16,7 +14,7 @@ devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
         description = 'Status Display',
         title = 'REFSANS Status Monitor',
-        filename = '/refsanscontrol/webroot/index.html',
+        filename = '/control/webroot/index.html',
         loglevel = 'info',
         interval = 10,
         cache = 'refsansctrl.refsans.frm2',

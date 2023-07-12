@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 description = 'File saver for live image'
-
 group = 'optional'
 
 sysconfig = dict(
@@ -11,7 +8,7 @@ sysconfig = dict(
 devices = dict(
     InternalLivePNGSink = device('nicos.devices.datasinks.PNGLiveFileSink',
         description = 'Saves live image as .png every now and then',
-        filename = '/refsanscontrol/webroot/live_lin.png',
+        filename = '/control/webroot/live_lin.png',
         log10 = False,
         interval = 15,
         rgb = False,

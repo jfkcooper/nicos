@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -24,7 +23,7 @@
 from nicos import session
 from nicos.core import MAIN, Param, pvname, status, usermethod
 
-from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
+from nicos_ess.devices.epics.motor import EpicsMotor as EssEpicsMotor
 from nicos.devices.epics.pyepics import pvget
 
 
