@@ -6,9 +6,15 @@ instrument_values = configdata('instrument.values')
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'XReSD',
+    instrument = 'xresd',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
+    datasinks = [
+        'conssink',
+        'filesink',
+        'daemonsink',
+        'livesink',
+        'rabbitsink',
+    ],
     notifiers = [],  # ['email'],
 )
 
@@ -19,7 +25,7 @@ includes = [
 ]
 
 devices = dict(
-    XReSD = device('nicos.devices.instrument.Instrument',
+    xresd = device('nicos.devices.instrument.Instrument',
         description = 'X-ray Residual Stress Diffractometer',
         instrument = 'XReSD',
         responsible = 'Bastian Veltel <bastian.veltel@frm2.tum.de>',
@@ -40,7 +46,10 @@ devices = dict(
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
-    livesink = device('nicos_mlz.labs.physlab.xresd.datasinks.LiveViewSink'),
+    livesink = device('nicos_mlz.labs.physlab.datasinks.LiveViewSink'),
+    rabbitsink = device('nicos_mlz.devices.rabbit_sink.RabbitSink',
+        rabbit_url = 'amqp://localhost',
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = '/data/04_RSXRD',
