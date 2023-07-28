@@ -149,6 +149,8 @@ class NexusStructureJsonFile(NexusStructureProvider):
         return ','.join(temp) if temp else ''
 
     def _insert_samples(self, structure, metainfo):
+        if ('Sample', 'samples') not in metainfo:
+            return structure
         samples_str = self._generate_nxclass_template(
             'NXsample',
             'sample',

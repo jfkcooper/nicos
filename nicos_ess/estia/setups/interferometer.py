@@ -79,7 +79,7 @@ devices = dict(
     temp_1=device(
         'nicos.devices.epics.pva.EpicsReadable',
         description='First temperature sensor',
-        readpv=f'{etalon_prefix}:TempSensorS1-R'
+        readpv=f'{etalon_prefix}:TempSensorS2-R',
         pollinterval=None,
         monitor=True,
         pva=True,
@@ -87,7 +87,7 @@ devices = dict(
     temp_2=device(
         'nicos.devices.epics.pva.EpicsReadable',
         description='Second temperature sensor',
-        readpv=f'{etalon_prefix}:TempSensorS2-R'
+        readpv=f'{etalon_prefix}:TempSensorS2-R',
         pollinterval=None,
         monitor=True,
         pva=True,
@@ -95,7 +95,7 @@ devices = dict(
     temp_3=device(
         'nicos.devices.epics.pva.EpicsReadable',
         description='Third temperature sensor',
-        readpv=f'{etalon_prefix}:TempSensorS3-R'
+        readpv=f'{etalon_prefix}:TempSensorS3-R',
         pollinterval=None,
         monitor=True,
         pva=True,
@@ -103,7 +103,7 @@ devices = dict(
     temp_4=device(
         'nicos.devices.epics.pva.EpicsReadable',
         description='Fourth emperature sensor',
-        readpv=f'{etalon_prefix}:TempSensorS4-R'
+        readpv=f'{etalon_prefix}:TempSensorS4-R',
         pollinterval=None,
         monitor=True,
         pva=True,

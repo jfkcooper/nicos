@@ -139,10 +139,12 @@ class MultilineChannel(EpicsReadableEss):
 
     def doPreinit(self, mode):
         self._raw = np.zeros(16)
+        self._raw = list(map(float, self._raw.tolist()))
         EpicsReadableEss.doPreinit(self, mode)
 
     def _readRaw(self):
         raw = self._get_pv('readpv')
+        raw = list(map(float, raw.tolist()))
         if len(raw) > 0:
             self._raw = raw
         else:
@@ -185,7 +187,7 @@ class MultilineChannel(EpicsReadableEss):
 
     def doReadLatest_Valid(self):
         raw = self._get_pv('latest_valid_pv')
-        return raw[1]
+        return float(raw[1]) if raw else 0
 
     def doPoll(self, n, maxage=0):
         self.pollParams(volatile_only=False,
@@ -220,11 +222,6 @@ class MultilineController(EpicsReadableEss):
                   type=str,
                   settable=True,
                   internal=True),
-        'continuous_measurement':
-            Param('Start of a continuous measurement.',
-                  type=str,
-                  settable=True,
-                  internal=True),
         'alignment_process':
             Param('Start/stop the process to align the '
                   'channels.',
@@ -248,7 +245,6 @@ class MultilineController(EpicsReadableEss):
             'front_end_splitter': 'FrontEndSplitter-S',
             'fes_option': 'FESOption-S',
             'single_measurement': 'SingleMeasurement-S',
-            'continuous_measurement': 'ContinuousMeasurement-S',
             'alignment_process': 'AlignmentProcess-S',
             'server_error': 'ServerErr-R',
             'num_channels': 'NumChannels-R',
@@ -289,12 +285,6 @@ class MultilineController(EpicsReadableEss):
     def doWriteSingle_Measurement(self, value):
         self._put_pv('single_measurement', value)
 
-    def doReadContinuous_Measurement(self):
-        return self._get_pv('continuous_measurement', as_string=True)
-
-    def doWriteContinuous_Measurement(self, value):
-        self._put_pv('continuous_measurement', value)
-
     def doReadAlignment_Process(self):
         return self._get_pv('alignment_process', as_string=True)
 
@@ -311,7 +301,6 @@ class MultilineController(EpicsReadableEss):
         self._pollParam('front_end_splitter')
         self._pollParam('fes_option')
         self._pollParam('single_measurement')
-        self._pollParam('continuous_measurement')
         self._pollParam('alignment_process')
         self._pollParam('num_channels')
         self._pollParam('is_grouped')
