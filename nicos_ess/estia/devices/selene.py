@@ -237,6 +237,15 @@ class SeleneRobot(Moveable):
             # move driver to last rotation
             self._attached_adjust1.move(rot)
 
+    # TODO: Implement an intelligent doStop to prevent any hardware issues and loss of rotation info
+
+    def doTime(self, old_value, target):
+        # estimate the approximate movement time from horizontal difference
+        out = 30.
+        diff = abs(old_value[1]-target[1])*480.
+        tdiff = diff / self._attached_move_x.speed
+        return out+tdiff
+
     def doReadRotation(self):
         try:
             return self._adjust()
