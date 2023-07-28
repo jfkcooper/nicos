@@ -2,6 +2,8 @@ description = 'High-level interface to the Selene Guide components'
 
 includes = ['robot']
 
+display_order = 40 # sort before default devices
+
 devices = dict(
     sr1=device(
         'nicos_ess.estia.devices.selene.SeleneRobot',
