@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -21,218 +21,141 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
+
 """ESS Experiment device."""
 
+import os
 import time
-from os import path
 
 from yuos_query.exceptions import BaseYuosException
-from yuos_query.yuos_client import YuosCacheClient
+from yuos_query.yuos_client import YuosClient
 
-from nicos import session
-from nicos.core import SIMULATION, Override, Param, UsageError, \
-    absolute_path, listof, mailaddress
+from nicos.core import Override, Param
 from nicos.devices.experiment import Experiment
 from nicos.utils import createThread
 
 
 class EssExperiment(Experiment):
     parameters = {
-        'cache_filepath':
-            Param('Path to the proposal cache',
-                  type=str,
-                  category='experiment',
-                  mandatory=True,
-                  userparam=False),
-        'filewriter_root':
-            Param('Root data path on the file writer server under which all '
-                  'proposal specific paths exist.', mandatory=True,
-                  type=absolute_path),
-        'update_interval':
-            Param('Time interval (in hrs.) for cache updates',
-                  default=1.0,
-                  type=float,
-                  userparam=False)
+        'server_url': Param('URL of the proposal system',
+            type=str, category='experiment', mandatory=True,
+        ),
+        'instrument': Param('The instrument name in the proposal system',
+            type=str, category='experiment', mandatory=True,
+        ),
+        'cache_filepath': Param('Path to the proposal cache',
+            type=str, category='experiment', mandatory=True,
+        ),
+        'update_interval': Param('Time interval (in hrs.) for cache updates',
+            default=1.0, type=float)
     }
 
     parameter_overrides = {
         'propprefix': Override(default=''),
-        'proptype': Override(settable=True),
         'serviceexp': Override(default='Service'),
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),
-        'users': Override(default=[], type=listof(dict)),
-        'localcontact': Override(default=[], type=listof(dict)),
-        'title': Override(settable=True)
     }
 
     def doInit(self, mode):
         Experiment.doInit(self, mode)
         self._client = None
-        self._update_cache_worker = createThread('update_cache',
-                                                 self._update_cache,
-                                                 start=False)
-        try:
-            self._client = YuosCacheClient.create(self.cache_filepath)
-            self._update_cache_worker.start()
-        except Exception as error:
-            self.log.warn('proposal look-up not available: %s', error)
-
-    def doReadTitle(self):
-        return self.propinfo.get('title', '')
-
-    def doReadUsers(self):
-        return self.propinfo.get('users', [])
-
-    def doReadLocalcontact(self):
-        return self.propinfo.get('localcontacts', [])
-
-    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
-        if self._mode == SIMULATION:
-            raise UsageError('Simulating switching experiments is not '
-                             'supported!')
-
-        proposal = str(proposal)
-
-        if not proposal.isnumeric():
-            raise UsageError('Proposal ID must be numeric')
-
-        # Handle back compatibility
-        users = user if user else kwds.get('users', [])
-        localcontacts = localcontact if localcontact \
-            else kwds.get('localcontacts', [])
-
-        self._check_users(users)
-        self._check_local_contacts(localcontacts)
-
-        # combine all arguments into the keywords dict
-        kwds['proposal'] = proposal
-        kwds['title'] = str(title) if title else ''
-        kwds['localcontacts'] = localcontacts
-        kwds['users'] = users
-
-        # give an opportunity to check proposal database etc.
-        propinfo = self._newPropertiesHook(proposal, kwds)
-        self._setROParam('propinfo', propinfo)
-        self._setROParam('proposal', proposal)
-        self.proptype = 'service' if proposal == '0' else 'user'
-
-        # Update cached values of the volatile parameters
-        self._pollParam('title')
-        self._pollParam('localcontact')
-        self._pollParam('users')
-        self._newSetupHook()
-        session.experimentCallback(self.proposal, None)
-
-    def update(self, title=None, users=None, localcontacts=None):
-        self._check_users(users)
-        self._check_local_contacts(localcontacts)
-        title = str(title) if title else ''
-        Experiment.update(self, title, users, localcontacts)
-
-    def proposalpath_of(self, proposal):
-        return path.join(self.filewriter_root, time.strftime('%Y'), proposal)
-
-    def _check_users(self, users):
-        if not users:
-            return
-        if not isinstance(users, list):
-            raise UsageError('users must be supplied as a list')
-
-        for user in users:
-            if not user.get('name'):
-                raise KeyError('user name must be supplied')
-            mailaddress(user.get('email', ''))
-
-    def _check_local_contacts(self, contacts):
-        if not contacts:
-            return
-        if not isinstance(contacts, list):
-            raise UsageError('local contacts must be supplied as a list')
-        for contact in contacts:
-            if not contact.get('name'):
-                raise KeyError('local contact name must be supplied')
-            mailaddress(contact.get('email', ''))
-
-    def finish(self):
-        self.new(0, 'Service mode')
-        self.sample.set_samples({})
+        self._update_cache_worker = createThread(
+            'update_cache', self._update_cache, start=False)
+        # Get secret from the environment
+        token = os.environ.get('YUOS_TOKEN')
+        if token:
+            try:
+                self._client = YuosClient(
+                    self.server_url, token, self.instrument, self.cache_filepath)
+                self._update_cache_worker.start()
+            except BaseYuosException as error:
+                self.log.warn(f'QueryDB not available: {error}')
 
     def _canQueryProposals(self):
         if self._client:
             return True
-        return False
 
     def _update_cache(self):
         while True:
-            self._client.update_cache()
+            # Client instantiation updates the cache. Thus wait before updating
             time.sleep(self.update_interval * 3600)
+            self._client.update_cache()
 
-    def _queryProposals(self, proposal=None, kwds=None):
-        if not kwds:
-            return []
-        if kwds.get('admin', False):
-            results = self._get_all_proposals()
+    def _queryProposals(self, query=None, kwds=None):
+        if not query:
+            raise RuntimeError('Please enter a valid proposal ID or federal ID')
+
+        if query[0].isdigit():
+            results = self._query_by_id(query)
         else:
-            results = self._query_by_fed_id(kwds.get('fed_id', ''))
+            results = self._query_by_fed_id(query)
 
+        if not results:
+            raise RuntimeError(f'could not find corresponding proposal(s) for '
+                               f'{query}')
         return [{
-            'proposal': str(prop.id),
-            'title': prop.title,
-            'users': self._extract_users(prop),
+            'proposal': str(proposal.id),
+            'title': proposal.title,
+            'users': self._extract_users(proposal),
             'localcontacts': [],
-            'samples': self._extract_samples(prop),
+            'samples': self._extract_samples(proposal),
             'dataemails': [],
             'notif_emails': [],
             'errors': [],
             'warnings': [],
-        } for prop in results]
+        } for proposal in results]
+
+    def _query_by_id(self, proposal):
+        try:
+            result = self._client.proposal_by_id(proposal)
+            return [result] if result else []
+        except BaseYuosException as error:
+            self.log.error(f'{error}')
+            raise
 
     def _query_by_fed_id(self, name):
         try:
             return self._client.proposals_for_user(name)
         except BaseYuosException as error:
-            self.log.error('%s', error)
-            raise
-
-    def _get_all_proposals(self):
-        try:
-            return self._client.all_proposals()
-        except BaseYuosException as error:
-            self.log.error('%s', error)
+            self.log.error(f'{error}')
             raise
 
     def _extract_samples(self, query_result):
         samples = []
         for sample in query_result.samples:
-            mass = f'{sample.mass_or_volume[0]} {sample.mass_or_volume[1]}'.strip(
-            )
-            density = f'{sample.density[0]} {sample.density[1]}'.strip()
             samples.append({
                 'name': sample.name,
                 'formula': sample.formula,
-                'number_of': sample.number,
-                'mass_volume': mass,
-                'density': density
+                'number of': sample.number,
+                'mass/volume':
+                    f'{sample.mass_or_volume[0]} {sample.mass_or_volume[1]}'.strip(),
+                'density': f'{sample.density[0]} {sample.density[1]}'.strip(),
             })
         return samples
 
     def _extract_users(self, query_result):
         users = []
-        for first, last, fed_id, org in query_result.users:
-            users.append(self._create_user(f'{first} {last}', '', org, fed_id))
+        for first, last, _ in query_result.users:
+            users.append(
+                {
+                    'name': f'{first} {last}',
+                    'email': '',
+                    'affiliation': '',
+                }
+            )
         if query_result.proposer:
-            first, last, fed_id, org = query_result.proposer
-            users.append(self._create_user(f'{first} {last}', '', org, fed_id))
+            first, last, _ = query_result.proposer
+            users.append(
+                {
+                    'name': f'{first} {last}',
+                    'email': '',
+                    'affiliation': '',
+                }
+            )
         return users
 
-    def _create_user(self, name, email, affiliation, fed_id):
-        return {
-            'name': name,
-            'email': email,
-            'affiliation': affiliation,
-            'facility_user_id': fed_id
-        }
-
-    def get_samples(self):
-        return [dict(x) for x in self.sample.samples.values()]
+    def new(self, *args, **kwargs):  # pylint: disable=signature-differs
+        Experiment.new(self, *args, **kwargs)
+        if self.proptype == 'service':
+            self.sample.clear()

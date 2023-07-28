@@ -1,7 +1,7 @@
 build/
 dist/
 
-__pycache__/
+*.pyc
 *.egg-info
 *.log
 *.log.gz
@@ -17,10 +17,9 @@ log/
 
 doc/build/
 doc/source/auto
-doc/source/nicos_*/**/setups
+doc/source/nicos_*/*/setups
 
 .coverage.*
-.coverage
 .cache/
 .pytest_cache/
 htmlcov/
@@ -56,5 +55,7 @@ mprofile_*.dat
 #PyCharm
 .idea/
 
-#MacOS
+__pycache__
+
+#MacOs
 .DS_Store

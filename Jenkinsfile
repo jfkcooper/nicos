@@ -4,8 +4,10 @@ import ecdcpipeline.PipelineBuilder
 
 project = "nicos"
 
+python = "python3.6"
+
 container_build_nodes = [
-  'centos7-release': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc11')
+  'centos7-release': ContainerBuildNode.getDefaultContainerBuildNode('centos7'),
 ]
 
 
@@ -21,7 +23,7 @@ properties([[
     artifactDaysToKeepStr: '',
     artifactNumToKeepStr: num_artifacts_to_keep,
     daysToKeepStr: '',
-    numToKeepStr: ''
+    numToKeepStr: num_artifacts_to_keep
   ]
 ]]);
 
@@ -39,28 +41,26 @@ builders = pipeline_builder.createBuilders { container ->
 
   pipeline_builder.stage("${container.key}: Dependencies") {
     def conan_remote = "ess-dmsc-local"
-    // Install test related stuff separately as we don't need all the other dev stuff
-    // Also need to install some dependencies relating to other facilities.
+    // If we all install all of NICOS requirements then we hit some problems.
+    // As a workaround we are more strict on what is installed.
     container.sh """
-      which python
-      python -m venv venv
-      . venv/bin/activate
-      python -m pip install --upgrade pip
-      python --version
-      python -m pip install -r ${project}/nicos_ess/requirements.txt
-      python -m pip install pytest pytest-timeout mock lxml Pillow
-      python -m pip install 'requests<2.30.0'
+      pip install --user -r ${project}/requirements.txt
+      pip install --user -r ${project}/requirements-dev.txt
+      pip install --user -r ${project}/requirements-gui.txt
+      pip install --user -r ${project}/nicos_ess/requirements.txt
+      pip install --user pillow h5py astropy opencv-python-headless
     """
   } // stage
 
   pipeline_builder.stage("${container.key}: Test") {
     def test_output = "TestResults.xml"
     container.sh """
-      . venv/bin/activate
-      cd ${project}/test
-      python -m pytest --junitxml=${test_output} --ignore=nicos_sinq
+      ${python} --version
+      cd ${project}
+      export NICOS_QT=5
+      ${python} -m pytest --junitxml=${test_output}
     """
-    container.copyFrom("${project}/test/${test_output}", ".")
+    container.copyFrom("${project}/${test_output}", ".")
     xunit thresholds: [failed(unstableThreshold: '0')], tools: [JUnit(deleteOutputFiles: true, pattern: '*.xml', skipNoTestFiles: false, stopProcessingIfError: false)]
   } // stage
 

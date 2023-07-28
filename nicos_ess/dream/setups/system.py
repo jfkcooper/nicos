@@ -6,10 +6,11 @@ sysconfig = dict(
     cache='localhost',
     instrument='DREAM',
     experiment='Exp',
-    datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl'],
+    datasinks=['conssink', 'daemonsink', 'liveview'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.epics',
+           'nicos_ess.commands.file_writing', 'nicos_ess.v20.commands.filewriter']
 
 devices = dict(
     DREAM=device(
@@ -17,47 +18,71 @@ devices = dict(
         description='instrument object',
         instrument='DREAM',
         responsible='Ebad Kamil <ebad.kamil@ess.eu>',
-        website='https://europeanspallationsource.se/instruments/dream'),
+        website='https://europeanspallationsource.se/instruments/dream'
+    ),
+
     Sample=device(
-        'nicos_ess.devices.sample.EssSample',
+        'nicos.devices.sample.Sample',
         description='The currently used sample',
     ),
-    Exp=device('nicos_ess.devices.experiment.EssExperiment',
-               description='experiment object',
-               dataroot='/opt/nicos-data',
-               filewriter_root='/opt/nicos-data/dream',
-               sample='Sample',
-               cache_filepath='/opt/nicos-data/dream/cached_proposals.json'),
-    conssink=device(
-        'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
-    daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
+
+    Exp=device(
+        'nicos_ess.devices.experiment.EssExperiment',
+        description='experiment object',
+        dataroot='/opt/nicos-data/dream',
+        sendmail=False,
+        serviceexp='p0',
+        sample='Sample',
+        server_url='https://useroffice-test.esss.lu.se/graphql',
+        instrument='DREAM',
+        cache_filepath='/opt/nicos-data/dream/cached_proposals.json'
+    ),
+
+    filesink=device('nicos.devices.datasinks.AsciiScanfileSink',),
+
+    conssink=device('nicos.devices.datasinks.ConsoleScanSink',),
+
+    daemonsink=device('nicos.devices.datasinks.DaemonSink',),
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
+
+    Space=device(
+        'nicos.devices.generic.FreeSpace',
+        description='The amount of free space for storing data',
+        path=None,
+        minfree=5,
+    ),
+
     KafkaForwarderStatus=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description='Monitors the status of the Forwarder',
         statustopic="status_topic",
+        forwarder_control="KafkaForwarderControl",
         brokers=["localhost"],
     ),
-    NexusStructure=device(
-        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
-        description='Provides the NeXus structure',
-        nexus_config_path="nicos_ess/dream/nexus/nexus_config.json",
-        visibility=(),
+
+    KafkaForwarderControl=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarderControl',
+        description='Controls the Forwarder',
+        cmdtopic="TEST_forwarderConfig",
+        instpvtopic="pv_topic",
+        brokers=["localhost"],
     ),
-    FileWriterStatus=device(
-        'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',
-        description='Status of the file-writer',
+
+    NexusDataSink=device(
+        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
+        description='Sink for NeXus file writer (kafka-to-nexus)',
         brokers=['localhost:9092'],
-        statustopic='DREAM_controlTopic',
-        unit='',
+        cmdtopic='FileWriter_writerCommand',
+        status_provider='NexusFileWriter',
+        templatesmodule='nicos_ess.dream.nexus.nexus_templates',
+        templatename='dream_default',
     ),
-    FileWriterControl=device(
-        'nicos_ess.devices.datasinks.file_writer.FileWriterControlSink',
-        description='Control for the file-writer',
+
+    NexusFileWriter=device(
+        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
+        description='Status for nexus file writing',
         brokers=['localhost:9092'],
-        pool_topic='DREAM_jobPool',
-        status='FileWriterStatus',
-        nexus='NexusStructure',
+        statustopic='FileWriter_writerStatus',
     ),
 )
 
