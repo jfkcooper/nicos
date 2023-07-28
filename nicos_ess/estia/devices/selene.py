@@ -242,6 +242,9 @@ class SeleneRobot(Moveable):
     def doWriteRotation(self, value):
         self.adjust(value)
 
+    def doPoll(self, n, maxage=0):
+        self._pollParam('rotation')
+
     def doStatus(self, maxage=0):
         sout = status.OK
         motor_messages = []
