@@ -231,7 +231,10 @@ class SeleneRobot(Moveable):
             self._attached_adjust1.move(rot)
 
     def doReadRotation(self):
-        return self._adjust()
+        try:
+            return self._adjust()
+        except AttributeError:
+            return 0.
 
     def doWriteRotation(self, value):
         self.adjust(value)
@@ -246,7 +249,7 @@ class SeleneRobot(Moveable):
             if motor.status()[0] not in [status.OK, status.BUSY] and motor.status()[1].strip()!='':
                 motor_messages.append(motor.status()[1])
 
-        if self._adjust==self._attached_adjust2:
+        if self._adjust._name==self._attached_adjust2._name:
             driver = 2
         else:
             driver = 1

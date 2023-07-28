@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -26,7 +25,7 @@ from collections import namedtuple
 import numpy as np
 
 from nicos.core import Attach, CommunicationError, Override, Param, Readable, \
-    limits, pvname, status
+    limits, pvname, status, Waitable
 
 from nicos_ess.devices.epics.base import EpicsReadableEss
 from nicos_ess.devices.epics.extensions import HasDisablePv
@@ -113,8 +112,7 @@ class MultilineChannel(EpicsReadableEss):
         'gain':
             Param('Gain for the channel.',
                   type=float,
-                  settable=False,
-                  internal=True),
+                  settable=False),
         'gain_pv':
             Param('PV for the gain.',
                   type=pvname,
@@ -124,8 +122,7 @@ class MultilineChannel(EpicsReadableEss):
         'latest_valid':
             Param('Latest data of a valid measurement.',
                   type=float,
-                  settable=False,
-                  internal=True),
+                  settable=False),
         'latest_valid_pv':
             Param('PV of latest data of a valid measurement.',
                   type=pvname,
@@ -198,7 +195,7 @@ EnvironmentalParameters = namedtuple('EnvironmentalParameters',
                                      ['temperature', 'pressure', 'humidity'])
 
 
-class MultilineController(EpicsReadableEss):
+class MultilineController(EpicsReadableEss, Waitable):
 
     parameters = {
         'pvprefix':
@@ -265,31 +262,40 @@ class MultilineController(EpicsReadableEss):
     def doStatus(self, maxage=0):
         if self._get_pv('server_error'):
             return status.ERROR, 'Server error'
+        mess_status = self.doReadSingle_Measurement()
+        if mess_status in ['START', 'RUNNING']:
+            return status.BUSY, 'Measuring'
         return status.OK, ''
+
+    def doRead(self, maxage=0):
+        return self.single_measurement
+
+    def measure(self):
+        self.doWriteSingle_Measurement(1)
 
     def doReadFront_End_Splitter(self):
         return self._get_pv('front_end_splitter', as_string=True)
 
     def doWriteFront_End_Splitter(self, value):
-        self._put_pv('front_end_splitter', value)
+        self._put_pv('front_end_splitter', value, wait=True)
 
     def doReadFes_Option(self):
         return self._get_pv('fes_option', as_string=True)
 
     def doWriteFes_Option(self, value):
-        self._put_pv('fes_option', value)
+        self._put_pv('fes_option', value, wait=True)
 
     def doReadSingle_Measurement(self):
         return self._get_pv('single_measurement', as_string=True)
 
     def doWriteSingle_Measurement(self, value):
-        self._put_pv('single_measurement', value)
+        self._put_pv('single_measurement', value, wait=True)
 
     def doReadAlignment_Process(self):
         return self._get_pv('alignment_process', as_string=True)
 
     def doWriteAlignment_Process(self, value):
-        self._put_pv('alignment_process', value)
+        self._put_pv('alignment_process', value, wait=True)
 
     def doReadIs_Grouped(self):
         return self._get_pv('is_grouped', as_string=True)
