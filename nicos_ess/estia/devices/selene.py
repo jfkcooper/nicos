@@ -260,8 +260,10 @@ class SeleneRobot(Moveable):
                 return (status.ERROR, "screw missed")
             elif self._hex_state()=="HexScrewCollided":
                 return (status.WARN, "driver collided")
-        else:
+        elif sout==status.BUSY:
             smessage += "driving "
+        else:
+            smessage += "        "
         smessage += "D%i: %.1f°"%(driver, self._adjust())
         if len(motor_messages)>0:
             smessage += ' - '+";".join(motor_messages)
