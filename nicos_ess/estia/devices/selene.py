@@ -103,6 +103,7 @@ class SeleneRobot(Moveable):
         self._approach = self._attached_approach1
         self._hex_state = self._attached_hex_state1
         self._current_position = (-1, -1)
+        self._driver = 1
 
     def _get_driver(self, xpos):
         # Return which driver is best suited for a certain x-position of the cart
@@ -120,11 +121,13 @@ class SeleneRobot(Moveable):
 
         if driver!=2:
             self.log.debug("Configuring driver 1")
+            self._driver = 1
             self._adjust = self._attached_adjust1
             self._approach = self._attached_approach1
             self._hex_state = self._attached_hex_state1
         else:
             self.log.debug("Configuring driver 2")
+            self._driver = 2
             self._adjust = self._attached_adjust2
             self._approach = self._attached_approach2
             self._hex_state = self._attached_hex_state2
@@ -249,10 +252,8 @@ class SeleneRobot(Moveable):
             if motor.status()[0] not in [status.OK, status.BUSY] and motor.status()[1].strip()!='':
                 motor_messages.append(motor.status()[1])
 
-        if self._adjust._name==self._attached_adjust2._name:
-            driver = 2
-        else:
-            driver = 1
+        driver = self._driver
+
         smessage = ""
         if sout==status.OK:
             if self._hex_state()=="HexScrewInserted":
@@ -267,7 +268,10 @@ class SeleneRobot(Moveable):
             smessage += "driving "
         else:
             smessage += "        "
-        smessage += "D%i: %.1f°"%(driver, self._adjust())
+        if driver==2:
+            smessage += "D2: %.1f°"%(self._attached_adjust2())
+        else:
+            smessage += "D1: %.1f°"%(self._attached_adjust1())
         if len(motor_messages)>0:
             smessage += ' - '+";".join(motor_messages)
         return (sout, smessage)
