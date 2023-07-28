@@ -34,7 +34,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-from nicos.core import Attach, Param, status
+from nicos.core import Attach, Param, status, Value
 from nicos.core.device import Override, Moveable
 from nicos_ess.devices.epics.pva.motor import EpicsMotor
 from nicos.devices.epics.pva.epics_devices import EpicsMappedReadable
@@ -197,6 +197,10 @@ class SeleneRobot(Moveable):
                     return (item, group)
         self._current_position = (-1, -1)
         return (-1, -1)
+
+    def valueInfo(self):
+        return (Value('Item', unit=''),
+                Value('Group', unit=''))
 
     def doStart(self, position):
         if len(position)==2:
