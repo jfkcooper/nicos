@@ -518,8 +518,8 @@ class SeleneRobot(Moveable):
                 self.doStart((item, group))
                 self._attached_move_x.wait()
                 self._attached_move_z.wait()
-                self._attached_adjust1.wati()
-                self._attached_adjust2.wati()
+                self._attached_adjust1.wait()
+                self._attached_adjust2.wait()
                 self._engage()
                 if self._hex_state()=="HexScrewInserted":
                     self.log.info("        confirmed")
