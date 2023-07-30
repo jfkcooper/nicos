@@ -317,7 +317,7 @@ class SeleneRobot(Moveable):
             smessage += "        "
 
         if self.driver in [1,2]:
-            smessage += "D2: %.1f°"%(self.driver, self._adjust())
+            smessage += "D%i: %.1f°"%(self.driver, self._adjust())
         if len(motor_messages)>0:
             smessage += ' - '+";".join(motor_messages)
         return (sout, smessage)
