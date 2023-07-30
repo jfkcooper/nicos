@@ -34,7 +34,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-from nicos.core import Attach, Param, status, Value
+from nicos.core import Attach, Param, status, Value, oneof
 from nicos.core.device import Override, Moveable
 from nicos_ess.devices.epics.pva.motor import EpicsMotor
 from nicos.devices.epics.pva.epics_devices import EpicsMappedReadable
@@ -59,6 +59,8 @@ class SeleneRobot(Moveable):
                                     mandatory=True, userparam=False, unit='mm', ),
         'rotation':      Param('Rotation angle of selected driver0', type=float,
                                     mandatory=False, userparam=True, unit='deg', ),
+        'driver':      Param('Internal screw position tracking', type=oneof(0, 1, 2), default=1,
+                                    settable=False, internal=True, userparam=True, unit=''),
         }
 
     attached_devices = {
@@ -72,8 +74,6 @@ class SeleneRobot(Moveable):
         'hex_state2': Attach('Device reporting the hex status', EpicsMappedReadable),
         }
 
-    _positions = None
-    _rotations = None
 
     def doInit(self, mode):
         self.load_data(self.position_data)
@@ -103,7 +103,7 @@ class SeleneRobot(Moveable):
         self._approach = self._attached_approach1
         self._hex_state = self._attached_hex_state1
         self._current_position = (-1, -1)
-        self._driver = 1
+        self._driver = 0
 
     def _get_driver(self, xpos):
         # Return which driver is best suited for a certain x-position of the cart
@@ -119,18 +119,39 @@ class SeleneRobot(Moveable):
         if driver is None:
             driver = self._get_driver(xpos)
 
-        if driver!=2:
-            self.log.debug("Configuring driver 1")
-            self._driver = 1
-            self._adjust = self._attached_adjust1
-            self._approach = self._attached_approach1
-            self._hex_state = self._attached_hex_state1
+        if driver in [1,2]:
+            self.log.debug("Configuring driver %i"%driver)
+            self._driver = driver
         else:
-            self.log.debug("Configuring driver 2")
-            self._driver = 2
-            self._adjust = self._attached_adjust2
-            self._approach = self._attached_approach2
-            self._hex_state = self._attached_hex_state2
+            self.log.warning("Not valid for choose of driver %s"%driver)
+            self._driver = 0
+
+    @property
+    def _adjust(self):
+        if self.driver==1:
+            return self._attached_adjust1
+        elif self.driver==2:
+            return self._attached_adjust2
+        else:
+            raise ValueError('No valid screw driver selected')
+
+    @property
+    def _approach(self):
+        if self.driver==1:
+            return self._attached_approach1
+        elif self.driver==2:
+            return self._attached_approach2
+        else:
+            raise ValueError('No valid screw driver selected')
+
+    @property
+    def _hex_state(self):
+        if self.driver==1:
+            return self._attached_hex_state1
+        elif self.driver==2:
+            return self._attached_hex_state2
+        else:
+            raise ValueError('No valid screw driver selected')
 
     def _engage(self):
         self.log.debug("Engaing driver")
@@ -223,6 +244,7 @@ class SeleneRobot(Moveable):
                     x -= self.delta12
         else:
             driver = nominal_driver
+        self._driver=driver
         self.log.debug("Selected driver = %s, moving to (%i,%i) at location (%.2f, %.2f)"%(
             driver, position[0], position[1], x, z))
 
@@ -268,8 +290,6 @@ class SeleneRobot(Moveable):
             if motor.status()[0] not in [status.OK, status.BUSY] and motor.status()[1].strip()!='':
                 motor_messages.append(motor.status()[1])
 
-        driver = self._driver
-
         smessage = ""
         if sout==status.OK:
             if self._hex_state()=="HexScrewInserted":
@@ -284,10 +304,9 @@ class SeleneRobot(Moveable):
             smessage += "driving "
         else:
             smessage += "        "
-        if driver==2:
-            smessage += "D2: %.1f°"%(self._attached_adjust2())
-        else:
-            smessage += "D1: %.1f°"%(self._attached_adjust1())
+
+        if self.driver in [1,2]:
+            smessage += "D2: %.1f°"%(self.driver, self._adjust())
         if len(motor_messages)>0:
             smessage += ' - '+";".join(motor_messages)
         return (sout, smessage)
