@@ -494,7 +494,7 @@ class SeleneRobot(Moveable):
         self.doRead()
         if self.current_position!=(-1, -1):
             # dict parameter is immutable, create a copy and modify that
-            pos = dict(self.positions)
+            pos = dict([(k, dict(v)) for k,v in self.positions.items()])
             pos[self.current_position[0]][self.current_position[1]] = (
                 self._attached_move_x(),
                 self._attached_move_z(),
@@ -534,7 +534,7 @@ class SeleneRobot(Moveable):
 
     def save_data(self, fname):
         data = {
-            'positions': dict(self.positions),
+            'positions': dict([(k, dict(v)) for k,v in self.positions.items()]),
             'rotations': dict(self.rotations),
             }
         yaml.dump(data, open(fname, 'w'), indent=2, sort_keys=True)
