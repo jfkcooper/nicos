@@ -528,14 +528,15 @@ class SeleneRobot(Moveable):
         self._move_angle(angle)
         self.log.debug('Storing rotation for position (%i, %02i)'%self.current_position)
 
-        rotations = dict(self.rotations)
+        rotations = dict([(k, dict(v)) for k,v in self.rotations.items()])
+
         rotations[self.current_position[0]][self.current_position[1]] = angle
         self.rotations = rotations
 
     def save_data(self, fname):
         data = {
             'positions': dict([(k, dict(v)) for k,v in self.positions.items()]),
-            'rotations': dict(self.rotations),
+            'rotations': dict([(k, dict(v)) for k,v in self.rotations.items()]),
             }
         yaml.dump(data, open(fname, 'w'), indent=2, sort_keys=True)
 
