@@ -34,7 +34,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-from nicos.core import Attach, Param, status, Value, oneof
+from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof
 from nicos.core.device import Override, Moveable
 from nicos_ess.devices.epics.pva.motor import EpicsMotor
 from nicos.devices.epics.pva.epics_devices import EpicsMappedReadable
@@ -59,8 +59,17 @@ class SeleneRobot(Moveable):
                                     mandatory=True, userparam=False, unit='mm', ),
         'rotation':      Param('Rotation angle of selected driver0', type=float,
                                     mandatory=False, userparam=True, unit='deg', ),
-        'driver':      Param('Internal screw position tracking', type=oneof(0, 1, 2), default=1,
+        'driver':      Param('Selected screw driver (1/2)', type=oneof(0, 1, 2), default=1,
                                     settable=False, internal=True, userparam=True, unit=''),
+        'positions':      Param('Internal screw position tracking',
+                                    type=dictof(int, dictof(int, tupleof(float, float))),
+                                    settable=True, internal=True, unit=''),
+        'rotations':      Param('Internal screw position tracking',
+                                    type=dictof(int, dictof(int, float)),
+                                    settable=True, internal=True, unit=''),
+        'current_position':      Param('Internal screw position tracking',
+                                    type=tupleof(int, int),
+                                    settable=True, internal=True, unit=''),
         }
 
     attached_devices = {
@@ -83,7 +92,7 @@ class SeleneRobot(Moveable):
         self._confirmed = {}
         items1 = 0
         items2 = 0
-        for item, ditem in self._positions.items():
+        for item, ditem in self.positions.items():
             data = np.array(list(ditem.values()), dtype=float)
             if item<4:
                 items2 += 1
@@ -102,7 +111,7 @@ class SeleneRobot(Moveable):
         self._adjust = self._attached_adjust1
         self._approach = self._attached_approach1
         self._hex_state = self._attached_hex_state1
-        self._current_position = (-1, -1)
+        self.current_position = (-1, -1)
         self._driver = 0
 
     def _get_driver(self, xpos):
@@ -156,10 +165,12 @@ class SeleneRobot(Moveable):
     def _engage(self):
         self.log.debug("Engaing driver")
         self._select_driver()
+        self._adjust.wait() # make sure the driver is not rotating while moving stage
         self._approach.maw(self.engaged)
 
     def _disengage(self):
         self.log.debug("Retracting driver")
+        self._adjust.wait() # make sure the driver is not rotating while moving stage
         self._attached_approach1.move(self.retracted)
         self._attached_approach2.maw(self.retracted)
         self._attached_approach1.wait()
@@ -170,12 +181,12 @@ class SeleneRobot(Moveable):
         Has some additional checkes and usability improvements.
         """
         self.doRead()
-        if self._current_position==(-1, -1):
+        if self.current_position==(-1, -1):
             self.log.error('Robot position does not fit any configuration, aborting')
             return
         xpos = self._attached_move_x.read()
         zpos = self._attached_move_z.read()
-        xref, zref = self._positions[self._current_position[0]][self._current_position[1]]
+        xref, zref = self.positions[self.current_position[0]][self.current_position[1]]
         if abs(xpos-xref)>0.5 or abs(zpos-zref)>0.5:
             self.log.error('Robot position too far from configuration value, aborting')
             return
@@ -184,7 +195,7 @@ class SeleneRobot(Moveable):
         if self._hex_state()!="HexScrewInserted":
             # issue with insertion
             self.log.warning("Screw driver not inserted correctly, trying to rotate")
-            angle = self._rotations[self._current_position[0]][self._current_position[1]]
+            angle = self.rotations[self.current_position[0]][self.current_position[1]]
             self._adjust.maw(angle-60)
             self._adjust.maw(angle+self.adjuster_play/2.)
             self._adjust.maw(angle)
@@ -202,7 +213,7 @@ class SeleneRobot(Moveable):
         if self._hex_state()!="HexScrewInserted":
             self.log.info('Not engaged')
             return
-        if abs(self._rotations[self._current_position[0]][self._current_position[1]]-self._adjust())>(self.adjuster_play/2.):
+        if abs(self.rotations[self.current_position[0]][self.current_position[1]]-self._adjust())>(self.adjuster_play/2.):
             self.log.error('Rotation position does not fit the stored value, did you use adjust for last movement?')
             return
         self._disengage()
@@ -211,12 +222,12 @@ class SeleneRobot(Moveable):
     def doRead(self, maxage=0):
         xpos = self._attached_move_x.read()
         zpos = self._attached_move_z.read()
-        for item, ditem in self._positions.items():
+        for item, ditem in self.positions.items():
             for group, dgroup in ditem.items():
                 if abs(dgroup[0]-xpos)<5.0 and abs(dgroup[1]-zpos)<5.0:
-                    self._current_position = (item, group)
+                    self.current_position = (item, group)
                     return (item, group)
-        self._current_position = (-1, -1)
+        self.current_position = (-1, -1)
         return (-1, -1)
 
     def valueInfo(self):
@@ -232,7 +243,7 @@ class SeleneRobot(Moveable):
         else:
             raise ValueError("Position should be tuple (item, group) or (item, group, driver)")
 
-        x, z = self._positions[position[0]][position[1]]
+        x, z = self.positions[position[0]][position[1]]
         nominal_driver = self._get_driver(x)
         if driver:
             if nominal_driver!=driver:
@@ -251,7 +262,7 @@ class SeleneRobot(Moveable):
         self._disengage()
         self._attached_move_x.move(x)
         self._attached_move_z.move(z)
-        rot = self._rotations[position[0]].get(position[1], 0.)
+        rot = self.rotations[position[0]].get(position[1], 0.)
         if driver==2:
             # move driver to last rotation
             self._attached_adjust2.move(rot)
@@ -381,8 +392,8 @@ class SeleneRobot(Moveable):
         """
         self._select_driver()
 
-        if self._current_position!=(-1, -1):
-            angle = self._rotations[self._current_position[0]][self._current_position[1]]
+        if self.current_position!=(-1, -1):
+            angle = self.rotations[self.current_position[0]][self.current_position[1]]
         else:
             angle = 0.
 
@@ -481,21 +492,24 @@ class SeleneRobot(Moveable):
     def update_position(self):
         # Change the stored location for the current screw
         self.doRead()
-        if self._current_position!=(-1, -1):
-            self._positions[self._current_position[0]][self._current_position[1]] = (
+        if self.current_position!=(-1, -1):
+            # dict parameter is immutable, create a copy and modify that
+            pos = dict(self.positions)
+            pos[self.current_position[0]][self.current_position[1]] = (
                 self._attached_move_x(),
                 self._attached_move_z(),
                 )
+            self.positions = pos
             self.log.info("Updated stored position for screw (%i, %02i) to (%.2f, %.2f)"%(
-                self._current_position[0],
-                self._current_position[1],
-                self._positions[self._current_position[0]][self._current_position[1]][0],
-                self._positions[self._current_position[0]][self._current_position[1]][1],
+                self.current_position[0],
+                self.current_position[1],
+                self.positions[self.current_position[0]][self.current_position[1]][0],
+                self.positions[self.current_position[0]][self.current_position[1]][1],
                 ))
 
     def adjust(self, angle):
         self.doRead()
-        if self._current_position==(-1, -1):
+        if self.current_position==(-1, -1):
             return
         if self._hex_state() in ["HexScrewInTransition", "HexScrewFullyOut"]:
             self._engage()
@@ -512,25 +526,28 @@ class SeleneRobot(Moveable):
         # move back to desired angle for extractoin
         self.log.debug('Releasing screw, %.2f'%(angle))
         self._move_angle(angle)
-        self.log.debug('Storing rotation for position (%i, %02i)'%self._current_position)
-        self._rotations[self._current_position[0]][self._current_position[1]] = angle
+        self.log.debug('Storing rotation for position (%i, %02i)'%self.current_position)
+
+        rotations = dict(self.rotations)
+        rotations[self.current_position[0]][self.current_position[1]] = angle
+        self.rotations = rotations
 
     def save_data(self, fname):
         data = {
-            'positions': self._positions,
-            'rotations': self._rotations,
+            'positions': dict(self.positions),
+            'rotations': dict(self.rotations),
             }
         yaml.dump(data, open(fname, 'w'), indent=2, sort_keys=True)
 
     def load_data(self, fname):
         data = yaml.load(open(fname, 'r'), yaml.FullLoader)
-        self._positions = data['positions']
-        self._rotations = data['rotations']
+        self.positions = data['positions']
+        self.rotations = data['rotations']
 
     def confirm_all(self):
         self.log.info("Confirming screws...")
         for group in range(1, 16):
-            for item in self._positions.keys():
+            for item in self.positions.keys():
                 if self._confirmed[item][group]:
                     continue
                 self.log.info("  position (%i, %02i)"%(item, group))
@@ -554,7 +571,7 @@ class SeleneRobot(Moveable):
         then it moves nrot0 rotations forward and defines this as new zero.
         """
         self.doRead()
-        if self._current_position==(-1, -1):
+        if self.current_position==(-1, -1):
             return
         if self._hex_state() in ["HexScrewInTransition", "HexScrewFullyOut"]:
             self._engage()
@@ -570,7 +587,7 @@ class SeleneRobot(Moveable):
         lpos = self._adjust()
         self.log.info('   screw stopped moving at %.1f°'%lpos)
         lpos_partial = (lpos+180)%360-180 # partial rotation of this position
-        dest = self._rotations[self._current_position[0]][self._current_position[1]]
+        dest = self._rotations[self.current_position[0]][self.current_position[1]]
         temp_dest = lpos-lpos_partial+nrot0*360+dest
         self.log.debug('    moving to calculated position %.1f'%temp_dest)
         for i in range(5):
