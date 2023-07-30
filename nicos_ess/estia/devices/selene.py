@@ -36,9 +36,12 @@ import numpy as np
 
 from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof
 from nicos.core.device import Override, Moveable
+from nicos.devices.generic import LockedDevice
 from nicos_ess.devices.epics.pva.motor import EpicsMotor
 from nicos.devices.epics.pva.epics_devices import EpicsMappedReadable
 import yaml
+
+from nicos_ess.estia.devices.multiline import MultilineController, MultilineChannel
 
 
 class SeleneRobot(Moveable):
@@ -108,9 +111,6 @@ class SeleneRobot(Moveable):
                 self._confirmed[item][group] = False
         self._xpos_zero1 /= items1
         self._xpos_zero2 /= items2
-        self._adjust = self._attached_adjust1
-        self._approach = self._attached_approach1
-        self._hex_state = self._attached_hex_state1
         self.current_position = (-1, -1)
         self._driver = 0
 
@@ -606,77 +606,31 @@ class SeleneRobot(Moveable):
         return True
 
 
-# class SeleneMeasurementHandler(BaseSequencer):
-#     parameters = {
-#         'major_axis': Param('Major semi-axis of the ellipse', type=float,
-#                             unit='mm',
-#                             settable=False, mandatory=True,
-#                             userparam=False,
-#                             category='general'),
-#         'minor_axis': Param('Minor semi-axis of the ellipse', type=float,
-#                             unit='mm',
-#                             settable=False, mandatory=True,
-#                             userparam=False,
-#                             category='general'),
-#         'two_eta': Param('Angle between interferometer collimator and '
-#                          'retroreflector at x_m = 0', mandatory=True,
-#                          userparam=False),
-#         'y_r': Param('Distance of the reference plane to Selene c-axis',
-#                      mandatory=True, userparam=False),
-#         'h_r': Param(
-#             'Distance between reference plane and measurement heads',
-#             mandatory=True, userparam=False),
-#         'x_pad_tl': Param(
-#             'Distance between top left pad of metrology cart '
-#             'and center line'),
-#         'x_pad_tr': Param(
-#             'Distance between top right pad of metrology cart '
-#             'and center line'),
-#         'x_pad_b': Param('Distance between bottom pad of metrology cart '
-#                          'and center line'),
-#         'z_pad_t': Param(
-#             'Distance between top pads of metrology cart and vertical center '
-#             'position'),
-#         'z_pad_b': Param(
-#             'Distance between bottom pads of metrology cart and '
-#             'vertical center position'),
-#         'z_if': Param('Vertical positions of the interferrometer sensor',
-#                       type=list),
-#         'temp_ref': Param('Reference temperature'),
-#         'alpha_al': Param('Aluminium thermal expansion coefficient'),
-#     }
-#     attached_devices = {
-#         # 'm_cart': Attach('Metrology cart', LockedDevice),
-#         'interferometer': Attach('Attached interferometer', IFHandler),
-#     }
-#
-#     _delta_y = []
-#     _delta_z = []
-#     _mif = []
-#     _w_m = None
-#     _h_m = None
-#     _mpos = 0
-#
-#     def doInit(self, dummy=None):
-#         self._h_m = self.y_r + self.h_r
-#         self._w_m = 2 * (self.minor_axis + self._h_m) * np.tan(
-#             self.two_eta)
-#
-#     def doRead(self, maxage=0):
-#         return [self._delta_y, self._delta_z]
-#
-#     def doStart(self, x_m):
-#         # self._y_m = np.sqrt(1 - (x_m / self.major_axis) ** 2
-#         #                     ) * self.minor_axis
-#         BaseSequencer.doStart(self, x_m)
-#
-#     def top_ref(self, value):
-#         # TODO: needs array of reference values
-#         return value
-#
-#     def bottom_ref(self, value):
-#         # TODO: needs array of reference values
-#         return value
+class SeleneMetrology(Moveable):
+    parameters = {
+    }
+
+    attached_devices = {
+        'm_cart': Attach('Metrology cart', LockedDevice),
+        'interferometer': Attach('Attached interferometer', MultilineController),
+        'ch_u_h1': Attach('Interferometer channel for horizontal mirror up-stream', MultilineChannel),
+        'ch_u_h2': Attach('Interferometer channel for horizontal mirror up-stream', MultilineChannel),
+        'ch_u_v1': Attach('Interferometer channel for vertical mirror up-stream', MultilineChannel),
+        'ch_u_v2': Attach('Interferometer channel for vertical mirror up-stream', MultilineChannel),
+        'ch_d_h1': Attach('Interferometer channel for horizontal mirror down-stream', MultilineChannel),
+        'ch_d_h2': Attach('Interferometer channel for horizontal mirror down-stream', MultilineChannel),
+        'ch_d_v1': Attach('Interferometer channel for vertical mirror down-stream', MultilineChannel),
+        'ch_d_v2': Attach('Interferometer channel for vertical mirror down-stream', MultilineChannel),
+    }
+
+    def doInit(self, dummy=None):
+        pass
+
+    def doRead(self, maxage=0):
+        pass
+
+    def doStart(self, pos):
+        pass
 #
 #     def _correct_y(self, interferometer_id):
 #         T_cart = 312
@@ -710,11 +664,6 @@ class SeleneRobot(Moveable):
 #             delta_d_top, delta_d_bottom))
 #         return delta_y_top, delta_y_bottom
 #
-#     @staticmethod
-#     def _measure_vertical(x_m, y_m):
-#         # TODO
-#         return 0, 0
-#
 #     def measure(self, x_m):
 #         y_m = np.sqrt(1 - (x_m / self.major_axis) ** 2
 #                       ) * self.minor_axis
@@ -723,33 +672,9 @@ class SeleneRobot(Moveable):
 #         self.log.warning(self._delta_y)
 #         self._delta_z = self._measure_vertical(x_m, y_m)
 #
-#     def _position_to_measure(self, x_m, y_m=None):
-#         # TESTING
-#         if not y_m:
-#             y_m = np.sqrt(1 - (x_m / self.major_axis) ** 2
-#                           ) * self.minor_axis
-#
-#         delta_x = (self.minor_axis - y_m) * np.tan(
-#             .5 * self.two_eta)
-#         x_correction = delta_x + .5 * self._w_m
-#         x_cart = x_m
-#         if x_m > 0:
-#             x_cart -= x_correction
-#             self._mif = [0, 2, 4, 6]
-#         else:
-#             x_cart += x_correction
-#             self._mif = [1, 3, 5, 7]
-#         ## self._attached_interferometer.start(x_cart)
-#         # self._attached_m_cart.start(x_cart)
-#         # self._attached_m_cart.wait()
-#         self._mpos = x_m
-#
-#     def _generateSequence(self, target):
-#         return [SeqMethod(self, '_position_to_measure', target),
-#                 # SeqCall(self._attached_m_cart.wait),
-#                 SeqMethod(self, 'measure', target)
-#                 ]
-#
+
+
+
 #
 # class SeleneGuide(BaseSequencer):
 #     parameters = {
