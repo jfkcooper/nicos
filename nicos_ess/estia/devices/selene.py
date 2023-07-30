@@ -63,7 +63,7 @@ class SeleneRobot(Moveable):
         'rotation':      Param('Rotation angle of selected driver0', type=float,
                                     mandatory=False, userparam=True, unit='deg', ),
         'driver':      Param('Selected screw driver (1/2)', type=oneof(0, 1, 2), default=1,
-                                    settable=False, internal=True, userparam=True, unit=''),
+                                    settable=True, internal=True, unit=''),
         'positions':      Param('Internal screw position tracking',
                                     type=dictof(int, dictof(int, tupleof(float, float))),
                                     settable=True, internal=True, unit=''),
@@ -112,7 +112,7 @@ class SeleneRobot(Moveable):
         self._xpos_zero1 /= items1
         self._xpos_zero2 /= items2
         self.current_position = (-1, -1)
-        self._driver = 0
+        self.driver = 0
 
     def _get_driver(self, xpos):
         # Return which driver is best suited for a certain x-position of the cart
@@ -130,10 +130,10 @@ class SeleneRobot(Moveable):
 
         if driver in [1,2]:
             self.log.debug("Configuring driver %i"%driver)
-            self._driver = driver
+            self.driver = driver
         else:
             self.log.warning("Not valid for choose of driver %s"%driver)
-            self._driver = 0
+            self.driver = 0
 
     @property
     def _adjust(self):
@@ -255,7 +255,7 @@ class SeleneRobot(Moveable):
                     x -= self.delta12
         else:
             driver = nominal_driver
-        self._driver=driver
+        self.driver=driver
         self.log.debug("Selected driver = %s, moving to (%i,%i) at location (%.2f, %.2f)"%(
             driver, position[0], position[1], x, z))
 
