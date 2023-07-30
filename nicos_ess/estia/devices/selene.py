@@ -88,7 +88,6 @@ class SeleneRobot(Moveable):
 
 
     def doInit(self, mode):
-        self.load_data(self.position_data)
         self._xpos_zero1 = 0.
         self._xpos_zero2 = 0.
         self._item_zpos = {}
@@ -111,8 +110,6 @@ class SeleneRobot(Moveable):
                 self._confirmed[item][group] = False
         self._xpos_zero1 /= items1
         self._xpos_zero2 /= items2
-        self.current_position = (-1, -1)
-        self.driver = 0
 
     def _get_driver(self, xpos):
         # Return which driver is best suited for a certain x-position of the cart
@@ -533,14 +530,18 @@ class SeleneRobot(Moveable):
         rotations[self.current_position[0]][self.current_position[1]] = angle
         self.rotations = rotations
 
-    def save_data(self, fname):
+    def save_data(self, fname=None):
+        if fname is None:
+            fname=self.position_data
         data = {
             'positions': dict([(k, dict(v)) for k,v in self.positions.items()]),
             'rotations': dict([(k, dict(v)) for k,v in self.rotations.items()]),
             }
         yaml.dump(data, open(fname, 'w'), indent=2, sort_keys=True)
 
-    def load_data(self, fname):
+    def load_data(self, fname=None):
+        if fname is None:
+            fname = self.position_data
         data = yaml.load(open(fname, 'r'), yaml.FullLoader)
         self.positions = data['positions']
         self.rotations = data['rotations']
