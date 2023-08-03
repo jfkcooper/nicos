@@ -28,7 +28,7 @@ devices = dict(
     sm2=device(
         'nicos_ess.estia.devices.selene.SeleneMetrology',
         description='Selene 2 Metrology',
-        m_cart='m_cart', interferometer='multiline',
+        m_cart='mcart', interferometer='multiline',
         ch_u_h1='ch19', ch_u_h2='ch20', ch_d_h1='ch23', ch_d_h2='ch24',
         ch_u_v1='ch17', ch_u_v2='ch18', ch_d_v1='ch21', ch_d_v2='ch22',
     )

@@ -65,7 +65,7 @@ class SeleneRobot(Moveable):
         'driver':      Param('Selected screw driver (1/2)', type=oneof(0, 1, 2), default=1,
                                     settable=True, internal=True, unit=''),
         'positions':      Param('Internal screw position tracking',
-                                    type=dictof(int, dictof(int, tupleof(float, float))),
+                                    type=dictof(int, dictof(int, tupleof(float, float))), default={},
                                     settable=True, internal=True, unit=''),
         'rotations':      Param('Internal screw position tracking',
                                     type=dictof(int, dictof(int, float)),
@@ -92,6 +92,11 @@ class SeleneRobot(Moveable):
         self._xpos_zero2 = 0.
         self._item_zpos = {}
         self._confirmed = {}
+        self.calculate_zeros()
+
+    def calculate_zeros(self):
+        if self.positions=={}:
+            return
         items1 = 0
         items2 = 0
         for item, ditem in self.positions.items():
@@ -545,6 +550,7 @@ class SeleneRobot(Moveable):
         data = yaml.load(open(fname, 'r'), yaml.FullLoader)
         self.positions = data['positions']
         self.rotations = data['rotations']
+        self.calculate_zeros()
 
     def confirm_all(self):
         self.log.info("Confirming screws...")

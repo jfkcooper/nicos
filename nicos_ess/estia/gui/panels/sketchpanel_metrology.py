@@ -306,9 +306,9 @@ class MetrologySketchPanel(Panel):
                         '%s: %.4f' % (self._currentSelection, value))
         elif ldevname == 'mpos' and subkey == 'value':
             value = cache_load(value) + self.offsetx
-            if self.selene==2:
+            #if self.selene==2:
                 # selene 2 is oriented in opposite direction wrt beam
-                value = 7250-value
+            #    value = 7250-value
             self.cart.setPos(value + 150, 0)
             self.collimator_lines[0].setLine(value+300, -220, 7210, -220)
             self.collimator_lines[1].setLine(value+300, 220, 7210, 220)
