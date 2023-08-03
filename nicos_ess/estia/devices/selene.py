@@ -610,6 +610,46 @@ class SeleneRobot(Moveable):
 
 class SeleneMetrology(Moveable):
     parameters = {
+        'cart_center': Param('Cart position of ellipse center', mandatory=False,
+                                userparam=True, default=3500.0, unit='mm'),
+        'eta_v': Param('Nominal reflection angle from interferometer head to retroreflector', mandatory=False,
+                             userparam=True, default=14.81, unit='deg'),
+        'delta_v': Param('Nominal distance between XZ plane and retroreflector', mandatory=False,
+                     userparam=True, default=120.0, unit='mm'),
+        'eta_h1': Param('Nominal reflection angle from interferometer head to retroreflector', mandatory=False,
+                       userparam=True, default=16.39, unit='deg'),
+        'delta_h1': Param('Nominal distance between XZ plane and retroreflector', mandatory=False,
+                         userparam=True, default=70.0, unit='mm'),
+        'zret_h1': Param('Nominal distance between XY plane and retroreflector', mandatory=False,
+                         userparam=True, default=70.0, unit='mm'),
+        'zcol_h1': Param('Nominal distance between XY plane and collimator', mandatory=False,
+                         userparam=True, default=70.0, unit='mm'),
+        'eta_h2': Param('Nominal reflection angle from interferometer head to retroreflector', mandatory=False,
+                       userparam=True, default=15.47, unit='deg'),
+        'delta_h2': Param('Nominal distance between XZ plane and retroreflector', mandatory=False,
+                         userparam=True, default=80.0, unit='mm'),
+        'zret_h2': Param('Nominal distance between XY plane and retroreflector', mandatory=False,
+                         userparam=True, default=70.0, unit='mm'),
+        'zcol_h2': Param('Nominal distance between XY plane and collimator', mandatory=False,
+                         userparam=True, default=70.0, unit='mm'),
+        'delta_x': Param('Nominal x-distance of retroreflector and cart center', mandatory=False,
+                         userparam=True, default=-15.0, unit='mm'),
+        'if_offset_u_h1': Param('Deviation of laser path length as determined at center',
+                           internal=True, default=0.0, unit='mm'),
+        'if_offset_u_h2': Param('Deviation of laser path length as determined at center',
+                                 internal=True, default=0.0, unit='mm'),
+        'if_offset_u_v1': Param('Deviation of laser path length as determined at center',
+                                 internal=True, default=0.0, unit='mm'),
+        'if_offset_u_v2': Param('Deviation of laser path length as determined at center',
+                                 internal=True, default=0.0, unit='mm'),
+        'if_offset_d_h1': Param('Deviation of laser path length as determined at center',
+                                 internal=True, default=0.0, unit='mm'),
+        'if_offset_d_h2': Param('Deviation of laser path length as determined at center',
+                                 internal=True, default=0.0, unit='mm'),
+        'if_offset_d_v1': Param('Deviation of laser path length as determined at center',
+                                 internal=True, default=0.0, unit='mm'),
+        'if_offset_d_v2': Param('Deviation of laser path length as determined at center',
+                                 internal=True, default=0.0, unit='mm'),
     }
 
     attached_devices = {
@@ -625,57 +665,140 @@ class SeleneMetrology(Moveable):
         'ch_d_v2': Attach('Interferometer channel for vertical mirror down-stream', MultilineChannel),
     }
 
+    _sb = 157. # selene distance center-ellipse
+    _sc = 6000. # selene distance center-focus
+
+    _mw = 480. # mirror width
+    _sx = 42.5 # distance of screw from edge of mirror
+
     def doInit(self, dummy=None):
         pass
 
     def doRead(self, maxage=0):
-        pass
-
-    def doStart(self, pos):
-        pass
-#
-#     def _correct_y(self, interferometer_id):
-#         T_cart = 312
-#         cart_position = 0  # self._attached_m_cart.doRead()
-#         c1 = self.top_ref(cart_position - self.x_pad_tl)
-#         c2 = self.top_ref(cart_position - self.x_pad_tr)
-#         c3 = self.bottom_ref(cart_position - self.x_pad_b)
-#         vert_frac = (self.z_pad_t - self.z_if[
-#             interferometer_id]) / (self.z_pad_t -
-#                                    self.z_pad_b)
-#         delta_y_R = .5 * (c1 + c2) * vert_frac + (1 - vert_frac) * c3
-#         delta_y_T = (T_cart - self.temp_ref) * self.alpha_al * self.h_r
-#         return delta_y_R + delta_y_T
-#
-#     def _measure_horizontal(self, x_m, y_m):
-#         # compute distances collimator-mirror and mirror-reflector
-#         d_i = np.sqrt((y_m + self._h_m) ** 2 + (.5 * self._w_m - x_m) ** 2)
-#         d_f = np.sqrt((y_m + self._h_m) ** 2 + (.5 * self._w_m + x_m) ** 2)
-#         distance = 2 * (d_i + d_f)
-#         self.log.warning('x,y = {}'.format([x_m, y_m]))
-#
-#         delta_d_top = self._attached_interferometer()[self._mif[0]] - distance
-#         delta_d_bottom = self._attached_interferometer()[self._mif[1]] - \
-#                          distance
-#
-#         delta_y_top = y_m * delta_d_top + self._correct_y(
-#             self._mif[0])  # (IF1)
-#         delta_y_bottom = y_m * delta_d_bottom + self._correct_y(self._mif[
-#                                                                     1])  # (IF2)
-#         self.log.warning('delta_d_top, delta_d_bottom = {},{}'.format(
-#             delta_d_top, delta_d_bottom))
-#         return delta_y_top, delta_y_bottom
-#
-#     def measure(self, x_m):
-#         y_m = np.sqrt(1 - (x_m / self.major_axis) ** 2
-#                       ) * self.minor_axis
-#         self._position_to_measure(x_m, y_m)
-#         self._delta_y = self._measure_horizontal(x_m, y_m)
-#         self.log.warning(self._delta_y)
-#         self._delta_z = self._measure_vertical(x_m, y_m)
-#
+        """
+        Position is the location on mirror and mirror number counting from up-stream.
+        Location on mirror is -1: up-stream screw, 0: center, 1: down-stream screw.
+        """
+        pos = self._attached_m_cart()-self.cart_center
+        mirror = (pos+self._mw/2)//self._mw + 8 # mirrors are 480 wide and 8 is the central one
+        rpos = (pos+self._mw/2)%self._mw-self._mw/2 # relative position on mirror
+        if abs(rpos)<30:
+            return (0, mirror)
+        elif abs(rpos-self._sx)<30:
+            if rpos<0:
+                return (-1, mirror)
+            else:
+                return (1, mirror)
+        else:
+            return (rpos, mirror)
 
 
+    def valueInfo(self):
+        return (Value('Relative Position', unit=''),
+                Value('Mirror', unit=''))
+
+    def doStart(self, position):
+        if len(position)==2 and position[0] in [-1, 0, 1] and position[1] in range(1,15):
+            rel_pos, mirror = position
+        else:
+            raise ValueError("Position should be tuple (rel. location, mirror) w/ rel. location in [-1,0,1]")
+        calc_pos = 480*(mirror-8) + rel_pos*(480-self._sx)
+        self._attached_m_cart.move(self.cart_center+self._cart_for_x(calc_pos))
+
+    def _ellipse(self, xpos):
+        # return selene ellipse height at distance from center
+        return self._sb*np.sqrt(self._sc**2-xpos**2)
+
+    def _ellipse_angle(self, xpos):
+        # return the inclanation of the ellipse at defined position
+        raise NotImplementedError("TODO")
+
+    def _cart_for_x(self, xpos):
+        """
+        Calculate the cart position necessary to measure at a certain x-positin on the ellipse.
+        This has to take into account the location of the correct interferometer heads
+        and the change in reflection spot location due to ellipse surface changing distance to cart.
+        """
+        if abs(xpos)<100.:
+            # if around center of guide, don't perform any correction
+            return xpos
+        # In the optimal configuration the retro reflector receives the beam with
+        # half of the nominal angle plus 2x the surface inclination.
+        alpha = self.eta_v*np.pi/180. + self._ellipse_angle(abs(xpos))/2.
+        # distance of that reflection is the nominal distance at center minus ellipse height
+        h = self.delta_v  + self._sb - self._ellipse(xpos)
+        div = self.delta_x + np.tan(alpha)*h
+        direction=np.sign(xpos) # select if up-stream or down-stream collimators are used
+        return xpos+direction*div
+
+    def _x_for_cart(self, xpos):
+        """
+        Calculate the approximate position the laser hits the mirror
+        for a given cart position
+        """
+        delta=100.
+        xout = xpos
+        while delta>1.:
+            dpos = self._cart_for_x(xout)-xpos
+            xout -= dpos
+            delta = abs(dpos)
+        return xout
+
+    def _nominal_path_lengths(self, pos_motor=None):
+        """
+        Calculate the individual laser path lengths that would be excepted
+        if the mirrors are perfectly aligned.
+        """
+        if pos_motor is None:
+            pos_motor = self._attached_m_cart()-self.cart_center
+        xpos = self._x_for_cart(pos_motor)
+        # length of laser is distance reflector-mirror + collimator-mirror
+        # vertical mirrors
+        dalpha = self._ellipse_angle(abs(xpos))/2.
+        h = self.delta_v + self._sb - self._ellipse(xpos)
+        v_l1 = h/np.cos(self.eta_v*np.pi/180.+dalpha) # reflector angle gets larger
+        v_l2 = h/np.cos(self.eta_v*np.pi/180.-dalpha) # collimator angle gets smaller
+
+        # for diagnoal paths, 3d has to be considered and two reflections
+        # horizontal w/ short path
+        h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
+        h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1),
+                           -self.delta_h1, self.zcol_h1])
+        # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
+        h1_p1 = np.array([0., self.zret_h1-h, h])
+        h1_p2 = np.array([0., h, self.zcol_h1-h])
+        h1_l1 = np.sqrt(((h1_col-h1_p1)**2).sum())
+        h1_l2 = np.sqrt(((h1_p1-h1_p2)**2).sum())
+        h1_l3 = np.sqrt(((h1_p2-h1_ret)**2).sum())
+
+        # horizontal w/ long path
+        h2_ret = np.array([self.delta_x, -self.delta_h2, self.zret_h2])
+        h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2),
+                           -self.delta_h2, self.zcol_h2])
+        # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
+        h2_p1 = np.array([0., self.zret_h2-h, h])
+        h2_p2 = np.array([0., h, self.zcol_h2-h])
+        h2_l1 = np.sqrt(((h2_col-h2_p1)**2).sum())
+        h2_l2 = np.sqrt(((h2_p1-h2_p2)**2).sum())
+        h2_l3 = np.sqrt(((h2_p2-h2_ret)**2).sum())
+
+        return (v_l1+v_l2, h1_l1+h1_l2+h1_l3, h2_l1+h2_l2+h2_l3)
+
+    def calibrate(self):
+        """
+        Use measurement at center position to calibrate the
+        interferometer channel lengths measured.
+        """
+        self.log.info("Performing calibration")
+        self._attached_interferometer.measure()
+        self._attached_interferometer.wait()
+        v, h1, h2 = self._nominal_path_lengths(0.)
+        for chv in [self._attached_ch_u_v1, self._attached_ch_u_v2,
+                    self._attached_ch_d_v1, self._attached_ch_d_v2]:
+            if chv.status()[0]==status.OK:
+                vm = chv()
+            else:
+                self.warning("Channel %s not measured correctly" % chv._name)
 
 #
 # class SeleneGuide(BaseSequencer):
