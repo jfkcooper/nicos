@@ -678,7 +678,7 @@ class SeleneMetrology(Moveable):
     _sx = 42.5 # distance of screw from edge of mirror
 
     def doInit(self, dummy=None):
-        pass
+        self._sa=np.sqrt(self._sc**2+self._sb**2)
 
     def doRead(self, maxage=0):
         """
@@ -717,7 +717,7 @@ class SeleneMetrology(Moveable):
 
     def _ellipse_angle(self, xpos):
         # return the inclanation of the ellipse at defined position
-        raise NotImplementedError("TODO")
+        return self._sb*xpos/(self._sa*np.sqrt(self._sa**2-xpos**2))
 
     def _cart_for_x(self, xpos):
         """
