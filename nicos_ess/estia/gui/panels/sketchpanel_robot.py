@@ -189,10 +189,7 @@ class RobotSketchPanel(Panel):
 
         if ldevname == self.posx and subkey == 'value':
             value = cache_load(value)
-            if self.selene==2:
-                value = -value
-            else:
-                value = value-7250
+            value = value-7250
             self.vstage.setPos(value+self.offsetx, 0)
         elif ldevname==self.posz and subkey=='value':
             value=cache_load(value)
