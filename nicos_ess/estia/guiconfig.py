@@ -92,7 +92,7 @@ main_window = docked(
                                              rotation1='driver2_2_adjust',
                                              approach2='driver2_1_approach',
                                              rotation2='driver2_1_adjust',
-                                             robot='sr1',
+                                             robot='sr2',
                                              offsetx=-40.0,
                                              offsetz=65.0,
                                              deckpos='right',
@@ -107,13 +107,13 @@ main_window = docked(
                                                  (445, 64, False, -2),
                                                  (445, 30, False, -2),
                                                  # second guide, active
-                                                 (50, 500-234, True, 0),
-                                                 (50, 500-128, True, 1),
-                                                 (50, 500-64, True, 2),
+                                                 (50, 500-234, True, 5),
+                                                 (50, 500-128, True, 4),
+                                                 (50, 500-64, True, 3),
 
-                                                 (445, 500-128, True, 3),
-                                                 (445, 500-64, True, 4),
-                                                 (445, 500-30, True, 5),
+                                                 (445, 500-128, True, 2),
+                                                 (445, 500-64, True, 1),
+                                                 (445, 500-30, True, 0),
                                                  ],
                                              ),
                                      panel(
