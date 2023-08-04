@@ -1,6 +1,6 @@
 description = 'High-level interface to the Selene Guide components'
 
-includes = ['robot']
+includes = ['selene1']
 
 display_order = 40 # sort before default devices
 

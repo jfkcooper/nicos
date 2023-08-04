@@ -1,6 +1,6 @@
-description = 'Motors for the robot adjuster'
+description = 'Motors for the robot adjuster for Selene 2'
 
-pvprefix = 'ESTIA-Sel1:MC-MCU-01:'
+pvprefix = 'ESTIA-Sel2:MC-MCU-01:'
 
 devices = dict(
     robot_pos=device(
