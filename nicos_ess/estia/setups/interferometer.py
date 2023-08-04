@@ -2,6 +2,8 @@ description = 'Prototype interferometer measurement'
 
 etalon_prefix = 'ESTIA-Sel1:Mech-GU-001'
 
+group = 'lowlevel'
+
 devices = dict(
     pilot_laser=device(
         'nicos_ess.estia.devices.multiline.PilotLaser',

@@ -2,6 +2,8 @@ description = 'Motors for the metrology cart'
 
 pvprefix = 'ESTIA-Sel1:MC-MCU-01:'
 
+group = 'lowlevel'
+
 devices = dict(
     mpos=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
