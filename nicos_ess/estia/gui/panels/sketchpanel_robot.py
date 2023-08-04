@@ -196,10 +196,16 @@ class RobotSketchPanel(Panel):
             self.hstage.setPos(0, 800-value-self.offsetz)
         elif ldevname==self.rotation1 and subkey=='value':
             value=cache_load(value)
-            self.rotind1.setRotation(-value)
+            if self.selene==1:
+                self.rotind1.setRotation(-value)
+            else:
+                self.rotind1.setRotation(value)
         elif ldevname==self.rotation2 and subkey=='value':
             value = cache_load(value)
-            self.rotind2.setRotation(-value)
+            if self.selene==1:
+                self.rotind2.setRotation(-value)
+            else:
+                self.rotind2.setRotation(value)
         elif ldevname == self.approach1 and subkey == 'status':
             status_id, text = cache_load(value)
             if status_id==BUSY:

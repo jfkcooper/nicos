@@ -713,11 +713,11 @@ class SeleneMetrology(Moveable):
 
     def _ellipse(self, xpos):
         # return selene ellipse height at distance from center
-        return self._sb*np.sqrt(self._sc**2-xpos**2)
+        return self._sb/self._sa*np.sqrt(self._sa**2-xpos**2)
 
     def _ellipse_angle(self, xpos):
         # return the inclanation of the ellipse at defined position
-        return self._sb*xpos/(self._sa*np.sqrt(self._sa**2-xpos**2))
+        return -self._sb*xpos/(self._sa*np.sqrt(self._sa**2-xpos**2))
 
     def _cart_for_x(self, xpos):
         """
@@ -730,12 +730,12 @@ class SeleneMetrology(Moveable):
             return xpos
         # In the optimal configuration the retro reflector receives the beam with
         # half of the nominal angle plus 2x the surface inclination.
-        alpha = self.eta_v*np.pi/180. + self._ellipse_angle(abs(xpos))/2.
+        alpha = self.eta_v*np.pi/180. - self._ellipse_angle(abs(xpos))/2.
         # distance of that reflection is the nominal distance at center minus ellipse height
-        h = self.delta_v  + self._sb - self._ellipse(xpos)
+        h = self.delta_v  + self._ellipse(xpos)
         div = self.delta_x + np.tan(alpha)*h
         direction=np.sign(xpos) # select if up-stream or down-stream collimators are used
-        return xpos+direction*div
+        return xpos-direction*div
 
     def _x_for_cart(self, xpos):
         """

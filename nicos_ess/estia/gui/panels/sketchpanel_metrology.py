@@ -62,6 +62,7 @@ class MetrologySketchPanel(Panel):
 
         self.channels = list(options.get('channels'))
         self.positions = list(options.get('positions'))
+        self.cart_position = str(options.get('cart_position', 'mpos'))
         self.offsetx = float(options.get('offsetx', 0))
         self.selene = int(options.get('selene', 1))
 
@@ -304,7 +305,7 @@ class MetrologySketchPanel(Panel):
                 if ldevname == self._currentSelection:
                     self._selectionText.setText(
                         '%s: %.4f' % (self._currentSelection, value))
-        elif ldevname == 'mpos' and subkey == 'value':
+        elif ldevname == self.cart_position and subkey == 'value':
             value = cache_load(value) + self.offsetx
             #if self.selene==2:
                 # selene 2 is oriented in opposite direction wrt beam
