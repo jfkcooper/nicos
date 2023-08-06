@@ -36,7 +36,8 @@ import numpy as np
 
 from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof
 from nicos.core.device import Override, Moveable
-from nicos.devices.generic import LockedDevice
+from nicos.devices.generic import LockedDevice, BaseSequencer
+from nicos.devices.generic.sequence import SeqDev, SeqMethod
 from nicos_ess.devices.epics.pva.motor import EpicsMotor
 from nicos.devices.epics.pva.epics_devices import EpicsMappedReadable
 import yaml
@@ -387,6 +388,20 @@ class SeleneRobot(Moveable):
             else:
                 return
 
+    def _engage_retry(self, retry=2):
+        for i in range(retry+1):
+            try:
+                self._approach.maw(self.engaged)
+            except Exception as e:
+                if i==retry:
+                    self.log.error("Error in approach: %s, giving up"%e)
+                else:
+                    self.log.warning("Error in approach: %s, retry"%e)
+                    self._approach.maw(self.retracted)
+                    self._approach.maw(self.engaged)
+            else:
+                return
+
     def search_screw(self, step_size=0.2, r_max=5, auto_refine=True, auto_update=False):
         """
         Starting at an approximate position, search for a screw in
@@ -422,7 +437,7 @@ class SeleneRobot(Moveable):
                 zpos = r*np.sin(phi)+z_start
                 self._move_xz(xpos, zpos)
 
-                self._approach.maw(self.engaged)
+                self._engage_retry()
 
                 self._move_angle(angle+60)
                 if self._hex_state()=="HexScrewInserted":
@@ -461,7 +476,7 @@ class SeleneRobot(Moveable):
 
         for i in range(sstep):
             self._move_x(x_start+srange*(i-sstep/2)/(sstep-1))
-            self._approach.maw(self.engaged)
+            self._engage_retry()
             pos_out.append([self._attached_move_x(), self._hex_state()=="HexScrewInserted"])
             self._approach.maw(self.retracted)
 
@@ -615,7 +630,7 @@ class SeleneRobot(Moveable):
         return True
 
 
-class SeleneMetrology(Moveable, SeleneCalculator):
+class SeleneMetrology(BaseSequencer, SeleneCalculator):
     parameters = {
         'cart_center': Param('Cart position of ellipse center', mandatory=False,
                                 userparam=True, default=3500.0, unit='mm'),
@@ -657,6 +672,13 @@ class SeleneMetrology(Moveable, SeleneCalculator):
                                  internal=True, default=0.0, unit='mm'),
         'if_offset_d_v2': Param('Deviation of laser path length as determined at center',
                                  internal=True, default=0.0, unit='mm'),
+        'last_raw': Param('Measured raw distances', type=tupleof(float,float,float,float),
+                          default=(np.nan, np.nan, np.nan, np.nan),
+                        settable=True, internal=True, unit='mm'),
+        'last_delta': Param('Calculated deviaition for 4 screws at current location from last measurement',
+                            type=tupleof(float, float, float, float),
+                            default=(np.nan, np.nan, np.nan, np.nan),
+                            settable=True, internal=True, unit='mm'),
     }
 
     attached_devices = {
@@ -698,14 +720,60 @@ class SeleneMetrology(Moveable, SeleneCalculator):
         return (Value('Relative Position', unit=''),
                 Value('Mirror', unit=''))
 
-    def doStart(self, position):
+    def _generateSequence(self, position):
         if len(position)==2 and position[0] in [-1, 0, 1] and position[1] in range(1,15):
             rel_pos, mirror = position
         else:
             raise ValueError("Position should be tuple (rel. location, mirror) w/ rel. location in [-1,0,1]")
         calc_pos = 480*(mirror-8) + rel_pos*(480-self._sx)
-        self._attached_m_cart.move(self.cart_center+self._cart_for_x(calc_pos))
+        dest_pos = self.cart_center + self._cart_for_x(calc_pos)
 
+        # reset last values before starting to move, so any value but nan should be for the current location
+        self.last_raw = (np.nan, np.nan, np.nan, np.nan)
+        self.last_delta = (np.nan, np.nan, np.nan, np.nan)
+        return [
+            SeqDev(self._attached_m_cart, dest_pos), # move to location
+            SeqMethod(self._attached_interferometer, 'measure'), # make a measurement
+            SeqMethod(self, '_calc_current_difference') # analyse and store result
+        ]
+
+    def _calc_current_difference(self):
+        # run after a measurement is complete to get the screw deviations
+        self.log.debug("Measurement done, store raw lengths and deviations")
+        cpos = self._attached_m_cart()
+        xpos = self._x_for_cart(cpos) - self.cart_center
+
+        # nominal lengths at current location
+        nv, nh1, nh2 = self._nominal_path_lengths(xpos)
+
+        if xpos>0:
+            self.log.debug("Using downstream collimators")
+            self.last_raw=(self._attached_ch_d_v1(),
+                           self._attached_ch_d_v2(),
+                           self._attached_ch_d_h1(),
+                           self._attached_ch_d_h2(),
+                           )
+            lv1 = nv - self.if_offset_d_v1
+            lv2 = nv - self.if_offset_d_v2
+            lh1 = nh1 - self.if_offset_d_h1
+            lh2 = nh2 - self.if_offset_d_h2
+        else:
+            self.log.debug("Using upstream collimators")
+            self.last_raw=(self._attached_ch_u_v1(),
+                           self._attached_ch_u_v2(),
+                           self._attached_ch_u_h1(),
+                           self._attached_ch_u_h2(),
+                           )
+            lv1 = nv - self.if_offset_u_v1
+            lv2 = nv - self.if_offset_u_v2
+            lh1 = nh1 - self.if_offset_u_h1
+            lh2 = nh2 - self.if_offset_u_h2
+        dlv1 = self.last_raw[0]-lv1
+        dlv2 = self.last_raw[0]-lv2
+        dlh1 = self.last_raw[0]-lh1
+        dlh2 = self.last_raw[0]-lh2
+        # TODO: actually convert this to distance deviation of mirror
+        self.last_delta = (dlv1, dlv2, dlh1, dlh2)
 
     def calibrate(self):
         """
@@ -713,11 +781,15 @@ class SeleneMetrology(Moveable, SeleneCalculator):
         interferometer channel lengths measured.
         """
         self.log.info("Performing calibration")
+        self._attached_m_cart.maw(self.cart_center)
         self._attached_interferometer.measure()
         self._attached_interferometer.wait()
-        v, h1, h2 = self._nominal_path_lengths(0.)
+        v, h1, h2 = self._nominal_path_lengths(0.0001)
         for chv in [self._attached_ch_u_v1, self._attached_ch_u_v2,
-                    self._attached_ch_d_v1, self._attached_ch_d_v2]:
+                    self._attached_ch_d_v1, self._attached_ch_d_v2,
+                    self._attached_ch_u_h1, self._attached_ch_u_h2,
+                    self._attached_ch_d_h1, self._attached_ch_d_h2,
+                    ]:
             if chv.status()[0]==status.OK:
                 vm = chv()
             else:

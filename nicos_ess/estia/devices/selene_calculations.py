@@ -36,13 +36,13 @@ class SeleneCalculator:
         # return the inclanation of the ellipse at defined position
         return -self._sb*xpos/(self._sa*np.sqrt(self._sa**2-xpos**2))
 
-    def _cart_for_x(self, xpos):
+    def _cart_for_x(self, xpos, zero_range=True):
         """
         Calculate the cart position necessary to measure at a certain x-positin on the ellipse.
         This has to take into account the location of the correct interferometer heads
         and the change in reflection spot location due to ellipse surface changing distance to cart.
         """
-        if abs(xpos)<100.:
+        if zero_range and abs(xpos)<100.:
             # if around center of guide, don't perform any correction
             return xpos
         # In the optimal configuration the retro reflector receives the beam with
@@ -62,7 +62,7 @@ class SeleneCalculator:
         delta=100.
         xout = xpos
         while delta>1.:
-            dpos = self._cart_for_x(xout)-xpos
+            dpos = self._cart_for_x(xout, zero_range=False)-xpos
             xout -= dpos
             delta = abs(dpos)
         return xout
@@ -122,7 +122,7 @@ class CalcTester(TestCase):
         x=np.linspace(-3500, 3500, 25)
         xcart = []
         for xi in x:
-            xcart.append(self.calc._cart_for_x(xi))
+            xcart.append(self.calc._cart_for_x(xi, zero_range=False))
         xr = []
         for xi in xcart:
             xr.append(self.calc._x_for_cart(xi))
