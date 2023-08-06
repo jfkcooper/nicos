@@ -630,7 +630,7 @@ class SeleneRobot(Moveable):
         return True
 
 
-class SeleneMetrology(BaseSequencer, SeleneCalculator):
+class SeleneMetrology(SeleneCalculator, BaseSequencer):
     parameters = {
         'cart_center': Param('Cart position of ellipse center', mandatory=False,
                                 userparam=True, default=3500.0, unit='mm'),
