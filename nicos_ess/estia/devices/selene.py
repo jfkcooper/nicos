@@ -703,7 +703,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         Location on mirror is -1: up-stream screw, 0: center, 1: down-stream screw.
         """
         pos = self._attached_m_cart()-self.cart_center
-        mirror = (pos+self._mw/2)//self._mw + 8 # mirrors are 480 wide and 8 is the central one
+        mirror = int((pos+self._mw/2)//self._mw + 8) # mirrors are 480 wide and 8 is the central one
         rpos = (pos+self._mw/2)%self._mw-self._mw/2 # relative position on mirror
         if abs(rpos)<30:
             return (0, mirror)
@@ -725,7 +725,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
             rel_pos, mirror = position
         else:
             raise ValueError("Position should be tuple (rel. location, mirror) w/ rel. location in [-1,0,1]")
-        calc_pos = 480*(mirror-8) + rel_pos*(480-self._sx)
+        calc_pos = self._mw*(mirror-8) + rel_pos*(self._mw/2-self._sx)
         dest_pos = self.cart_center + self._cart_for_x(calc_pos)
 
         # reset last values before starting to move, so any value but nan should be for the current location
