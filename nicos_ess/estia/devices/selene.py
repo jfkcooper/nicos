@@ -694,6 +694,9 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         'ch_d_v2': Attach('Interferometer channel for vertical mirror down-stream', MultilineChannel),
     }
 
+    def _getWaiters(self):
+        return [self._attached_m_cart, self._attached_interferometer]
+
     def doInit(self, dummy=None):
         self._sa=np.sqrt(self._sc**2+self._sb**2)
 
