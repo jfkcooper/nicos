@@ -702,7 +702,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         Position is the location on mirror and mirror number counting from up-stream.
         Location on mirror is -1: up-stream screw, 0: center, 1: down-stream screw.
         """
-        pos = self._attached_m_cart()-self.cart_center
+        pos = self._x_for_cart(self._attached_m_cart()-self.cart_center)
         mirror = int((pos+self._mw/2)//self._mw + 8) # mirrors are 480 wide and 8 is the central one
         rpos = (pos+self._mw/2)%self._mw-self._mw/2 # relative position on mirror
         if abs(rpos)<30:
