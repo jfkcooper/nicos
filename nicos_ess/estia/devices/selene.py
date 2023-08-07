@@ -707,7 +707,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         rpos = (pos+self._mw/2)%self._mw-self._mw/2 # relative position on mirror
         if abs(rpos)<30:
             return (0, mirror)
-        elif abs(rpos-self._sx)<30:
+        elif (abs(rpos)+self._sx-self._mw/2)<30:
             if rpos<0:
                 return (-1, mirror)
             else:
