@@ -34,7 +34,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof
+from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof, MoveError, SIMULATION
 from nicos.core.device import Override, Moveable
 from nicos.devices.generic import LockedDevice, BaseSequencer
 from nicos.devices.generic.sequence import SeqDev, SeqMethod
@@ -740,6 +740,27 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
             SeqMethod(self, '_calc_current_difference') # analyse and store result
         ]
 
+    def measure(self):
+        """
+        Generate a sequence that is just measuring without moving and run it.
+        """
+        if self._seq_is_running():
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise MoveError(self, 'Cannot start device, sequence is still '
+                                      'running (at %s)!' % self._seq_status[1])
+        # reset last values before starting to move, so any value but nan should be for the current location
+        self.last_raw = (np.nan, np.nan, np.nan, np.nan)
+        self.last_delta = (np.nan, np.nan, np.nan, np.nan)
+        sequence = [
+            SeqMethod(self._attached_interferometer, 'measure'), # make a measurement
+            SeqMethod(self, '_calc_current_difference') # analyse and store result
+        ]
+        self._startSequence(sequence)
+
+
     def _calc_current_difference(self):
         # run after a measurement is complete to get the screw deviations
         self.log.debug("Measurement done, store raw lengths and deviations")
@@ -750,23 +771,23 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         nv, nh1, nh2 = self._nominal_path_lengths(xpos)
 
         if xpos>0:
-            self.log.debug("Using downstream collimators")
             self.last_raw=(self._attached_ch_d_v1(),
                            self._attached_ch_d_v2(),
                            self._attached_ch_d_h1(),
                            self._attached_ch_d_h2(),
                            )
+            self.log.debug("Using downstream collimators; raw lengths: %s"%self.last_raw)
             lv1 = nv - self.if_offset_d_v1
             lv2 = nv - self.if_offset_d_v2
             lh1 = nh1 - self.if_offset_d_h1
             lh2 = nh2 - self.if_offset_d_h2
         else:
-            self.log.debug("Using upstream collimators")
             self.last_raw=(self._attached_ch_u_v1(),
                            self._attached_ch_u_v2(),
                            self._attached_ch_u_h1(),
                            self._attached_ch_u_h2(),
                            )
+            self.log.debug("Using upstream collimators; raw lengths: %s"%self.last_raw)
             lv1 = nv - self.if_offset_u_v1
             lv2 = nv - self.if_offset_u_v2
             lh1 = nh1 - self.if_offset_u_h1
@@ -775,8 +796,11 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         dlv2 = self.last_raw[0]-lv2
         dlh1 = self.last_raw[0]-lh1
         dlh2 = self.last_raw[0]-lh2
-        # TODO: actually convert this to distance deviation of mirror
-        self.last_delta = (dlv1, dlv2, dlh1, dlh2)
+
+        self.last_delta = self._path_delta_to_screw_delta(dlv1, dlv2, dlh1, dlh2)
+        self.log.debug(f'  From length differences %s calculate deviations %s'%(
+            (dlv1, dlv2, dlh1, dlh2), self.last_delta
+        ))
 
     def calibrate(self):
         """

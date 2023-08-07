@@ -79,8 +79,8 @@ class SeleneCalculator:
         # vertical mirrors
         dalpha = self._ellipse_angle(abs(xpos))/2.
         h = self.delta_v + self._ellipse(xpos)
-        v_l1 = h/np.cos(self.eta_v*np.pi/180.+dalpha) # reflector angle gets larger
-        v_l2 = h/np.cos(self.eta_v*np.pi/180.-dalpha) # collimator angle gets smaller
+        v_l1 = h/np.cos(self.eta_v/2*np.pi/180.+dalpha) # reflector angle gets larger
+        v_l2 = h/np.cos(self.eta_v/2*np.pi/180.-dalpha) # collimator angle gets smaller
 
         # for diagnoal paths, 3d has to be considered and two reflections
         # horizontal w/ short path
@@ -106,6 +106,25 @@ class SeleneCalculator:
         h2_l3 = np.sqrt(((h2_p2-h2_ret)**2).sum())
 
         return (v_l1+v_l2, h1_l1+h1_l2+h1_l3, h2_l1+h2_l2+h2_l3)
+
+    def _path_delta_to_screw_delta(self, xpos, dv1, dv2, dh1, dh2):
+        """
+        Calculate the expected mirror offset at the screw locations
+        that lead to the measured path length difference.
+        """
+        # approximate offset based on reflection angle at center
+        # maximum deviation is <1% over full ellipse range
+        fac = 1./np.cos(self.eta_v/2*np.pi/180.)
+        dpos_v1 = dv1/2*fac
+        dpos_v2 = dv2/2*fac
+        # The diagonal beam path is dominated by the 45° angle in vertical
+        # plane, horionzontal deviation is thus ignored. But both mirrors
+        # have influence on measured length.
+        fac = 1./np.cos(np.pi/4.)
+        dpos_h1 = dh1/2*fac-(dpos_v1+dpos_v2)/2
+        dpos_h2 = dh2/2*fac-(dpos_v1+dpos_v2)/2
+        # TODO: include the location of the screws in the calculation
+        return dpos_v1, dpos_v2, dpos_h1, dpos_h2
 
 class CalcTester(TestCase):
     calc:SeleneCalculator
