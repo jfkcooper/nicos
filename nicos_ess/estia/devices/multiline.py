@@ -26,6 +26,7 @@ import numpy as np
 
 from nicos.core import Attach, CommunicationError, Override, Param, Readable, \
     limits, pvname, status, Waitable
+from nicos.devices.epics import SEVERITY_TO_STATUS
 
 from nicos_ess.devices.epics.base import EpicsReadableEss
 from nicos_ess.devices.epics.extensions import HasDisablePv
@@ -95,6 +96,31 @@ class PilotLaser(HasDisablePv, EpicsReadableEss):
         return 'Not Ready'
 
 
+STAT_TO_STATUS = {
+    0: '', # NO_ALARM
+    1: 'READ_ALARM',
+    2: 'WRITE_ALARM',
+    3: 'HIHI_ALARM',
+    4: 'HIGH_ALARM',
+    5: 'LOLO_ALARM',
+    6: 'LOW_ALARM',
+    7: 'STATE_ALARM',
+    8: 'COS_ALARM',
+    9: 'COMM_ALARM',
+    10:'TIMEOUT_ALARM',
+    11:'HW_LIMIT_ALARM',
+    12:'CALC_ALARM',
+    13:'SCAN_ALARM',
+    14:'LINK_ALARM',
+    15:'SOFT_ALARM',
+    16:'BAD_SUB_ALARM',
+    17:'UDF_ALARM',
+    18:'DISABLE_ALARM',
+    19:'SIMM_ALARM',
+    20:'READ_ACCESS_ALARM',
+    21:'WRITE_ACCESS_ALARM',
+}
+
 class MultilineChannel(EpicsReadableEss):
 
     parameters = {
@@ -153,25 +179,50 @@ class MultilineChannel(EpicsReadableEss):
 
     def doStatus(self, maxage=0):
         self._readRaw()
+        epics_status = self._get_pvctrl('readpv', 'status', update=True)
+        epics_severity = self._get_pvctrl('readpv', 'severity')
+        readpv_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
+        readpv_message=STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status)
+
         if int(self._raw[7]):
-            return status.ERROR, 'Analysis error'
-        if int(self._raw[8]):
-            return status.ERROR, 'Beam interruption'
-        if int(self._raw[9]):
-            return status.ERROR, 'Temperature error'
-        if int(self._raw[10]):
-            return status.ERROR, 'Movement tolerance error '
-        if int(self._raw[11]):
-            return status.ERROR, 'Intensity error'
-        if int(self._raw[12]):
-            return status.ERROR, 'USB connection error'
-        if int(self._raw[13]):
-            return status.ERROR, 'Error setting the laser speed'
-        if int(self._raw[14]):
-            return status.ERROR, 'Error laser temperature'
-        if int(self._raw[15]):
-            return status.ERROR, 'DAQ error'
-        return status.OK, ''
+            return max(readpv_status, status.ERROR), 'Analysis error '+readpv_message
+        elif int(self._raw[8]):
+            return max(readpv_status, status.ERROR), 'Beam interruption '+readpv_message
+        elif int(self._raw[9]):
+            return max(readpv_status, status.ERROR), 'Temperature error '+readpv_message
+        elif int(self._raw[10]):
+            return max(readpv_status, status.ERROR), 'Movement tolerance error '+readpv_message
+        elif int(self._raw[11]):
+            return max(readpv_status, status.ERROR), 'Intensity error '+readpv_message
+        elif int(self._raw[12]):
+            return max(readpv_status, status.ERROR), 'USB connection error '+readpv_message
+        elif int(self._raw[13]):
+            return max(readpv_status, status.ERROR), 'Error setting the laser speed '+readpv_message
+        elif int(self._raw[14]):
+            return max(readpv_status, status.ERROR), 'Error laser temperature '+readpv_message
+        elif int(self._raw[15]):
+            return max(readpv_status, status.ERROR), 'DAQ error '+readpv_message
+        else:
+            highest_status = status.OK
+            mapped_massages = []
+            for name in self._pvs:
+                epics_status = self._get_pvctrl(name, 'status', update=True)
+                epics_severity = self._get_pvctrl(name, 'severity')
+
+                mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
+                mapped_massages.append(
+                        (mapped_status,
+                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status),
+                        name)
+                        )
+
+                highest_status = max(highest_status, mapped_status)
+            if highest_status>status.OK:
+                epics_message='PV error status: '+'|'.join([self._get_pv_name(mm[2])+':'+mm[1]
+                                                            for mm in mapped_massages if mm[0]==highest_status])
+            else:
+                epics_message=''
+            return (highest_status, epics_message)
 
     def doReadChannel(self):
         return self._raw[0]
@@ -260,12 +311,37 @@ class MultilineController(EpicsReadableEss, Waitable):
         return getattr(self, pvparam)
 
     def doStatus(self, maxage=0):
+        epics_status = self._get_pvctrl('readpv', 'status', update=True)
+        epics_severity = self._get_pvctrl('readpv', 'severity')
+        readpv_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
+        readpv_message=STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status)
+
         if self._get_pv('server_error'):
-            return status.ERROR, 'Server error'
+            return max(readpv_status, status.ERROR), 'Server error '+readpv_message
         mess_status = self.doReadSingle_Measurement()
         if mess_status in ['START', 'RUNNING']:
             return status.BUSY, 'Measuring'
-        return status.OK, ''
+        else:
+            highest_status = status.OK
+            mapped_massages = []
+            for name in self._pvs:
+                epics_status = self._get_pvctrl(name, 'status', update=True)
+                epics_severity = self._get_pvctrl(name, 'severity')
+
+                mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
+                mapped_massages.append(
+                        (mapped_status,
+                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status),
+                        name)
+                        )
+
+                highest_status = max(highest_status, mapped_status)
+            if highest_status>status.OK:
+                epics_message='PV error status: '+'|'.join([self._get_pv_name(mm[2])+':'+mm[1]
+                                                            for mm in mapped_massages if mm[0]==highest_status])
+            else:
+                epics_message=''
+            return (highest_status, epics_message)
 
     def doRead(self, maxage=0):
         return self.single_measurement

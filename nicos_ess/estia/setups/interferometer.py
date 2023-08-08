@@ -18,39 +18,8 @@ devices = dict(
             'read': f'{etalon_prefix}:RedPilotLaser-S',
             'write': f'{etalon_prefix}:RedPilotLaser-S'
         },
-        visibility=()
+        visibility=(),
     ),
-    # ih1=device(
-    #     'nicos_ess.estia.devices.attocube.IDS3010Axis',
-    #     axis=1,
-    #     description='Horizontal IF axis top',
-    #     readpv='ESTIA-ATTOCUBE-001:Axis1:Displacement_RBV',
-    #     pvprefix='ESTIA-ATTOCUBE-001'
-    # ),
-    # ih2=device(
-    #     'nicos_ess.estia.devices.attocube.IDS3010Axis',
-    #     axis=2,
-    #     description='Horizontal IF axis bottom',
-    #     readpv='ESTIA-ATTOCUBE-001:Axis2:Displacement_RBV',
-    #     pvprefix='ESTIA-ATTOCUBE-001'
-    # ),
-    # ih3=device(
-    #     'nicos_ess.estia.devices.attocube.IDS3010Axis',
-    #     axis=3,
-    #     description='Cart position top',
-    #     readpv='ESTIA-ATTOCUBE-001:Axis3:Displacement_RBV',
-    #     pvprefix='ESTIA-ATTOCUBE-001'
-    # ),
-    # dhtop=device(
-    #     'nicos_ess.estia.devices.attocube.MirrorDistance',
-    #     axis='ih1',
-    #     description='Horizontal distance top',
-    # ),
-    # dhbottom=device(
-    #     'nicos_ess.estia.devices.attocube.MirrorDistance',
-    #     axis='ih2',
-    #     description='Horizontal distance bottom',
-    # ),
     env_humidity=device(
         'nicos.devices.epics.pva.EpicsReadable',
         description='Environmental humidity',
@@ -82,6 +51,7 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsReadable',
         description='First temperature sensor',
         readpv=f'{etalon_prefix}:TempSensorS2-R',
+        visibility=(),
         pollinterval=None,
         monitor=True,
         pva=True,
@@ -90,6 +60,7 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsReadable',
         description='Second temperature sensor',
         readpv=f'{etalon_prefix}:TempSensorS2-R',
+        visibility=(),
         pollinterval=None,
         monitor=True,
         pva=True,
@@ -98,6 +69,7 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsReadable',
         description='Third temperature sensor',
         readpv=f'{etalon_prefix}:TempSensorS3-R',
+        visibility=(),
         pollinterval=None,
         monitor=True,
         pva=True,
@@ -106,6 +78,7 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsReadable',
         description='Fourth emperature sensor',
         readpv=f'{etalon_prefix}:TempSensorS4-R',
+        visibility=(),
         pollinterval=None,
         monitor=True,
         pva=True,
