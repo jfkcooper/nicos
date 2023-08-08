@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 from nicos.core import Param, pvname, status
+from nicos.devices.epics import SEVERITY_TO_STATUS
 
 from nicos_ess.devices.epics.base import EpicsReadableEss
 
@@ -58,6 +59,30 @@ def get_pt100_status_message(value):
         return status.ERROR, 'error'
     return status.OK, ''
 
+STAT_TO_STATUS = {
+    0: '', # NO_ALARM
+    1: 'READ_ALARM',
+    2: 'WRITE_ALARM',
+    3: 'HIHI_ALARM',
+    4: 'HIGH_ALARM',
+    5: 'LOLO_ALARM',
+    6: 'LOW_ALARM',
+    7: 'STATE_ALARM',
+    8: 'COS_ALARM',
+    9: 'COMM_ALARM',
+    10:'TIMEOUT_ALARM',
+    11:'HW_LIMIT_ALARM',
+    12:'CALC_ALARM',
+    13:'SCAN_ALARM',
+    14:'LINK_ALARM',
+    15:'SOFT_ALARM',
+    16:'BAD_SUB_ALARM',
+    17:'UDF_ALARM',
+    18:'DISABLE_ALARM',
+    19:'SIMM_ALARM',
+    20:'READ_ACCESS_ALARM',
+    21:'WRITE_ACCESS_ALARM',
+}
 
 class EpicsPT100Temperature(EpicsReadableEss):
     """
@@ -75,12 +100,9 @@ class EpicsPT100Temperature(EpicsReadableEss):
         return EpicsReadableEss._get_pv_parameters(self)
 
     def doStatus(self, maxage=0):
-        mapped_status, status_message = EpicsReadableEss.doStatus(self, maxage)
-        if mapped_status != status.OK:
-            return mapped_status, status_message
-
-        if self.statuspv:
-            st = int(self._get_pv('statuspv'))
-            return get_pt100_status_message(st)
-
-        return status.UNKNOWN, ''
+        # Return the status and the affected pvs in case the status is not OK
+        epics_status = self._get_pvctrl('readpv', 'status', update=True)
+        epics_severity = self._get_pvctrl('readpv', 'severity')
+        mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
+        status_message = STAT_TO_STATUS.get(epics_status, 'Unknown status flag %i'%epics_status)
+        return mapped_status, status_message
