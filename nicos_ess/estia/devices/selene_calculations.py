@@ -107,7 +107,7 @@ class SeleneCalculator:
 
         return (v_l1+v_l2, h1_l1+h1_l2+h1_l3, h2_l1+h2_l2+h2_l3)
 
-    def _path_delta_to_screw_delta(self, xpos, dv1, dv2, dh1, dh2):
+    def _path_delta_to_screw_delta(self, dv1, dv2, dh1, dh2):
         """
         Calculate the expected mirror offset at the screw locations
         that lead to the measured path length difference.

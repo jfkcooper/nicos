@@ -158,7 +158,7 @@ class MultilineChannel(EpicsReadableEss):
     }
 
     def _get_pv_parameters(self):
-        return {'readpv', 'latest_valid_pv', 'gain_pv'}
+        return {'readpv', 'gain_pv'}
 
     def doPreinit(self, mode):
         self._raw = np.zeros(16)
@@ -212,7 +212,7 @@ class MultilineChannel(EpicsReadableEss):
                 mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
                 mapped_massages.append(
                         (mapped_status,
-                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status),
+                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %s'%epics_status),
                         name)
                         )
 
@@ -239,7 +239,7 @@ class MultilineChannel(EpicsReadableEss):
 
     def doPoll(self, n, maxage=0):
         self.pollParams(volatile_only=False,
-                        param_list=['i_limits', 'gain', 'latest_valid'])
+                        param_list=['i_limits', 'gain'])
 
 
 EnvironmentalParameters = namedtuple('EnvironmentalParameters',
@@ -290,10 +290,10 @@ class MultilineController(EpicsReadableEss, Waitable):
     }
 
     _record_fields = {
-            'front_end_splitter': 'FrontEndSplitter-S',
+            # 'front_end_splitter': 'FrontEndSplitter-S',
             'fes_option': 'FESOption-S',
             'single_measurement': 'SingleMeasurement-S',
-            'alignment_process': 'AlignmentProcess-S',
+            # 'alignment_process': 'AlignmentProcess-S',
             'server_error': 'ServerErr-R',
             'num_channels': 'NumChannels-R',
             'is_grouped': 'IsGrouped-R'
@@ -314,7 +314,7 @@ class MultilineController(EpicsReadableEss, Waitable):
         epics_status = self._get_pvctrl('readpv', 'status', update=True)
         epics_severity = self._get_pvctrl('readpv', 'severity')
         readpv_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
-        readpv_message=STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status)
+        readpv_message=STAT_TO_STATUS.get(epics_status, 'Unkown status code %s'%epics_status)
 
         if self._get_pv('server_error'):
             return max(readpv_status, status.ERROR), 'Server error '+readpv_message
@@ -331,7 +331,7 @@ class MultilineController(EpicsReadableEss, Waitable):
                 mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
                 mapped_massages.append(
                         (mapped_status,
-                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status),
+                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %s'%epics_status),
                         name)
                         )
 

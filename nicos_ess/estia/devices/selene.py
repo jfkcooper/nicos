@@ -34,6 +34,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
+from nicos import session
 from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof, MoveError, SIMULATION
 from nicos.core.device import Override, Moveable
 from nicos.devices.generic import LockedDevice, BaseSequencer
@@ -75,6 +76,15 @@ class SeleneRobot(Moveable):
         'current_position':      Param('Internal screw position tracking',
                                     type=tupleof(int, int),
                                     settable=True, internal=True, unit=''),
+        'vertical_screws':      Param('List of screw indices that adjust vertical mirrors',
+                                      type=tupleof(int,int,int), default=(3,5,6),
+                                    settable=False, internal=True, unit=''),
+        'vertical_ratio':      Param('Ratio of mirror offset (mm) to adjuster rotation (deg)',
+                                      type=float, default=0.09/360.,
+                                    settable=True, userparam=True, unit=''),
+        'horizontal_ratio':      Param('Ratio of mirror offset (mm) to adjuster rotation (deg)',
+                                      type=float, default=0.21/360.,
+                                    settable=True, userparam=True, unit=''),
         }
 
     attached_devices = {
@@ -95,6 +105,12 @@ class SeleneRobot(Moveable):
         self._item_zpos = {}
         self._confirmed = {}
         self.calculate_zeros()
+        self._cache.addCallback(self._attached_adjust1, 'value', self._update_rotation)
+        self._cache.addCallback(self._attached_adjust2, 'value', self._update_rotation)
+        self._cache.addCallback(self._attached_approach1, 'value', self._on_status_change_external)
+        self._cache.addCallback(self._attached_approach2, 'value', self._on_status_change_external)
+        self._cache.addCallback(self._attached_move_x, 'value', self._on_status_change_external)
+        self._cache.addCallback(self._attached_move_z, 'value', self._on_status_change_external)
 
     def calculate_zeros(self):
         if self.positions=={}:
@@ -292,8 +308,12 @@ class SeleneRobot(Moveable):
     def doWriteRotation(self, value):
         self.adjust(value)
 
-    def doPoll(self, n, maxage=0):
+    def _update_rotation(self, key, value, time):
         self._pollParam('rotation')
+        self._cache.invalidate('status')
+
+    def _on_status_change_external(self, key, value, time):
+        self._cache.invalidate('status')
 
     def doStatus(self, maxage=0):
         sout = status.OK
@@ -551,6 +571,24 @@ class SeleneRobot(Moveable):
         rotations[self.current_position[0]][self.current_position[1]] = angle
         self.rotations = rotations
 
+    def adjust_position(self, delta):
+        """
+        Make a relative movement with the current adjuster to translate
+        the corresponding mirror by ghe given offset delta [mm].
+        """
+        self.doRead()
+        if self.current_position==(-1, -1):
+            return
+        screw, group = self.current_position
+        if screw in self.vertical_screws:
+            self.log.debug(f'Moving vertical mirror by {delta:.3f}')
+            newpos = self._adjust()+delta*self.vertical_ratio
+        else:
+            self.log.debug(f'Moving vertical mirror by {delta:.3f}')
+            newpos = self._adjust()+delta*self.horizontal_ratio
+        self.adjust(newpos)
+
+
     def save_data(self, fname=None):
         if fname is None:
             fname=self.position_data
@@ -672,6 +710,10 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
                                  internal=True, default=0.0, unit='mm'),
         'if_offset_d_v2': Param('Deviation of laser path length as determined at center',
                                  internal=True, default=0.0, unit='mm'),
+        '_last_values': Param('Measured raw distances',
+                              type=tupleof(float, float, float, float, float, float, float, float),
+                          default=(np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan),
+                        settable=True, internal=True, unit='mm'),
         'last_raw': Param('Measured raw distances', type=tupleof(float,float,float,float),
                           default=(np.nan, np.nan, np.nan, np.nan),
                         settable=True, internal=True, unit='mm'),
@@ -753,6 +795,15 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
                                       'running (at %s)!' % self._seq_status[1])
         # reset last values before starting to move, so any value but nan should be for the current location
         self.last_raw = (np.nan, np.nan, np.nan, np.nan)
+        self._last_values = (self._attached_ch_d_v1.read(maxage=0),
+                           self._attached_ch_d_v2.read(maxage=0),
+                           self._attached_ch_d_h1.read(maxage=0),
+                           self._attached_ch_d_h2.read(maxage=0),
+                           self._attached_ch_u_v1.read(maxage=0),
+                           self._attached_ch_u_v2.read(maxage=0),
+                           self._attached_ch_u_h1.read(maxage=0),
+                           self._attached_ch_u_h2.read(maxage=0),
+                           )
         self.last_delta = (np.nan, np.nan, np.nan, np.nan)
         sequence = [
             SeqMethod(self._attached_interferometer, 'measure'), # make a measurement
@@ -770,24 +821,37 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         # nominal lengths at current location
         nv, nh1, nh2 = self._nominal_path_lengths(xpos)
 
+        for i in range(600):
+            if self._last_values != (self._attached_ch_d_v1.read(maxage=0),
+                                 self._attached_ch_d_v2.read(maxage=0),
+                                 self._attached_ch_d_h1.read(maxage=0),
+                                 self._attached_ch_d_h2.read(maxage=0),
+                                 self._attached_ch_u_v1.read(maxage=0),
+                                 self._attached_ch_u_v2.read(maxage=0),
+                                 self._attached_ch_u_h1.read(maxage=0),
+                                 self._attached_ch_u_h2.read(maxage=0),
+                                 ):
+                break
+            else:
+                session.delay(0.1) # values are not updated instantaneous
         if xpos>0:
-            self.last_raw=(self._attached_ch_d_v1(),
-                           self._attached_ch_d_v2(),
-                           self._attached_ch_d_h1(),
-                           self._attached_ch_d_h2(),
+            self.last_raw=(self._attached_ch_d_v1.read(maxage=0),
+                           self._attached_ch_d_v2.read(maxage=0),
+                           self._attached_ch_d_h1.read(maxage=0),
+                           self._attached_ch_d_h2.read(maxage=0),
                            )
-            self.log.debug("Using downstream collimators; raw lengths: %s"%self.last_raw)
+            self.log.debug("Using downstream collimators; raw lengths: %s"%str(self.last_raw))
             lv1 = nv - self.if_offset_d_v1
             lv2 = nv - self.if_offset_d_v2
             lh1 = nh1 - self.if_offset_d_h1
             lh2 = nh2 - self.if_offset_d_h2
         else:
-            self.last_raw=(self._attached_ch_u_v1(),
-                           self._attached_ch_u_v2(),
-                           self._attached_ch_u_h1(),
-                           self._attached_ch_u_h2(),
+            self.last_raw=(self._attached_ch_u_v1.read(maxage=0),
+                           self._attached_ch_u_v2.read(maxage=0),
+                           self._attached_ch_u_h1.read(maxage=0),
+                           self._attached_ch_u_h2.read(maxage=0),
                            )
-            self.log.debug("Using upstream collimators; raw lengths: %s"%self.last_raw)
+            self.log.debug("Using upstream collimators; raw lengths: %s"%str(self.last_raw))
             lv1 = nv - self.if_offset_u_v1
             lv2 = nv - self.if_offset_u_v2
             lh1 = nh1 - self.if_offset_u_h1

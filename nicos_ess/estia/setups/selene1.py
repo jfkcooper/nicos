@@ -13,6 +13,7 @@ devices = dict(
         move_x='robot1_pos', move_z='robot1_vert',
         adjust1='driver1_1_adjust', approach1='driver1_1_approach', hex_state1='driver1_1_hex_state',
         adjust2='driver1_2_adjust', approach2='driver1_2_approach', hex_state2='driver1_2_hex_state',
+        vertical_screws=(1,2,4),
         unit='Item/Group'
         ),
     sm1=device(

@@ -104,5 +104,5 @@ class EpicsPT100Temperature(EpicsReadableEss):
         epics_status = self._get_pvctrl('readpv', 'status', update=True)
         epics_severity = self._get_pvctrl('readpv', 'severity')
         mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
-        status_message = STAT_TO_STATUS.get(epics_status, 'Unknown status flag %i'%epics_status)
+        status_message = STAT_TO_STATUS.get(epics_status, 'Unknown status flag %s'%epics_status)
         return mapped_status, status_message
