@@ -78,13 +78,13 @@ class SeleneRobot(Moveable):
                                     settable=True, internal=True, unit=''),
         'vertical_screws':      Param('List of screw indices that adjust vertical mirrors',
                                       type=tupleof(int,int,int), default=(3,5,6),
-                                    settable=False, internal=True, unit=''),
+                                    settable=False, userparam=False, unit=''),
         'vertical_ratio':      Param('Ratio of mirror offset (mm) to adjuster rotation (deg)',
                                       type=float, default=360./0.09,
-                                    settable=True, userparam=True, unit=''),
+                                    settable=True, userparam=True, unit='deg/mm'),
         'horizontal_ratio':      Param('Ratio of mirror offset (mm) to adjuster rotation (deg)',
                                       type=float, default=360./0.21,
-                                    settable=True, userparam=True, unit=''),
+                                    settable=True, userparam=True, unit='deg/mm'),
         }
 
     attached_devices = {
@@ -833,9 +833,9 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
             lh1 = nh1 - self.if_offset_u_h1
             lh2 = nh2 - self.if_offset_u_h2
         dlv1 = self.last_raw[0]-lv1
-        dlv2 = self.last_raw[0]-lv2
-        dlh1 = self.last_raw[0]-lh1
-        dlh2 = self.last_raw[0]-lh2
+        dlv2 = self.last_raw[1]-lv2
+        dlh1 = self.last_raw[2]-lh1
+        dlh2 = self.last_raw[3]-lh2
 
         self.last_delta = self._path_delta_to_screw_delta(dlv1, dlv2, dlh1, dlh2)
         self.log.debug(f'  From length differences %s calculate deviations %s'%(
