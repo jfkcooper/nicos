@@ -299,6 +299,11 @@ class MultilineController(EpicsReadableEss, Waitable):
             'is_grouped': 'IsGrouped-R'
         }
 
+    _cache_relations = {
+        'single_measurement': 'value',
+    }
+
+
     def _get_pv_parameters(self):
         parameters = set(self._record_fields.keys())
         return parameters | {'readpv'}
