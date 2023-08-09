@@ -38,7 +38,7 @@ from nicos import session
 from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof, MoveError, SIMULATION
 from nicos.core.device import Override, Moveable
 from nicos.devices.generic import LockedDevice, BaseSequencer
-from nicos.devices.generic.sequence import SeqDev, SeqMethod
+from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqWait
 from nicos_ess.devices.epics.pva.motor import EpicsMotor
 from nicos.devices.epics.pva.epics_devices import EpicsMappedReadable
 import yaml
@@ -80,10 +80,10 @@ class SeleneRobot(Moveable):
                                       type=tupleof(int,int,int), default=(3,5,6),
                                     settable=False, internal=True, unit=''),
         'vertical_ratio':      Param('Ratio of mirror offset (mm) to adjuster rotation (deg)',
-                                      type=float, default=0.09/360.,
+                                      type=float, default=360./0.09,
                                     settable=True, userparam=True, unit=''),
         'horizontal_ratio':      Param('Ratio of mirror offset (mm) to adjuster rotation (deg)',
-                                      type=float, default=0.21/360.,
+                                      type=float, default=360./0.21,
                                     settable=True, userparam=True, unit=''),
         }
 
@@ -310,10 +310,10 @@ class SeleneRobot(Moveable):
 
     def _update_rotation(self, key, value, time):
         self._pollParam('rotation')
-        self._cache.invalidate('status')
+        self._cache.invalidate(self, 'status')
 
     def _on_status_change_external(self, key, value, time):
-        self._cache.invalidate('status')
+        self._cache.invalidate(self, 'status')
 
     def doStatus(self, maxage=0):
         sout = status.OK
@@ -710,10 +710,6 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
                                  internal=True, default=0.0, unit='mm'),
         'if_offset_d_v2': Param('Deviation of laser path length as determined at center',
                                  internal=True, default=0.0, unit='mm'),
-        '_last_values': Param('Measured raw distances',
-                              type=tupleof(float, float, float, float, float, float, float, float),
-                          default=(np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan),
-                        settable=True, internal=True, unit='mm'),
         'last_raw': Param('Measured raw distances', type=tupleof(float,float,float,float),
                           default=(np.nan, np.nan, np.nan, np.nan),
                         settable=True, internal=True, unit='mm'),
@@ -779,6 +775,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         return [
             SeqDev(self._attached_m_cart, dest_pos), # move to location
             SeqMethod(self._attached_interferometer, 'measure'), # make a measurement
+            SeqWait(self._attached_interferometer), # make a measurement
             SeqMethod(self, '_calc_current_difference') # analyse and store result
         ]
 
@@ -795,18 +792,10 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
                                       'running (at %s)!' % self._seq_status[1])
         # reset last values before starting to move, so any value but nan should be for the current location
         self.last_raw = (np.nan, np.nan, np.nan, np.nan)
-        self._last_values = (self._attached_ch_d_v1.read(maxage=0),
-                           self._attached_ch_d_v2.read(maxage=0),
-                           self._attached_ch_d_h1.read(maxage=0),
-                           self._attached_ch_d_h2.read(maxage=0),
-                           self._attached_ch_u_v1.read(maxage=0),
-                           self._attached_ch_u_v2.read(maxage=0),
-                           self._attached_ch_u_h1.read(maxage=0),
-                           self._attached_ch_u_h2.read(maxage=0),
-                           )
         self.last_delta = (np.nan, np.nan, np.nan, np.nan)
         sequence = [
             SeqMethod(self._attached_interferometer, 'measure'), # make a measurement
+            SeqWait(self._attached_interferometer), # make a measurement
             SeqMethod(self, '_calc_current_difference') # analyse and store result
         ]
         self._startSequence(sequence)
@@ -821,19 +810,6 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         # nominal lengths at current location
         nv, nh1, nh2 = self._nominal_path_lengths(xpos)
 
-        for i in range(600):
-            if self._last_values != (self._attached_ch_d_v1.read(maxage=0),
-                                 self._attached_ch_d_v2.read(maxage=0),
-                                 self._attached_ch_d_h1.read(maxage=0),
-                                 self._attached_ch_d_h2.read(maxage=0),
-                                 self._attached_ch_u_v1.read(maxage=0),
-                                 self._attached_ch_u_v2.read(maxage=0),
-                                 self._attached_ch_u_h1.read(maxage=0),
-                                 self._attached_ch_u_h2.read(maxage=0),
-                                 ):
-                break
-            else:
-                session.delay(0.1) # values are not updated instantaneous
         if xpos>0:
             self.last_raw=(self._attached_ch_d_v1.read(maxage=0),
                            self._attached_ch_d_v2.read(maxage=0),
