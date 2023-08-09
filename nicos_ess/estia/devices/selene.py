@@ -105,6 +105,7 @@ class SeleneRobot(Moveable):
         self._item_zpos = {}
         self._confirmed = {}
         self.calculate_zeros()
+        self.read(maxage=0)
         self._cache.addCallback(self._attached_adjust1, 'value', self._update_rotation)
         self._cache.addCallback(self._attached_adjust2, 'value', self._update_rotation)
         self._cache.addCallback(self._attached_approach1, 'value', self._on_status_change_external)
@@ -695,21 +696,21 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         'delta_x': Param('Nominal x-distance of retroreflector and cart center', mandatory=False,
                          userparam=True, default=-15.0, unit='mm'),
         'if_offset_u_h1': Param('Deviation of laser path length as determined at center',
-                           internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'if_offset_u_h2': Param('Deviation of laser path length as determined at center',
-                                 internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'if_offset_u_v1': Param('Deviation of laser path length as determined at center',
-                                 internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'if_offset_u_v2': Param('Deviation of laser path length as determined at center',
-                                 internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'if_offset_d_h1': Param('Deviation of laser path length as determined at center',
-                                 internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'if_offset_d_h2': Param('Deviation of laser path length as determined at center',
-                                 internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'if_offset_d_v1': Param('Deviation of laser path length as determined at center',
-                                 internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'if_offset_d_v2': Param('Deviation of laser path length as determined at center',
-                                 internal=True, default=0.0, unit='mm'),
+                                 settable=True, internal=True, default=0.0, unit='mm'),
         'last_raw': Param('Measured raw distances', type=tupleof(float,float,float,float),
                           default=(np.nan, np.nan, np.nan, np.nan),
                         settable=True, internal=True, unit='mm'),
@@ -737,18 +738,26 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
 
     def doInit(self, dummy=None):
         self._sa=np.sqrt(self._sc**2+self._sb**2)
+        self._cache.addCallback(self._attached_m_cart, 'value', self._on_status_change_external)
+        self._cache.addCallback(self._attached_m_cart, 'status', self._on_status_change_external)
+        self._cache.addCallback(self._attached_interferometer, 'status', self._on_status_change_external)
+
+    def _on_status_change_external(self, key, value, time):
+        self._cache.invalidate(self, 'status')
 
     def doRead(self, maxage=0):
         """
         Position is the location on mirror and mirror number counting from up-stream.
         Location on mirror is -1: up-stream screw, 0: center, 1: down-stream screw.
         """
-        pos = self._x_for_cart(self._attached_m_cart()-self.cart_center)
+        pos = self._attached_m_cart()-self.cart_center
+        if abs(pos)>50:
+            pos = self._x_for_cart(pos)
         mirror = int((pos+self._mw/2)//self._mw + 8) # mirrors are 480 wide and 8 is the central one
         rpos = (pos+self._mw/2)%self._mw-self._mw/2 # relative position on mirror
-        if abs(rpos)<30:
+        if abs(rpos)<10:
             return (0, mirror)
-        elif (abs(rpos)+self._sx-self._mw/2)<30:
+        elif (abs(rpos)+self._sx-self._mw/2)<10:
             if rpos<0:
                 return (-1, mirror)
             else:
@@ -847,20 +856,26 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         Use measurement at center position to calibrate the
         interferometer channel lengths measured.
         """
-        self.log.info("Performing calibration")
+        self.log.info("Performing calibration of interferometer lengths")
         self._attached_m_cart.maw(self.cart_center)
         self._attached_interferometer.measure()
         self._attached_interferometer.wait()
         v, h1, h2 = self._nominal_path_lengths(0.0001)
-        for chv in [self._attached_ch_u_v1, self._attached_ch_u_v2,
-                    self._attached_ch_d_v1, self._attached_ch_d_v2,
-                    self._attached_ch_u_h1, self._attached_ch_u_h2,
-                    self._attached_ch_d_h1, self._attached_ch_d_h2,
+        for li, chi in [
+            (v, 'u_v1'),
+            (v, 'u_v2'),
+            (v, 'd_v1'),
+            (v, 'd_v2'),
+            (h1, 'u_h1'),
+            (h2, 'u_h2'),
+            (h1, 'd_h1'),
+            (h2, 'd_h2'),
                     ]:
-            if chv.status()[0]==status.OK:
-                vm = chv()
+            ch = getattr(self, f'_attached_ch_{chi}')
+            if ch.status()[0]==status.OK:
+                setattr(self, f'if_offset_{chi}', li-ch())
             else:
-                self.warning("Channel %s not measured correctly" % chv._name)
+                self.log.warning("Channel %s not measured correctly (%s)" % (chi, ch._name))
 
 #
 # class SeleneGuide(BaseSequencer):
