@@ -147,6 +147,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'readpv': 'value',
         'units': 'unit',
         'writepv': 'target',
+        'temppv': 'temp',
     }
 
     def doInit(self, mode):
