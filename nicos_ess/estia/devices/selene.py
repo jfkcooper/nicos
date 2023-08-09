@@ -650,7 +650,7 @@ class SeleneRobot(Moveable):
         lpos = self._adjust()
         self.log.info('   screw stopped moving at %.1f°'%lpos)
         lpos_partial = (lpos+180)%360-180 # partial rotation of this position
-        dest = self._rotations[self.current_position[0]][self.current_position[1]]
+        dest = self.rotations[self.current_position[0]][self.current_position[1]]
         temp_dest = lpos-lpos_partial+nrot0*360+dest
         self.log.debug('    moving to calculated position %.1f'%temp_dest)
         for i in range(5):
