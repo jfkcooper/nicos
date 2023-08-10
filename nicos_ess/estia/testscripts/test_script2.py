@@ -2,8 +2,10 @@ import numpy as np
 import yaml
 
 #upper_limits=yaml.safe_load(open('data_artur/upper_limits_2.yaml','r'))
+driver2_1_adjust.userlimits=(-100000, 100000)
+driver2_2_adjust.userlimits=(-100000, 100000)
     
-upper_limits={}
+# upper_limits={}
 def reference_all():
     global upper_limits
     # run through all screws to reference their center positoin, then check the available angular range forward

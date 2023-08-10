@@ -283,13 +283,16 @@ class SeleneRobot(Moveable):
         self._disengage()
         self._attached_move_x.move(x)
         self._attached_move_z.move(z)
+        # move driver to last rotation, taking into account that full rotations don't matter
         rot = self.rotations[position[0]].get(position[1], 0.)
-        if driver==2:
-            # move driver to last rotation
-            self._attached_adjust2.move(rot)
-        else:
-            # move driver to last rotation
-            self._attached_adjust1.move(rot)
+        cur_rot = self._adjust()
+        dest_n = rot//360
+        adj_rot = dest_n*360+cur_rot%360
+        self._adjust.doAdjust(cur_rot, adj_rot)
+        # adjusting offset changes user limits so we reset full range
+        # TODO: fix the fucking userlimits for device without range!
+        self._adjust.userlimits = (-100000, 100000)
+        self._adjust.move(rot)
 
     # TODO: Implement an intelligent doStop to prevent any hardware issues and loss of rotation info
 
@@ -651,12 +654,18 @@ class SeleneRobot(Moveable):
         self.log.info('   screw stopped moving at %.1f°'%lpos)
         lpos_partial = (lpos+180)%360-180 # partial rotation of this position
         dest = self.rotations[self.current_position[0]][self.current_position[1]]
+        if dest<(-nrot0*360):
+            # make sure the destination is not smaller then the lower limit
+            dest = -(nrot0-1)*360
+            rotations = dict([(k, dict(v)) for k,v in self.rotations.items()])
+            rotations[self.current_position[0]][self.current_position[1]] = dest
+            self.rotations=rotations
         temp_dest = lpos-lpos_partial+nrot0*360+dest
         self.log.debug('    moving to calculated position %.1f'%temp_dest)
-        for i in range(5):
+        for i in range(15):
             self._adjust.reset()
             try:
-                self._move_angle(temp_dest-self.adjuster_play/2.-self.adjuster_backslash)
+                self._adjust.maw(temp_dest-self.adjuster_play/2.-self.adjuster_backslash)
             except Exception as e:
                 continue
             else:
