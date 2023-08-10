@@ -90,8 +90,8 @@ class PilotLaser(HasDisablePv, EpicsReadableEss):
     def doReadUncertainty_Variable(self):
         return self._get_pv('uncertainty_variable')
 
-    def doRead(self):
-        if self._get_pv('ready'):
+    def doRead(self, maxage=0):
+        if self._get_pv('connected'):
             return 'Ready'
         return 'Not Ready'
 
@@ -300,7 +300,7 @@ class MultilineController(EpicsReadableEss, Waitable):
         }
 
     _cache_relations = {
-        'single_measurement': 'value',
+        'single_measurement': 'single_measurement',
     }
 
 
@@ -348,9 +348,6 @@ class MultilineController(EpicsReadableEss, Waitable):
                 epics_message=''
             return (highest_status, epics_message)
 
-    def doRead(self, maxage=0):
-        return self.single_measurement
-
     def measure(self):
         self.doWriteSingle_Measurement(1)
 
@@ -384,13 +381,13 @@ class MultilineController(EpicsReadableEss, Waitable):
     def doReadNum_Channels(self):
         return self._get_pv('num_channels')
 
-    def doPoll(self, n, maxage=0):
-        self._pollParam('front_end_splitter')
-        self._pollParam('fes_option')
-        self._pollParam('single_measurement')
-        self._pollParam('alignment_process')
-        self._pollParam('num_channels')
-        self._pollParam('is_grouped')
+    # def doPoll(self, n, maxage=0):
+    #     self._pollParam('front_end_splitter')
+    #     self._pollParam('fes_option')
+    #     self._pollParam('single_measurement')
+    #     self._pollParam('alignment_process')
+    #     self._pollParam('num_channels')
+    #     self._pollParam('is_grouped')
 
     @property
     def pilot(self):
