@@ -113,6 +113,15 @@ class SeleneRobot(Moveable):
         self._cache.addCallback(self._attached_move_x, 'value', self._on_status_change_external)
         self._cache.addCallback(self._attached_move_z, 'value', self._on_status_change_external)
 
+    def shutdown(self):
+        self._cache.removeCallback(self._attached_adjust1, 'value', self._update_rotation)
+        self._cache.removeCallback(self._attached_adjust2, 'value', self._update_rotation)
+        self._cache.removeCallback(self._attached_approach1, 'value', self._on_status_change_external)
+        self._cache.removeCallback(self._attached_approach2, 'value', self._on_status_change_external)
+        self._cache.removeCallback(self._attached_move_x, 'value', self._on_status_change_external)
+        self._cache.removeCallback(self._attached_move_z, 'value', self._on_status_change_external)
+        Moveable.shutdown(self)
+
     def calculate_zeros(self):
         if self.positions=={}:
             return
@@ -286,8 +295,8 @@ class SeleneRobot(Moveable):
         # move driver to last rotation, taking into account that full rotations don't matter
         rot = self.rotations[position[0]].get(position[1], 0.)
         cur_rot = self._adjust()
-        dest_n = rot//360
-        adj_rot = dest_n*360+cur_rot%360
+        rot_diff = round((rot-cur_rot)/360.)
+        adj_rot = cur_rot+360*rot_diff
         self._adjust.doAdjust(cur_rot, adj_rot)
         # adjusting offset changes user limits so we reset full range
         # TODO: fix the fucking userlimits for device without range!
@@ -750,6 +759,12 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         self._cache.addCallback(self._attached_m_cart, 'value', self._on_status_change_external)
         self._cache.addCallback(self._attached_m_cart, 'status', self._on_status_change_external)
         self._cache.addCallback(self._attached_interferometer, 'status', self._on_status_change_external)
+
+    def shutdown(self):
+        self._cache.removeCallback(self._attached_m_cart, 'value', self._on_status_change_external)
+        self._cache.removeCallback(self._attached_m_cart, 'status', self._on_status_change_external)
+        self._cache.removeCallback(self._attached_interferometer, 'status', self._on_status_change_external)
+        BaseSequencer.shutdown(self)
 
     def _on_status_change_external(self, key, value, time):
         self._cache.invalidate(self, 'status')

@@ -7,7 +7,6 @@ group = 'lowlevel'
 devices = dict(
     mpos2=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        description='Cart positioning',
         motorpv=f'{pvprefix}Mtr12',
         powerautopv=f'{pvprefix}Mtr12-PwrAuto',
         errormsgpv=f'{pvprefix}Mtr12-MsgTxt',
@@ -20,7 +19,6 @@ devices = dict(
     ),
     mapproach2=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        description='Rotator for approach',
         motorpv=f'{pvprefix}Mtr13',
         powerautopv=f'{pvprefix}Mtr13-PwrAuto',
         errormsgpv=f'{pvprefix}Mtr13-MsgTxt',
@@ -35,7 +33,6 @@ devices = dict(
     ),
     mcart2=device(
         'nicos.devices.generic.sequence.LockedDevice',
-        description='Metrology Cart device',
         device='mpos2',
         lock='mapproach2',
         unlockvalue=60.,

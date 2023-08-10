@@ -5,7 +5,6 @@ pvprefix = 'ESTIA-Sel1:MC-MCU-01:'
 devices = dict(
     mover_fl_re_us=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        description='Mtr1 Selene1 1-Mover FL-RE-US',
         motorpv=f'{pvprefix}Mtr1',
         powerautopv=f'{pvprefix}Mtr1-PwrAuto',
         errormsgpv=f'{pvprefix}Mtr1-MsgTxt',
@@ -18,7 +17,6 @@ devices = dict(
     ),
     mover_pr_re_ds=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        description='Mtr2 Selene1 1-Mover PR-RE-DS',
         motorpv=f'{pvprefix}Mtr2',
         powerautopv=f'{pvprefix}Mtr2-PwrAuto',
         errormsgpv=f'{pvprefix}Mtr2-MsgTxt',
@@ -31,7 +29,6 @@ devices = dict(
     ),
     mover_pr_li_ds=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        description='Mtr3 Selene1 1-Mover PR-LI-DS',
         motorpv=f'{pvprefix}Mtr3',
         powerautopv=f'{pvprefix}Mtr3-PwrAuto',
         errormsgpv=f'{pvprefix}Mtr3-MsgTxt',
@@ -44,7 +41,6 @@ devices = dict(
     ),
     mover_pr_li_us1=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        description='Mtr4 Selene1 2-Mover PR-LI-US-1',
         motorpv=f'{pvprefix}Mtr4',
         powerautopv=f'{pvprefix}Mtr4-PwrAuto',
         errormsgpv=f'{pvprefix}Mtr4-MsgTxt',
@@ -57,7 +53,6 @@ devices = dict(
     ),
     mover_pr_li_us2=device(
         'nicos_ess.devices.epics.pva.motor.EpicsMotor',
-        description='Mtr5 Selene1 2-Mover PR-LI-US-2',
         motorpv=f'{pvprefix}Mtr5',
         powerautopv=f'{pvprefix}Mtr5-PwrAuto',
         errormsgpv=f'{pvprefix}Mtr5-MsgTxt',
