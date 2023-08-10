@@ -35,7 +35,7 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 
 from nicos import session
-from nicos.core import Attach, Param, status, Value, oneof, dictof, tupleof, MoveError, SIMULATION
+from nicos.core import Attach, MASTER, ModeError, Param, status, Value, oneof, dictof, tupleof, MoveError, SIMULATION
 from nicos.core.device import Override, Moveable
 from nicos.devices.generic import LockedDevice, BaseSequencer
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqWait
@@ -105,7 +105,8 @@ class SeleneRobot(Moveable):
         self._item_zpos = {}
         self._confirmed = {}
         self.calculate_zeros()
-        self.read(maxage=0)
+        if mode == MASTER:
+            self.read(maxage=0)
         self._cache.addCallback(self._attached_adjust1, 'value', self._update_rotation)
         self._cache.addCallback(self._attached_adjust2, 'value', self._update_rotation)
         self._cache.addCallback(self._attached_approach1, 'value', self._on_status_change_external)
@@ -255,7 +256,10 @@ class SeleneRobot(Moveable):
         for item, ditem in self.positions.items():
             for group, dgroup in ditem.items():
                 if abs(dgroup[0]-xpos)<5.0 and abs(dgroup[1]-zpos)<5.0:
-                    self.current_position = (item, group)
+                    try:
+                        self.current_position = (item, group)
+                    except ModeError:
+                        return self.current_position
                     return (item, group)
         self.current_position = (-1, -1)
         return (-1, -1)
