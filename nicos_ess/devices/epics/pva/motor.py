@@ -98,7 +98,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                         mandatory=False, settable=False, userparam=True, unit='°C', fmtstr='%.2f'),
         'temppv': Param('Optional PV with temperature sensor value.', type=pvname,
                         mandatory=False, settable=False, userparam=False),
-
+        'pvdesc': Param('Description of motor in EPICS', type=str,
+                        mandatory=False, settable=False, userparam=False),
         }
 
     parameter_overrides = {
@@ -113,7 +114,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         # Units are set by EPICS, so cannot be changed
         'unit': Override(mandatory=False, settable=False, volatile=True),
-    }
+        'description': Override(mandatory=False, settable=False, volatile=True),
+        }
 
     _motor_status = (status.OK, '')
 
@@ -140,7 +142,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'foff': 'FOFF',
         'units': 'EGU',
         'alarm_status': 'STAT',
-        'alarm_severity': 'SEVR'
+        'alarm_severity': 'SEVR',
+        'pvdesc': 'DESC',
     }
 
     _cache_relations = {
@@ -148,11 +151,19 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'units': 'unit',
         'writepv': 'target',
         'temppv': 'temp',
-    }
+        'pvdesc': 'pvdesc',
+        }
 
     def doInit(self, mode):
         self._lock = threading.Lock()
         EpicsMoveable.doInit(self, mode)
+
+    def doReadPvdesc(self):
+        return self._get_pv('pvdesc')
+
+    def doReadDescription(self):
+        # overwrite description field with EPICS motor name and .DESC
+        return f'{self.pvdesc} (PV: {self.motorpv})'
 
     def _get_pv_parameters(self):
         """
