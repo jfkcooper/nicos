@@ -309,9 +309,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if self.powerautopv:
             powerauto_enabled = self._get_pv('powerautopv')
         else:
-            powerauto_enabled = 0
+            powerauto_enabled = 1
 
-        if not powerauto_enabled and not self._get_pv('enable'):
+        # TODO: ECDC to check how this should actually work, manual disable is possible
+        if not powerauto_enabled or not self._get_pv('enable'):
             return status.WARN, 'motor is not enabled'
 
         miss = self._get_pv('miss')
