@@ -21,8 +21,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Moveable
-from nicos.core.params import Param
+from nicos.core import Attach, Moveable, status
+from nicos.core.params import Param, floatrange
 from nicos.devices.entangle import PyTangoDevice
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
     SeqSleep
@@ -44,6 +44,11 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
                                volatile=True),
         'ramp': Param('ramp of the current and voltage',
                       type=float, settable=True, unit='unit/min'),
+        'switchdelay': Param('time to switch between voltage and current '
+                             'ramping, is needed to avoid cooling water '
+                             'switching off',
+                             type=floatrange(1, 300), default=60,
+                             userparam=False, settable=True,),
     }
 
     def doRead(self, maxage=0):
@@ -84,6 +89,8 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
 
         if cchannel.current > current:
             return seq[::-1]
+        else:
+            seq.insert(1, SeqSleep(self.switchdelay))
         return seq
 
     def _onseq(self, on):
@@ -93,3 +100,13 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
     def doPoll(self, n, maxage):
         self._pollParam('heatercurrent', 1)
         self._pollParam('waterflow', 1)
+
+    def doStatus(self, maxage=0):
+        st = BaseSequencer.doStatus(self, maxage)
+        if st[0] != status.OK:
+            return st
+        return PyTangoDevice.doStatus(self, maxage)
+
+    def doReset(self):
+        BaseSequencer.doReset(self)
+        PyTangoDevice.doReset(self)

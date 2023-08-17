@@ -361,7 +361,7 @@ class FileWriterSinkHandler(DataSinkHandler):
             proposal_path = session.experiment.proposalpath_of(
                 session.experiment.propinfo.get('proposal')
             )
-            file_path = path.join(proposal_path, 'raw', filename)
+            file_path = path.join(proposal_path, filename)
         else:
             file_path = path.join(self.sink.subdir, filename)
 
@@ -544,7 +544,7 @@ class FileWriterControlSink(FileSink):
             self.brokers, self.pool_topic, self._attached_status.statustopic,
             self.timeoutinterval)
         if mode != SIMULATION:
-            self._consumer = KafkaConsumer.create(self.pool_topic)
+            self._consumer = KafkaConsumer.create(self.brokers)
             self._consumer.subscribe(self.pool_topic)
 
     def start_job(self):

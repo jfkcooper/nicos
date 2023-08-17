@@ -6,7 +6,7 @@ tango_base = configdata('instrument.values')['tango_base']
 sysconfig = dict(
     datasinks = [
         # 'tiffformat',
-        # 'fileformat',
+        'rawfile',
         'caresssink'
         # 'textsink',
     ],
@@ -29,24 +29,20 @@ devices = dict(
         default = 201.984,
         unit = 'mm',
         abslimits = (50, 400),
-        requires = {'level': 'admin'},
+        requires = {'level': 'guest'},
     ),
     adet = device('nicos.devices.generic.Detector',
         description = 'Merge detector infos',
         timers = ['timer'],
         images = ['image'],
     ),
-    # det = device('nicos.devices.generic.DeviceAlias',
-    #     alias = 'adet',
-    #     visibility = {'metadata', 'namespace'},
-    # ),
     sdet = device('nicos_mlz.labs.physlab.devices.detector.MovingDetector',
         description = 'Moving detector ... ',
         motor = 'ctt',
         detector = 'adet',
     ),
-    fileformat = device('nicos.devices.datasinks.raw.SingleRawImageSink',
-        # filenametemplate = ['%(proposal)s_%(pointcounter)08d.txt']
+    rawfile = device('nicos.devices.datasinks.raw.SingleRawImageSink',
+        filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw']
     ),
     textsink = device('nicos.devices.datasinks.text.NPFileSink',
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.dat']
@@ -54,7 +50,6 @@ devices = dict(
     caresssink = device('nicos_mlz.stressi.datasinks.CaressScanfileSink',
         filenametemplate = ['xresd%(scancounter)08d.dat'],
         detectors = ['adet'],
-        # flipimage = True,
     ),
 )
 
