@@ -125,15 +125,15 @@ main_window = docked(
                                              selene=2,
                                              channels=[
                                                  # (CHi, pos, diagonal)
-                                                 ('ch17', (-70,   25), False),
-                                                 ('ch18', (-70,   70), False),
-                                                 ('ch19', (-70, -100), True),
-                                                 ('ch20', (-70, -180), True),
+                                                 ('ch21', (-45,   80), False),
+                                                 ('ch22', (-45,   35), False),
+                                                 ('ch23', (-46, -144), True),
+                                                 ('ch24', (-46, -202), True),
 
-                                                 ('ch21', (70,   25), False),
-                                                 ('ch22', (70,   70), False),
-                                                 ('ch23', (70, -100), True),
-                                                 ('ch24', (70, -180), True),
+                                                 ('ch17', (45,   80), False),
+                                                 ('ch18', (45,   35), False),
+                                                 ('ch19', (46, -144), True),
+                                                 ('ch20', (46, -202), True),
                                                  ],
                                              positions=['ch27', 'ch28'],
                                              cart_position='mpos2',

@@ -28,6 +28,11 @@ class SeleneCalculator:
     zret_h2 = 10.0
     zcol_h2 = 160.0
 
+    col_h1 = (46., -135., 143.5)
+    ret_h1 = (-15., -70., 62.5)
+    col_h2 = (44.5, -132.4, 201.5)
+    ret_h2 = (-15., -80., 17)
+
     def _ellipse(self, xpos):
         # return selene ellipse height at distance from center
         return self._sb/self._sa*np.sqrt(self._sa**2-xpos**2)
@@ -67,6 +72,17 @@ class SeleneCalculator:
             delta = abs(dpos)
         return xout
 
+    def _diagnoal_paths(self, xpos, col, ret):
+        ye = self._ellipse(xpos)
+        # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
+        x_total = col[0]-ret[0]
+        z_total = (ye-col[1])+(ye-ret[1])
+        rel_1 = (ye-col[1])/z_total
+        rel_2 = (ye-ret[1])/z_total
+        p1 = np.array([ret[0]+rel_1*x_total, ye, col[2]-(ye-col[1])])
+        p2 = np.array([ret[0]+rel_2*x_total, -p1[2],-ye])
+        return p1, p2
+
     def _nominal_path_lengths(self, pos_motor=None):
         """
         Calculate the individual laser path lengths that would be excepted
@@ -85,12 +101,12 @@ class SeleneCalculator:
 
         # for diagnoal paths, 3d has to be considered and two reflections
         # horizontal w/ short path
-        h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
-        h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1/2*np.pi/180.),
-                           -self.delta_h1, self.zcol_h1])
-        # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
-        h1_p1 = np.array([0., ye, self.zcol_h1-ye])
-        h1_p2 = np.array([0., self.zret_h1,-ye])
+        # h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
+        # h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1/2*np.pi/180.),
+        #                    -self.delta_h1, self.zcol_h1])
+        h1_ret = np.array(self.ret_h1)
+        h1_col = np.array(self.col_h1)
+        h1_p1, h1_p2 = self._diagnoal_paths(xpos, h1_col, h1_ret)
         if hasattr(self, 'log'):
             self.log.debug(f'Calculated path: {h1_col}->{h1_p1}->{h1_p2}->{h1_ret}')
         h1_l1 = np.sqrt(((h1_col-h1_p1)**2).sum())
@@ -98,11 +114,12 @@ class SeleneCalculator:
         h1_l3 = np.sqrt(((h1_p2-h1_ret)**2).sum())
 
         # horizontal w/ long path
-        h2_ret = np.array([self.delta_x, -self.delta_h2, self.zret_h2])
-        h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2/2*np.pi/180.),
-                           -self.delta_h2, self.zcol_h2])
-        h2_p1 = np.array([0., ye, self.zcol_h2-ye])
-        h2_p2 = np.array([0., self.zret_h2,-ye])
+        # h2_ret = np.array([self.delta_x, -self.delta_h2, self.zret_h2])
+        # h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2/2*np.pi/180.),
+        #                    -self.delta_h2, self.zcol_h2])
+        h2_ret = np.array(self.ret_h2)
+        h2_col = np.array(self.col_h2)
+        h2_p1, h2_p2 = self._diagnoal_paths(xpos, h2_col, h2_ret)
         if hasattr(self, 'log'):
             self.log.debug(f'Calculated path: {h2_col}->{h2_p1}->{h2_p2}->{h2_ret}')
         h2_l1 = np.sqrt(((h2_col-h2_p1)**2).sum())
@@ -145,7 +162,7 @@ class CalcTester(TestCase):
 
     def test_ellipse(self):
         y = self.calc._ellipse(0.)
-        self.assertEqual(y, self.calc._sb)
+        self.assertAlmostEqual(y, self.calc._sb)
 
     def test_cartx(self):
         # test that the x-position conversion is inverse
@@ -157,3 +174,10 @@ class CalcTester(TestCase):
         for xi in xcart:
             xr.append(self.calc._x_for_cart(xi))
         testing.assert_array_almost_equal(x, np.array(xr), decimal=2)
+
+    def test_lengths(self):
+        class Bla:
+            debug = print
+        log = Bla()
+        self.calc.log=log
+        self.calc._nominal_path_lengths(0.)

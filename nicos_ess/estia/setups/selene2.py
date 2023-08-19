@@ -20,7 +20,6 @@ devices = dict(
         'nicos_ess.estia.devices.selene.SeleneMetrology',
         description='Selene 2 Metrology', unit='Item/Group',
         m_cart='mcart2', interferometer='multiline', cart_center=3453.,
-        zret_h1=50.0, zcol_h1=120.0, zret_h2=10.0, zcol_h2 = 160.0,
         ch_u_h1='ch23', ch_u_h2='ch24', ch_d_h1='ch19', ch_d_h2='ch20',
         ch_u_v1='ch21', ch_u_v2='ch22', ch_d_v1='ch17', ch_d_v2='ch18',
     )

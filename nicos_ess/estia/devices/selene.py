@@ -799,6 +799,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
                 Value('Mirror', unit=''))
 
     def _generateSequence(self, position):
+        # TODO: Special case for 1/15 outer positions not nominally reachable
         if len(position)==2 and position[0] in [-1, 0, 1] and position[1] in range(1,16):
             rel_pos, mirror = position
         else:
@@ -845,7 +846,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         xpos = self._x_for_cart(cpos - self.cart_center)
 
         # nominal lengths at current location
-        nv, nh1, nh2 = self._nominal_path_lengths(xpos)
+        nv, nh1, nh2 = self._nominal_path_lengths(cpos - self.cart_center)
 
         if xpos>0:
             self.last_raw=(self._attached_ch_d_v1.read(maxage=0),
@@ -888,7 +889,8 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         self._attached_m_cart.maw(self.cart_center)
         self._attached_interferometer.measure()
         self._attached_interferometer.wait()
-        v, h1, h2 = self._nominal_path_lengths(0.0001)
+
+        v, h1, h2 = self._nominal_path_lengths(0.)
         for li, chi in [
             (v, 'u_v1'),
             (v, 'u_v2'),
