@@ -7,26 +7,26 @@ from numpy import testing
 from unittest import TestCase
 
 class SeleneCalculator:
-    _sb = 157. # selene distance center-ellipse
+    _sb = 104.7 # selene distance center-ellipse
     _sc = 6000. # selene distance center-focus
     _sa = np.sqrt(_sc ** 2 + _sb ** 2)
 
     _mw = 480. # mirror width
     _sx = 42.5 # distance of screw from edge of mirror
 
-    # these attribuges will be overwritte in device
+    # these attributes will be overwritte in device
     eta_v = 14.92
     delta_v = 120.
     delta_x = -15.
 
     eta_h1=16.39
     delta_h1 = 70.0
-    zret_h1 = 70.0
-    zcol_h1 = 70.0
+    zret_h1 = 50.0
+    zcol_h1 = 120.0
     eta_h2 = 15.47
     delta_h2 = 80.0
-    zret_h2 = 70.0
-    zcol_h2 = 70.0
+    zret_h2 = 10.0
+    zcol_h2 = 160.0
 
     def _ellipse(self, xpos):
         # return selene ellipse height at distance from center
@@ -47,7 +47,7 @@ class SeleneCalculator:
             return xpos
         # In the optimal configuration the retro reflector receives the beam with
         # half of the nominal angle plus 2x the surface inclination.
-        alpha = self.eta_v*np.pi/180. - self._ellipse_angle(abs(xpos))/2.
+        alpha = self.eta_v*np.pi/360. - self._ellipse_angle(abs(xpos))/2.
         # distance of that reflection is the nominal distance at center minus ellipse height
         h = self.delta_v  + self._ellipse(xpos)
         div = self.delta_x + np.tan(alpha)*h
@@ -78,29 +78,33 @@ class SeleneCalculator:
         # length of laser is distance reflector-mirror + collimator-mirror
         # vertical mirrors
         dalpha = self._ellipse_angle(abs(xpos))/2.
-        h = self.delta_v + self._ellipse(xpos)
+        ye = self._ellipse(xpos)
+        h = self.delta_v + ye
         v_l1 = h/np.cos(self.eta_v/2*np.pi/180.+dalpha) # reflector angle gets larger
         v_l2 = h/np.cos(self.eta_v/2*np.pi/180.-dalpha) # collimator angle gets smaller
 
         # for diagnoal paths, 3d has to be considered and two reflections
         # horizontal w/ short path
         h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
-        h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1),
+        h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1/2*np.pi/180.),
                            -self.delta_h1, self.zcol_h1])
         # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
-        h1_p1 = np.array([0., self.zret_h1-h, h])
-        h1_p2 = np.array([0., h, self.zcol_h1-h])
+        h1_p1 = np.array([0., ye, self.zcol_h1-ye])
+        h1_p2 = np.array([0., self.zret_h1,-ye])
+        if hasattr(self, 'log'):
+            self.log.debug(f'Calculated path: {h1_col}->{h1_p1}->{h1_p2}->{h1_ret}')
         h1_l1 = np.sqrt(((h1_col-h1_p1)**2).sum())
         h1_l2 = np.sqrt(((h1_p1-h1_p2)**2).sum())
         h1_l3 = np.sqrt(((h1_p2-h1_ret)**2).sum())
 
         # horizontal w/ long path
         h2_ret = np.array([self.delta_x, -self.delta_h2, self.zret_h2])
-        h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2),
+        h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2/2*np.pi/180.),
                            -self.delta_h2, self.zcol_h2])
-        # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
-        h2_p1 = np.array([0., self.zret_h2-h, h])
-        h2_p2 = np.array([0., h, self.zcol_h2-h])
+        h2_p1 = np.array([0., ye, self.zcol_h2-ye])
+        h2_p2 = np.array([0., self.zret_h2,-ye])
+        if hasattr(self, 'log'):
+            self.log.debug(f'Calculated path: {h2_col}->{h2_p1}->{h2_p2}->{h2_ret}')
         h2_l1 = np.sqrt(((h2_col-h2_p1)**2).sum())
         h2_l2 = np.sqrt(((h2_p1-h2_p2)**2).sum())
         h2_l3 = np.sqrt(((h2_p2-h2_ret)**2).sum())
@@ -123,8 +127,15 @@ class SeleneCalculator:
         fac = 1./np.cos(np.pi/4.)
         dpos_h1 = dh1/2*fac-(dpos_v1+dpos_v2)/2
         dpos_h2 = dh2/2*fac-(dpos_v1+dpos_v2)/2
-        # TODO: include the location of the screws in the calculation
-        return dpos_v1, dpos_v2, dpos_h1, dpos_h2
+        # TODO: include the location of the screws in the horizontal calculation
+        c2_z=40.
+        c1_z=80.
+        s2_z=17.5
+        s1_z=123.5
+        dd_v = (dpos_v2-dpos_v1)/(c2_z - c1_z)
+        spos_v1 = (s1_z-c1_z)*dd_v+dpos_v1
+        spos_v2 = (s2_z-c1_z)*dd_v+dpos_v1
+        return spos_v1, spos_v2, dpos_h1, dpos_h2
 
 class CalcTester(TestCase):
     calc:SeleneCalculator

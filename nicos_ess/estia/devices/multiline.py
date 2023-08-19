@@ -135,6 +135,22 @@ class MultilineChannel(EpicsReadableEss):
                   type=limits,
                   settable=False,
                   internal=True),
+        'align_range':
+            Param('Difference Align-max to Align-min.',
+                  type=float,
+                  settable=False),
+        'align_minpv':
+            Param('PV for the align min value.',
+                  type=pvname,
+                  settable=False,
+                  mandatory=True,
+                  userparam=False),
+        'align_maxpv':
+            Param('PV for the align max value.',
+                  type=pvname,
+                  settable=False,
+                  mandatory=True,
+                  userparam=False),
         'gain':
             Param('Gain for the channel.',
                   type=float,
@@ -158,7 +174,7 @@ class MultilineChannel(EpicsReadableEss):
     }
 
     def _get_pv_parameters(self):
-        return {'readpv', 'gain_pv'}
+        return {'readpv', 'gain_pv', 'align_minpv', 'align_maxpv'}
 
     def doPreinit(self, mode):
         self._raw = np.zeros(16)
@@ -237,6 +253,11 @@ class MultilineChannel(EpicsReadableEss):
         raw = self._get_pv('latest_valid_pv')
         return float(raw[1]) if raw else 0
 
+    def doReadAlign_Range(self):
+        raw_min = self._get_pv('align_minpv')
+        raw_max = self._get_pv('align_maxpv')
+        return raw_max-raw_min
+
     def doPoll(self, n, maxage=0):
         self.pollParams(volatile_only=False,
                         param_list=['i_limits', 'gain'])
@@ -301,6 +322,7 @@ class MultilineController(EpicsReadableEss, Waitable):
 
     _cache_relations = {
         'single_measurement': 'single_measurement',
+        # 'alignment_process': 'alignment_process',
     }
 
 

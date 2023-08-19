@@ -704,17 +704,17 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         'delta_h1': Param('Nominal distance between XZ plane and retroreflector', mandatory=False,
                          userparam=True, default=70.0, unit='mm'),
         'zret_h1': Param('Nominal distance between XY plane and retroreflector', mandatory=False,
-                         userparam=True, default=70.0, unit='mm'),
+                         userparam=True, default=50.0, unit='mm'),
         'zcol_h1': Param('Nominal distance between XY plane and collimator', mandatory=False,
-                         userparam=True, default=70.0, unit='mm'),
+                         userparam=True, default=120.0, unit='mm'),
         'eta_h2': Param('Nominal reflection angle from interferometer head to retroreflector', mandatory=False,
                        userparam=True, default=15.47, unit='deg'),
         'delta_h2': Param('Nominal distance between XZ plane and retroreflector', mandatory=False,
                          userparam=True, default=80.0, unit='mm'),
         'zret_h2': Param('Nominal distance between XY plane and retroreflector', mandatory=False,
-                         userparam=True, default=70.0, unit='mm'),
+                         userparam=True, default=10.0, unit='mm'),
         'zcol_h2': Param('Nominal distance between XY plane and collimator', mandatory=False,
-                         userparam=True, default=70.0, unit='mm'),
+                         userparam=True, default=160.0, unit='mm'),
         'delta_x': Param('Nominal x-distance of retroreflector and cart center', mandatory=False,
                          userparam=True, default=-15.0, unit='mm'),
         'if_offset_u_h1': Param('Deviation of laser path length as determined at center',
@@ -799,7 +799,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
                 Value('Mirror', unit=''))
 
     def _generateSequence(self, position):
-        if len(position)==2 and position[0] in [-1, 0, 1] and position[1] in range(1,15):
+        if len(position)==2 and position[0] in [-1, 0, 1] and position[1] in range(1,16):
             rel_pos, mirror = position
         else:
             raise ValueError("Position should be tuple (rel. location, mirror) w/ rel. location in [-1,0,1]")
@@ -842,7 +842,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         # run after a measurement is complete to get the screw deviations
         self.log.debug("Measurement done, store raw lengths and deviations")
         cpos = self._attached_m_cart()
-        xpos = self._x_for_cart(cpos) - self.cart_center
+        xpos = self._x_for_cart(cpos - self.cart_center)
 
         # nominal lengths at current location
         nv, nh1, nh2 = self._nominal_path_lengths(xpos)
