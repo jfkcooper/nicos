@@ -22,13 +22,16 @@
 # *****************************************************************************
 
 from nicos.core import Attach, Moveable, status
-from nicos.core.params import Param, floatrange
+from nicos.core.params import Param, floatrange, tupleof
 from nicos.devices.entangle import PyTangoDevice
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
     SeqSleep
 
 
 class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
+
+    valuetype = tupleof(float, float)
+    hardware_access = True
 
     attached_devices = {
         'voltage': Attach('Voltage channel of the xray generator', Moveable),
@@ -47,7 +50,7 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
         'switchdelay': Param('time to switch between voltage and current '
                              'ramping, is needed to avoid cooling water '
                              'switching off',
-                             type=floatrange(1, 300), default=60,
+                             type=floatrange(1, 300), default=60, unit='s',
                              userparam=False, settable=True,),
     }
 
@@ -68,6 +71,8 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
         self._attached_current.ramp = ramp
 
     def _generateSequence(self, target):
+        if self.isAtTarget(target=target):
+            return []
         voltage, current = target
         vchannel = self._attached_voltage
         cchannel = self._attached_current
@@ -110,3 +115,11 @@ class HighVoltagePowerSupply(PyTangoDevice, BaseSequencer):
     def doReset(self):
         BaseSequencer.doReset(self)
         PyTangoDevice.doReset(self)
+
+    def doIsAtTarget(self, pos, target):
+        return pos == target
+
+    def doTime(self, old_value, target):
+        return sum(dev.doTime(ov, t) for (dev, ov, t) in
+                   zip((self._attached_voltage, self._attached_current),
+                       old_value, target)) + self.switchdelay
