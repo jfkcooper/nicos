@@ -66,7 +66,7 @@ FILETAG = Qt.ItemDataRole.UserRole + 2
 FILEUID = Qt.ItemDataRole.UserRole + 3
 
 DEFAULTS = dict(
-    marks='omark',
+    marks='circle',
     offset=0,
     plotcount=1,
     colors='blue',
@@ -120,7 +120,7 @@ class LiveDataPanel(PlotPanel):
       Each entry will be applied to one of the detector's datasets.
 
       * ``plotcount`` (default 1) - Amount of plots in the dataset.
-      * ``marks`` (default 'omark') - Shape of the markers (if displayed).
+      * ``marks`` (default 'circle') - Shape of the markers (if displayed).
         Possible values are:
 
           'dot', 'plus', 'asterrisk', 'circle', 'diagonalcross', 'solidcircle',
@@ -1094,14 +1094,14 @@ class AutoScaleLiveWidget1D(LiveWidget1D):
     def getYMax(self):
         minupperedge = 1
         if self._arrays is not None:
-            minupperedge = max([array.max() for array in self._arrays])
+            minupperedge = max(array.max() for array in self._arrays)
             minupperedge *= 2.15 if self._logscale else 1.05
         return minupperedge
 
     def getYMin(self):
         maxloweredge = 0.09 if self._logscale else 0
         if self._arrays is not None:
-            maxloweredge = min([array.min() for array in self._arrays])
+            maxloweredge = min(array.min() for array in self._arrays)
             maxloweredge *= 0.5 if self._logscale else 0.95
         return maxloweredge
 
