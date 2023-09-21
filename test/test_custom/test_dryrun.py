@@ -136,6 +136,8 @@ def test_dryrun(session, facility, instr, script):
             if line.startswith('# test:'):
                 parts = line.split(None, 4)
                 if len(parts) < 4:  # -> # test: name = value...
+                    if parts[2] == 'skip':
+                        pytest.skip('test should be skipped')
                     continue
                 if parts[2] == 'subdirs':
                     subdirs.extend(v.strip() for v in parts[4].split(','))
@@ -144,7 +146,7 @@ def test_dryrun(session, facility, instr, script):
                 elif parts[2] == 'setupcode':
                     setupcode.insert(0, parts[4] + '\n')
                 elif parts[2] == 'needs':
-                    needs_modules.append(parts[4].strip())
+                    needs_modules.extend(v.strip() for v in parts[4].split(','))
                 elif parts[2] == 'timing':
                     timing_condition = parts[4].strip()
                 else:

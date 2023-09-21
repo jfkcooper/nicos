@@ -39,10 +39,14 @@ class InterfaceLogicalMotorHandler(Moveable):
     This may be different from the list of attached devices when logical
     motors operate on conditional components.
     """
+    hardware_access = False
+
     parameter_overrides = {
         'fmtstr': Override(volatile=True),
         'unit': Override(mandatory=False, default='degree'),
     }
+
+    valuetype = dict
 
     status_to_msg = {
         status.ERROR: 'Error in %s',
@@ -56,14 +60,23 @@ class InterfaceLogicalMotorHandler(Moveable):
     def doPreinit(self, mode):
         self._logical_motors = {}
         self._motortypes = []
-        self.valuetype = {}
 
     def register(self, motortype, motor):
         self._motortypes.append(motortype)
         self._logical_motors[motortype] = motor
 
+    def format(self, value, unit=False):
+        try:
+            fmtstr = ', '.join(f'{mt}=%({mt}).3f' for mt in value)
+            ret = fmtstr % value
+        except (TypeError, ValueError):
+            ret = str(value)
+        if unit and self.unit:
+            return ret + ' ' + self.unit
+        return ret
+
     def doReadFmtstr(self):
-        return ', '.join([mt + '=%(' + mt + ').3f' for mt in self._motortypes])
+        return ', '.join(mt + '=%(' + mt + ').3f' for mt in self._motortypes)
 
     def _get_dev(self, dev):
         return getattr(self, '_attached_%s' % dev, None)
@@ -165,6 +178,8 @@ class LogicalMotor(Motor):
     always the name of the logical device
     """
 
+    hardware_access = False
+
     parameter_overrides = {
         'unit': Override(mandatory=False, default='degree'),
         'target': Override(volatile=True),
@@ -181,23 +196,23 @@ class LogicalMotor(Motor):
         self._attached_controller.register(self.name, self)
 
     def doRead(self, maxage=0):
-        return self._attached_controller.doRead(maxage)[self.name]
+        return self._attached_controller.read(maxage)[self.name]
 
     def doReadTarget(self):
         return self._getFromCache('target', self.doRead)
 
     def doStatus(self, maxage=0):
         # Check for error and warning in the dependent devices
-        return self._attached_controller.doStatus(maxage)
+        return self._attached_controller.status(maxage)
 
     def doIsAllowed(self, pos):
-        return self._attached_controller.doIsAllowed({self.name: pos})
+        return self._attached_controller.isAllowed({self.name: pos})
 
     def doIsCompleted(self):
-        return self._attached_controller.doIsCompleted()
+        return self._attached_controller.isCompleted()
 
     def doStart(self, pos):
-        self._attached_controller.doStart({self.name: pos})
+        self._attached_controller.start({self.name: pos})
 
     def doStop(self):
         if self.status(0)[0] == status.BUSY:

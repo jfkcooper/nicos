@@ -32,9 +32,8 @@ from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 from nicos_sinq.devices.epics.area_detector import ADKafkaPlugin
 
 try:
-    from nicos_sinq.devices.fbschemas.hs00 import ArrayUInt, \
+    from nicos_sinq.devices.fbschemas.hs00 import Array, ArrayUInt, \
         EventHistogram
-    from nicos_sinq.devices.fbschemas.hs00 import Array
 
 except ImportError:
     EventHistogram = None
@@ -87,7 +86,7 @@ class ADKafkaImageDetector(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         self._lastmessage = sorted(messages, key=lambda m: m[0])[~0]
 
     def doStatus(self, maxage=0):
-        st = self._attached_kafka_plugin.doStatus()
+        st = self._attached_kafka_plugin.status(maxage)
         if st[0] != status.OK:
             return st
         if not self._consumer:

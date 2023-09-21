@@ -23,15 +23,17 @@
 
 """Monochromator Exchange."""
 
-from nicos.core import Readable, Moveable, usermethod, status, UsageError, \
-    multiWait
-from nicos.core.params import Override, Attach
+from nicos.core import Moveable, Readable, UsageError, multiWait, status, \
+    usermethod
+from nicos.core.params import Attach, Override
 from nicos.devices.generic import Switcher
 
 
 class MonoBlock(Readable):
     """The MonoBlock is a device that allows the monochromator crystal
     to be moved in 3 directions: translation, inclination and curvature."""
+
+    hardware_access = False
 
     parameter_overrides = {
         'unit': Override(mandatory=False),
