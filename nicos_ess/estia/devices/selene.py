@@ -810,9 +810,22 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         # reset last values before starting to move, so any value but nan should be for the current location
         self.last_raw = (np.nan, np.nan, np.nan, np.nan)
         self.last_delta = (np.nan, np.nan, np.nan, np.nan)
+
+        if abs(calc_pos)<300:
+            measure_channels = [self._attached_ch_d_v1.channel, self._attached_ch_d_v2.channel,
+                                self._attached_ch_d_h1.channel, self._attached_ch_d_h2.channel,
+                                self._attached_ch_u_v1.channel, self._attached_ch_u_v2.channel,
+                                self._attached_ch_u_h1.channel, self._attached_ch_u_h2.channel]
+        elif calc_pos>0:
+            measure_channels = [self._attached_ch_d_v1.channel, self._attached_ch_d_v2.channel,
+                                self._attached_ch_d_h1.channel, self._attached_ch_d_h2.channel]
+        else:
+            measure_channels = [self._attached_ch_u_v1.channel, self._attached_ch_u_v2.channel,
+                                self._attached_ch_u_h1.channel, self._attached_ch_u_h2.channel]
+
         return [
             SeqDev(self._attached_m_cart, dest_pos), # move to location
-            SeqMethod(self._attached_interferometer, 'measure'), # make a measurement
+            SeqMethod(self._attached_interferometer, 'measure', measure_channels), # make a measurement
             SeqWait(self._attached_interferometer), # make a measurement
             SeqMethod(self, '_calc_current_difference') # analyse and store result
         ]
@@ -831,8 +844,22 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         # reset last values before starting to move, so any value but nan should be for the current location
         self.last_raw = (np.nan, np.nan, np.nan, np.nan)
         self.last_delta = (np.nan, np.nan, np.nan, np.nan)
+
+        cpos = self._attached_m_cart()
+        xpos = self._x_for_cart(cpos - self.cart_center)
+        if abs(xpos)<300:
+            measure_channels = [self._attached_ch_d_v1.channel, self._attached_ch_d_v2.channel,
+                                self._attached_ch_d_h1.channel, self._attached_ch_d_h2.channel,
+                                self._attached_ch_u_v1.channel, self._attached_ch_u_v2.channel,
+                                self._attached_ch_u_h1.channel, self._attached_ch_u_h2.channel]
+        elif xpos>0:
+            measure_channels = [self._attached_ch_d_v1.channel, self._attached_ch_d_v2.channel,
+                                self._attached_ch_d_h1.channel, self._attached_ch_d_h2.channel]
+        else:
+            measure_channels = [self._attached_ch_u_v1.channel, self._attached_ch_u_v2.channel,
+                                self._attached_ch_u_h1.channel, self._attached_ch_u_h2.channel]
         sequence = [
-            SeqMethod(self._attached_interferometer, 'measure'), # make a measurement
+            SeqMethod(self._attached_interferometer, 'measure', measure_channels), # make a measurement
             SeqWait(self._attached_interferometer), # make a measurement
             SeqMethod(self, '_calc_current_difference') # analyse and store result
         ]

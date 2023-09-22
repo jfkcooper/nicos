@@ -24,76 +24,10 @@ from collections import namedtuple
 
 import numpy as np
 
-from nicos.core import Attach, CommunicationError, Override, Param, Readable, \
-    limits, pvname, status, Waitable
-from nicos.devices.epics import SEVERITY_TO_STATUS
+from nicos.core import Attach, nonemptylistof, Override, Param, Readable, \
+    pvname, status, Waitable
 
-from nicos_ess.devices.epics.base import EpicsReadableEss
-from nicos_ess.devices.epics.extensions import HasDisablePv
-
-
-class PilotLaser(HasDisablePv, EpicsReadableEss):
-    parameters = {
-        'uncertainty_fix':
-            Param('Fixed contribution to uncertainty',
-                  type=float,
-                  settable=False,
-                  volatile=True),
-        'uncertainty_variable':
-            Param('Uncertainty that depends on L', type=float, settable=False),
-        'pvprefix':
-            Param('Name of the record PV.',
-                  type=pvname,
-                  mandatory=True,
-                  settable=False,
-                  userparam=False),
-    }
-
-    parameter_overrides = {
-        'unit': Override(mandatory=False),
-    }
-
-    _record_fields = {
-            'uncertainty_fix': 'LaserUncertFix-R',
-            'uncertainty_variable': 'LaserUncertLDep-R',
-            'connected': 'IsConnected-R',
-        }
-
-    def _get_pv_parameters(self):
-        return HasDisablePv._get_pv_parameters(self) | set(
-            self._record_fields.keys())
-
-    def _get_pv_name(self, pvparam):
-        record_prefix = getattr(self, 'pvprefix')
-        field = self._record_fields.get(pvparam)
-        if field is not None:
-            return ':'.join((record_prefix, field))
-        pvname = HasDisablePv._get_pv_name(self, pvparam)
-        if pvname:
-            return pvname
-        return getattr(self, pvparam)
-
-    def doStatus(self, maxage=0):
-        general_epics_status, _ = self._get_mapped_epics_status()
-
-        if general_epics_status == status.ERROR:
-            return status.ERROR, 'Unknown problem in record'
-
-        if not self._get_pv('connected'):
-            return status.WARN, 'Disconnected'
-
-        return status.OK, ''
-
-    def doReadUncertainty_Fix(self):
-        return self._get_pv('uncertainty_fix')
-
-    def doReadUncertainty_Variable(self):
-        return self._get_pv('uncertainty_variable')
-
-    def doRead(self, maxage=0):
-        if self._get_pv('connected'):
-            return 'Ready'
-        return 'Not Ready'
+from nicos_ess.devices.epics.pva.epics_devices import EpicsStringReadable
 
 
 STAT_TO_STATUS = {
@@ -121,153 +55,12 @@ STAT_TO_STATUS = {
     21:'WRITE_ACCESS_ALARM',
 }
 
-class MultilineChannel(EpicsReadableEss):
-
-    parameters = {
-        'channel':
-            Param('Channel number.',
-                  type=int,
-                  settable=False,
-                  userparam=False,
-                  internal=True),
-        'i_limits':
-            Param('Minimum intensity as raw value.',
-                  type=limits,
-                  settable=False,
-                  internal=True),
-        'align_range':
-            Param('Difference Align-max to Align-min.',
-                  type=float,
-                  settable=False),
-        'align_minpv':
-            Param('PV for the align min value.',
-                  type=pvname,
-                  settable=False,
-                  mandatory=True,
-                  userparam=False),
-        'align_maxpv':
-            Param('PV for the align max value.',
-                  type=pvname,
-                  settable=False,
-                  mandatory=True,
-                  userparam=False),
-        'gain':
-            Param('Gain for the channel.',
-                  type=float,
-                  settable=False),
-        'gain_pv':
-            Param('PV for the gain.',
-                  type=pvname,
-                  settable=False,
-                  mandatory=True,
-                  userparam=False),
-        'latest_valid':
-            Param('Latest data of a valid measurement.',
-                  type=float,
-                  settable=False),
-        'latest_valid_pv':
-            Param('PV of latest data of a valid measurement.',
-                  type=pvname,
-                  settable=False,
-                  mandatory=True,
-                  userparam=False),
-    }
-
-    def _get_pv_parameters(self):
-        return {'readpv', 'gain_pv', 'align_minpv', 'align_maxpv'}
-
-    def doPreinit(self, mode):
-        self._raw = np.zeros(16)
-        self._raw = list(map(float, self._raw.tolist()))
-        EpicsReadableEss.doPreinit(self, mode)
-
-    def _readRaw(self):
-        raw = self._get_pv('readpv')
-        raw = list(map(float, raw.tolist()))
-        if len(raw) > 0:
-            self._raw = raw
-        else:
-            raise CommunicationError(f'Can\'t read {self.readpv}')
-
-    def doRead(self, maxage=0):
-        self._readRaw()
-        return self._raw[1]
-
-    def doStatus(self, maxage=0):
-        self._readRaw()
-        epics_status = self._get_pvctrl('readpv', 'status', update=True)
-        epics_severity = self._get_pvctrl('readpv', 'severity')
-        readpv_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
-        readpv_message=STAT_TO_STATUS.get(epics_status, 'Unkown status code %i'%epics_status)
-
-        if int(self._raw[7]):
-            return max(readpv_status, status.ERROR), 'Analysis error '+readpv_message
-        elif int(self._raw[8]):
-            return max(readpv_status, status.ERROR), 'Beam interruption '+readpv_message
-        elif int(self._raw[9]):
-            return max(readpv_status, status.ERROR), 'Temperature error '+readpv_message
-        elif int(self._raw[10]):
-            return max(readpv_status, status.ERROR), 'Movement tolerance error '+readpv_message
-        elif int(self._raw[11]):
-            return max(readpv_status, status.ERROR), 'Intensity error '+readpv_message
-        elif int(self._raw[12]):
-            return max(readpv_status, status.ERROR), 'USB connection error '+readpv_message
-        elif int(self._raw[13]):
-            return max(readpv_status, status.ERROR), 'Error setting the laser speed '+readpv_message
-        elif int(self._raw[14]):
-            return max(readpv_status, status.ERROR), 'Error laser temperature '+readpv_message
-        elif int(self._raw[15]):
-            return max(readpv_status, status.ERROR), 'DAQ error '+readpv_message
-        else:
-            highest_status = status.OK
-            mapped_massages = []
-            for name in self._pvs:
-                epics_status = self._get_pvctrl(name, 'status', update=True)
-                epics_severity = self._get_pvctrl(name, 'severity')
-
-                mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
-                mapped_massages.append(
-                        (mapped_status,
-                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %s'%epics_status),
-                        name)
-                        )
-
-                highest_status = max(highest_status, mapped_status)
-            if highest_status>status.OK:
-                epics_message='PV error status: '+'|'.join([self._get_pv_name(mm[2])+':'+mm[1]
-                                                            for mm in mapped_massages if mm[0]==highest_status])
-            else:
-                epics_message=''
-            return (highest_status, epics_message)
-
-    def doReadChannel(self):
-        return self._raw[0]
-
-    def doReadI_Limits(self):
-        return self._raw[2], self._raw[3]
-
-    def doReadGain(self):
-        return self._get_pv('gain_pv')
-
-    def doReadLatest_Valid(self):
-        raw = self._get_pv('latest_valid_pv')
-        return float(raw[1]) if raw else 0
-
-    def doReadAlign_Range(self):
-        raw_min = self._get_pv('align_minpv')
-        raw_max = self._get_pv('align_maxpv')
-        return raw_max-raw_min
-
-    def doPoll(self, n, maxage=0):
-        self.pollParams(volatile_only=False,
-                        param_list=['i_limits', 'gain'])
-
 
 EnvironmentalParameters = namedtuple('EnvironmentalParameters',
                                      ['temperature', 'pressure', 'humidity'])
 
 
-class MultilineController(EpicsReadableEss, Waitable):
+class MultilineController(EpicsStringReadable, Waitable):
 
     parameters = {
         'pvprefix':
@@ -276,6 +69,9 @@ class MultilineController(EpicsReadableEss, Waitable):
                   mandatory=True,
                   settable=False,
                   userparam=False),
+        'polling_counter':
+            Param('Number of polling requests from IOC',
+                  type=int, settable=False, userparam=True),
         'front_end_splitter':
             Param('Turn front end splitter on/off.',
                   type=str,
@@ -286,49 +82,114 @@ class MultilineController(EpicsReadableEss, Waitable):
                   type=str,
                   settable=True,
                   internal=True),
-        'single_measurement':
+        'start_measurement':
             Param('Start of a single measurement.',
                   type=str,
                   settable=True,
                   internal=True),
         'alignment_process':
-            Param('Start/stop the process to align the '
-                  'channels.',
-                  type=str,
+            Param('Start/stop the process to align the channels.',
+                  type=int,
                   settable=True,
                   internal=True),
-    }
+        'current_task':
+            Param('String value of the IOC task currently performed.',
+                  type=str,
+                  settable=False,
+                  internal=True),
+        'measurement_lengths': Param('Last measurement length array',
+                                     type=nonemptylistof(float), settable=False, internal=True),
+        'align_min': Param('', type=nonemptylistof(float), settable=False, internal=True),
+        'align_max': Param('', type=nonemptylistof(float), settable=False, internal=True),
+        'measurement_errors': Param('Last measurement errors',
+                                    type=nonemptylistof(int), settable=False, internal=True),
+        'measurement_counter': Param('Last measurement errors',
+                                    type=nonemptylistof(int), settable=False, internal=True),
+        'measurement_gains': Param('Gain of channels',
+                                    type=nonemptylistof(int), settable=True, internal=True),
+        'measurement_channels': Param('Channels selected for measurement',
+                                    type=nonemptylistof(int), settable=True, internal=True),
+        'selected_channels': Param('List of selected channel flags',
+                                   type=nonemptylistof(int), settable=False, internal=True),
+        }
 
     parameter_overrides = {
         'unit': Override(mandatory=False),
     }
 
     attached_devices = {
-        'pilot_laser': Attach('Pilot laser', PilotLaser),
-        'humidity': Attach('Environmental humidity', Readable),
-        'pressure': Attach('Environmental pressure', Readable),
-        'temperature': Attach('Environmental temperature', Readable),
     }
 
     _record_fields = {
-            # 'front_end_splitter': 'FrontEndSplitter-S',
+            'readpv': 'MeasState-R',
+            'front_end_splitter': 'FrontEndSplitter-S',
             'fes_option': 'FESOption-S',
-            'single_measurement': 'SingleMeasurement-S',
-            # 'alignment_process': 'AlignmentProcess-S',
-            'server_error': 'ServerErr-R',
+            'start_measurement': 'MeasStart-S',
+            'alignment_process': 'AlignmentStart-S',
+            'current_task': 'CurrentTask-R',
+            # 'ioc_connect': 'ConnectIOCtoServer-S',
             'num_channels': 'NumChannels-R',
-            'is_grouped': 'IsGrouped-R'
+            'is_grouped': 'IsGrouped-R',
+            'polling_counter': 'PollingCounter-R',
+            'available_channels': 'SelectedChannels-R',
+            'measurement_channels': 'MeasEnableChannel-S',
+            'measurement_counter': 'MeasCounter-R',
+            'measurement_preshots': 'MeasPreshot-S',
+            'measurement_lengths': 'DataLenLength-R',
+            'measurement_gains': 'Gains-R',
+            'align_min': 'AlignDataMin-R',
+            'align_max': 'AlignDataMax-R',
+            # channel error information
+            'error_analysis': 'DataLenAnErr-R',
+            'error_interuption': 'DataLenBeamInt-R',
+            'error_temperature': 'DataLenTempErr-R',
+            'error_movement': 'DataLenMoveErr-R',
+            'error_intensity': 'DataLenIntensErr-R',
+            'error_usb': 'DataLenUSBErr-R',
+            'error_dll': 'DataLenDLLErr-R',
+            'error_laser_speed': 'DataLenLSpeedErr-R',
+            'error_laser_temperature': 'DataLenLTempErr-R',
+            'error_daq': 'DataLenDAQErr-R',
         }
 
     _cache_relations = {
-        'single_measurement': 'single_measurement',
-        # 'alignment_process': 'alignment_process',
-    }
+        'polling_counter': 'polling_counter',
+        'current_task': 'current_task',
+        'measurement_lengths': 'measurement_lengths',
+        'available_channels': 'selected_channels',
+        'align_min': 'align_min',
+        'align_max': 'align_max',
+        'measurement_gains': 'measurement_gains',
+        'measurement_channels': 'measurement_channels',
+        'measurement_counter': 'measurement_counter',
+        }
 
+    _error_flag_list = ['error_analysis', 'error_interuption', 'error_temperature',
+                        'error_movement', 'error_intensity', 'error_usb', 'error_dll',
+                        'error_laser_speed', 'error_laser_temperature', 'error_daq']
+
+    def doInit(self, mode):
+        self.valuetype = str
+
+    _value_codes = {
+        0: "Idle",
+        1: "Requested",
+        2: "Measuring",
+        3: "Processing",
+        4: "Error",
+        }
+    def doRead(self, maxage=0):
+        self._pollParam('current_task')
+        self._pollParam('measurement_errors')
+        value=EpicsStringReadable.doRead(self, maxage)
+        if isinstance(value, str):
+            return value
+        else:
+            return self._value_codes[int(value)]
 
     def _get_pv_parameters(self):
         parameters = set(self._record_fields.keys())
-        return parameters | {'readpv'}
+        return parameters
 
     def _get_pv_name(self, pvparam):
         record_prefix = getattr(self, 'pvprefix')
@@ -338,40 +199,85 @@ class MultilineController(EpicsReadableEss, Waitable):
         return getattr(self, pvparam)
 
     def doStatus(self, maxage=0):
-        epics_status = self._get_pvctrl('readpv', 'status', update=True)
-        epics_severity = self._get_pvctrl('readpv', 'severity')
-        readpv_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
-        readpv_message=STAT_TO_STATUS.get(epics_status, 'Unkown status code %s'%epics_status)
+        readpv_status, readpv_message = EpicsStringReadable.doStatus(self, maxage)
 
-        if self._get_pv('server_error'):
-            return max(readpv_status, status.ERROR), 'Server error '+readpv_message
-        mess_status = self.doReadSingle_Measurement()
-        if mess_status in ['START', 'RUNNING']:
-            return status.BUSY, 'Measuring'
+        if readpv_status>status.OK:
+            return readpv_status, readpv_message
+
+        state = self.read(maxage)
+        task = self.current_task
+        if task == 'Aligning':
+            return status.BUSY, 'Alignment Running'
         else:
-            highest_status = status.OK
-            mapped_massages = []
-            for name in self._pvs:
-                epics_status = self._get_pvctrl(name, 'status', update=True)
-                epics_severity = self._get_pvctrl(name, 'severity')
-
-                mapped_status = SEVERITY_TO_STATUS.get(epics_severity, status.UNKNOWN)
-                mapped_massages.append(
-                        (mapped_status,
-                        STAT_TO_STATUS.get(epics_status, 'Unkown status code %s'%epics_status),
-                        name)
-                        )
-
-                highest_status = max(highest_status, mapped_status)
-            if highest_status>status.OK:
-                epics_message='PV error status: '+'|'.join([self._get_pv_name(mm[2])+':'+mm[1]
-                                                            for mm in mapped_massages if mm[0]==highest_status])
+            if state=='Idle':
+                return status.OK, ''
+            elif state=='Error':
+                return status.ERROR, 'Measurement state is error'
             else:
-                epics_message=''
-            return (highest_status, epics_message)
+                return status.BUSY, ''
 
-    def measure(self):
-        self.doWriteSingle_Measurement(1)
+
+    @property
+    def available_channels(self):
+        available_channels = self.selected_channels
+        return [int(chi) for chi in available_channels if chi>0]
+
+    def doReadSelected_Channels(self, maxage=0):
+        return self._get_pv('available_channels')
+
+    def measure(self, channels=None):
+        if channels is None:
+            channels = self.available_channels
+
+        for i, chi in enumerate(channels):
+            # for supplied list of MeasurementChannel objects replace by channel ID
+            if hasattr(chi, 'channel'):
+                channels[i] = chi.channel
+
+        all_channels = self._get_pv('available_channels')
+        selected_channels = [1 if chi in channels else 0 for chi in all_channels]
+        self.measurement_channels = selected_channels
+        last_preshot = self._get_pv('measurement_preshots')
+        last_lengths = self._get_pv('measurement_lengths')
+        new_preshot = [max(last_lengths[i],50.0) if selected_channels[i] else max(lpi, 50.0) for i, lpi in enumerate(last_preshot)]
+        self._put_pv('measurement_preshots', new_preshot, wait=True)
+        self._put_pv('start_measurement', 1, wait=True)
+
+    def doReadMeasurement_Lengths(self):
+        return self._get_pv('measurement_lengths')
+
+    def doReadAlign_Min(self):
+        return self._get_pv('align_min')
+
+    def doReadAlign_Max(self):
+        return self._get_pv('align_max')
+
+    def doReadMeasurement_Gains(self):
+        return self._get_pv('measurement_gains')
+
+    def doReadMeasurement_Errors(self):
+        output = np.array([0 for i in self.measurement_lengths])
+        for i, error in enumerate(self._error_flag_list):
+            # create bit-flag for each error
+            output+=2**i * self._get_pv(error)
+        return output
+
+    def doReadPolling_Counter(self):
+        return self._get_pv('polling_counter')
+
+    _task_codes = {
+        0: "Idle",
+        1: "Polling",
+        2: "Measuring",
+        3: "Aligning",
+        4: "Error",
+        }
+    def doReadCurrent_Task(self):
+        value = self._get_pv('current_task', as_string=True)
+        if isinstance(value, str):
+            return value
+        else:
+            return self._task_codes[int(value)]
 
     def doReadFront_End_Splitter(self):
         return self._get_pv('front_end_splitter', as_string=True)
@@ -379,23 +285,33 @@ class MultilineController(EpicsReadableEss, Waitable):
     def doWriteFront_End_Splitter(self, value):
         self._put_pv('front_end_splitter', value, wait=True)
 
+    def doReadMeasurement_Counter(self):
+        return self._get_pv('measurement_counter')
+
     def doReadFes_Option(self):
         return self._get_pv('fes_option', as_string=True)
 
     def doWriteFes_Option(self, value):
         self._put_pv('fes_option', value, wait=True)
 
-    def doReadSingle_Measurement(self):
-        return self._get_pv('single_measurement', as_string=True)
+    def doReadStart_Measurement(self):
+        return self._get_pv('start_measurement', as_string=True)
 
-    def doWriteSingle_Measurement(self, value):
-        self._put_pv('single_measurement', value, wait=True)
+    def doWriteStart_Measurement(self, value):
+        self._put_pv('start_measurement', value, wait=True)
+
+    def doReadMeasurement_Channels(self):
+        return self._get_pv('measurement_channels')
+
+    def doWriteMeasurement_Channels(self, value):
+        self._put_pv('measurement_channels', value, wait=True)
 
     def doReadAlignment_Process(self):
-        return self._get_pv('alignment_process', as_string=True)
+        return self._get_pv('alignment_process')
 
     def doWriteAlignment_Process(self, value):
         self._put_pv('alignment_process', value, wait=True)
+        self._cache.invalidate(self, 'status')
 
     def doReadIs_Grouped(self):
         return self._get_pv('is_grouped', as_string=True)
@@ -403,22 +319,102 @@ class MultilineController(EpicsReadableEss, Waitable):
     def doReadNum_Channels(self):
         return self._get_pv('num_channels')
 
-    # def doPoll(self, n, maxage=0):
-    #     self._pollParam('front_end_splitter')
-    #     self._pollParam('fes_option')
-    #     self._pollParam('single_measurement')
-    #     self._pollParam('alignment_process')
-    #     self._pollParam('num_channels')
-    #     self._pollParam('is_grouped')
 
-    @property
-    def pilot(self):
-        return self._attached_pilot_laser
+ML_ERROR_MESSAGES = {
+    'error_analysis':          'analysis error',
+    'error_interuption':       'beam interruption',
+    'error_temperature':       'temperature error',
+    'error_movement':          'movement tolerance error',
+    'error_intensity':         'intensity error',
+    'error_usb':               'USB connection error',
+    'error_dll':               'error with DLL command',
+    'error_laser_speed':       'error setting the laser speed',
+    'error_laser_temperature': 'error laser temperature',
+    'error_daq':               'DAQ error',
+    }
 
-    @property
-    def env(self):
-        return EnvironmentalParameters(
-            self._attached_temperature.read(),
-            self._attached_pressure.read(),
-            self._attached_humidity.read(),
-        )
+class MultilineChannel(Readable):
+
+    parameters = {
+        'channel':
+            Param('Channel number',
+                  type=int,
+                  settable=False,
+                  userparam=False),
+        'gain':
+            Param('Channel gain',
+                  type=int,
+                  settable=True,
+                  userparam=True),
+        }
+
+    attached_devices = {
+        'controller': Attach('Multline Controller', MultilineController),
+        }
+
+    def doRead(self, maxage=0):
+        available_channels = self._attached_controller.available_channels
+        try:
+            ch_idx = available_channels.index(self.channel)
+        except ValueError:
+            # channel not available
+            return 0
+
+        self._pollParam('gain')
+
+        if self._attached_controller.current_task=='Aligning':
+            return float(self._attached_controller.align_max[ch_idx]-self._attached_controller.align_min[ch_idx])/2.
+        else:
+            return float(self._attached_controller.measurement_lengths[ch_idx])
+
+    def doReadGain(self, maxage=0):
+        available_channels = self._attached_controller.available_channels
+        try:
+            ch_idx = available_channels.index(self.channel)
+        except ValueError:
+            # channel not available
+            return 0
+        else:
+            return int(self._attached_controller.measurement_gains[ch_idx])
+
+    def doWriteGain(self, value):
+        if value not in [1,2,4]:
+            raise ValueError("Gain has to be 1,2 or 4")
+        available_channels = self._attached_controller.available_channels
+        try:
+            ch_idx = available_channels.index(self.channel)
+        except ValueError:
+            # channel not available
+            return
+        gain_array = list(self._attached_controller.measurement_gains)
+        gain_array[ch_idx] = value
+        self._attached_controller.measurement_gains=gain_array
+
+    def doStatus(self, maxage=0):
+        available_channels = self._attached_controller.available_channels
+        try:
+            ch_idx = available_channels.index(self.channel)
+        except ValueError:
+            return status.ERROR, f'Channel {self.channel} not available'
+
+        ret_stat = status.OK
+        ret_msg = f'CH-{self.channel}'
+
+        if (self._attached_controller.current_task=='Measuring' and
+                self._attached_controller.measurement_channels[ch_idx]):
+            ret_stat = status.BUSY
+
+        last_measurement = max(self._attached_controller.measurement_counter)
+        if self._attached_controller.measurement_counter[ch_idx]<last_measurement:
+            ret_msg += ' (old data)'
+
+        error_state = self._attached_controller.measurement_errors[ch_idx]
+        for i, error in enumerate(self._attached_controller._error_flag_list):
+            # create bit-flag for each error
+            flag=2**i
+            if error_state&flag:
+                ret_stat = status.ERROR
+                ret_msg += ' | '+ML_ERROR_MESSAGES[error]
+
+        return ret_stat, ret_msg
+

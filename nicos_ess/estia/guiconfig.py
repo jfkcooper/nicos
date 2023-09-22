@@ -39,17 +39,17 @@ main_window = docked(
                                          setups='selene1',
                                          channels=[
                                             # (CHi, pos, diagonal)
-                                            ('ch17', (-70,  -25), False),
-                                            ('ch18', (-70,  -70), False),
-                                            ('ch19', (-70,  100), True),
-                                            ('ch20', (-70,  180), True),
+                                            ('ch03', (-70,  -25), False),
+                                            ('ch04', (-70,  -70), False),
+                                            ('ch02', (-70,  100), True),
+                                            ('ch01', (-70,  180), True),
 
-                                            ('ch21', (70,  -25), False),
-                                            ('ch22', (70,  -70), False),
-                                            ('ch23', (70,  100), True),
-                                            ('ch24', (70,  180), True),
+                                            ('ch07', (70,  -25), False),
+                                            ('ch08', (70,  -70), False),
+                                            ('ch06', (70,  100), True),
+                                            ('ch05', (70,  180), True),
                                             ],
-                                        positions=['ch27', 'ch28'],
+                                        positions=['ch10', 'ch11'],
                                         offsetx=0,
                                      ),
                                  panel(
