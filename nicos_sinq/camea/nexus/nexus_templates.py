@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -55,8 +54,11 @@ class CameaTemplateProvider(NexusTemplateProvider):
                     "instrument": ConstDataset('CAMEA', 'string'),
                     "user:NXuser": {
                         "name": DeviceDataset('Exp', 'users'),
-                        "email": DeviceDataset('Exp', 'localcontact',
+                        "email": DeviceDataset('Exp', 'user_email',
                                                dtype='string')},
+                    "local_contact:NXuser": {
+                        "name": DeviceDataset('Exp', 'localcontact',
+                                              dtype='string')},
                     "control:NXmonitor": {
                         "absolute_time": AbsoluteTime(),
                         "mode": DetectorDataset('mode', "string"),

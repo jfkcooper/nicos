@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -65,6 +64,25 @@ devices = dict(
         failinit = True,
         failshutdown = True,
         attached = 'dev1',
+        param2 = 1,
+        unit = 'mm',
+        abslimits = (0, 10),
+    ),
+    dev2_6 = device('test.test_simple.test_device.Dev2',
+        attached = 'dev1',
+        missingok = 'dev3',
+        param2 = 1,
+        unit = 'mm',
+        abslimits = (0, 10),
+    ),
+    dev2_7 = device('test.test_simple.test_device.Dev2',
+        attached = 'dev1',
+        missingok = device('nicos.devices.generic.Axis',
+            motor = 'mot',
+            precision = 0,
+            abslimits = (0, 10),
+            unit = 'mm',
+        ),
         param2 = 1,
         unit = 'mm',
         abslimits = (0, 10),

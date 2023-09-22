@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -57,7 +56,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
 
     # build list of devices
     it = iter(table.values())
-    devices = sorted(it.next())
+    devices = sorted(it.__next__())
     for otherdevs in it:
         devices.extend(set(otherdevs) - set(devices))
 

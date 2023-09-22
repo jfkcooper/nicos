@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -55,6 +54,10 @@ class MiezeFit(PredefinedFit):
             contrast = 0.5 * np.ptp(y) * len(y) / (sum(y) + 1e-6)
         yavg = np.average(y)
         return [yavg, contrast, contrast, freq]
+
+    def run(self, x, y, dy):
+        self.parstart = []
+        return PredefinedFit.run(self, x, y, dy)
 
     def process_result(self, res):
         res.label_x = res.phase

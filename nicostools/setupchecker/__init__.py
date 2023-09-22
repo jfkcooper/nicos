@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -386,6 +385,13 @@ class SetupChecker:
                 self.log.warning(
                     'device name %s duplicate: also in %s', devname,
                     self.devs_seen[devname], extra=self.find_deventry(devname)
+                )
+        # check for "require" or "requires"
+        for req in ['require', 'requires']:
+            if req in self.ns:
+                self.log_error(
+                    f"{req!r} should be substituted by 'includes'",
+                    extra=self.find_global(req)
                 )
 
         # check for common misspelling of "includes"

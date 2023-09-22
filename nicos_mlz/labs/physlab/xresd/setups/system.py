@@ -1,8 +1,3 @@
-# A detailed description of the setup file structure and it's elements is
-# available here: https://forge.frm2.tum.de/nicos/doc/nicos-stable/setups/
-#
-# Please remove these lines after copying this file.
-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -11,10 +6,15 @@ instrument_values = configdata('instrument.values')
 
 sysconfig = dict(
     cache = 'localhost',
-    # Adapt this name to your instrument's name (also below).
-    instrument = 'XReSD',
+    instrument = 'xresd',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
+    datasinks = [
+        'conssink',
+        'filesink',
+        'daemonsink',
+        'livesink',
+        'rabbitsink',
+    ],
     notifiers = [],  # ['email'],
 )
 
@@ -22,16 +22,10 @@ modules = ['nicos.commands.standard']
 
 includes = [
     'notifiers',
-    'incident',
-    'shutter',
-    'dectris',
-    'sample',
-    'd8',
-    'hv',
 ]
 
 devices = dict(
-    XReSD = device('nicos.devices.instrument.Instrument',
+    xresd = device('nicos.devices.instrument.Instrument',
         description = 'X-ray Residual Stress Diffractometer',
         instrument = 'XReSD',
         responsible = 'Bastian Veltel <bastian.veltel@frm2.tum.de>',
@@ -42,10 +36,9 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
     ),
-    # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
-        dataroot = '/data/04_RSXRD',
+        dataroot = '/data',
         sendmail = True,
         serviceexp = 'service',
         sample = 'Sample',
@@ -53,10 +46,13 @@ devices = dict(
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
-    livesink = device('nicos.devices.datasinks.LiveViewSink'),
+    livesink = device('nicos_mlz.labs.physlab.xresd.datasinks.LiveViewSink'),
+    rabbitsink = device('nicos_mlz.devices.rabbit_sink.RabbitSink',
+        rabbit_url = 'amqp://localhost',
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
-        path = '/data/04_RSXRD',
+        path = '/data',
         warnlimits = (5., None),
         minfree = 5,
     ),

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -106,12 +105,12 @@ class Detector(MeasureSequencer):
         self._set_resosteps(self.resosteps)
 
     def doInfo(self):
-        ret = self._attached_detector.doInfo()
+        ret = self._attached_detector.info()
         return ret
 
     def doPrepare(self):
         MeasureSequencer.doPrepare(self)
-        self._attached_detector.doPrepare()
+        self._attached_detector.prepare()
 
     def doStart(self):
         self._startpos = self._attached_motor.read() + \
@@ -135,7 +134,7 @@ class Detector(MeasureSequencer):
                 self.resosteps = int(preset.pop('resosteps'))
             if 'tths' in preset:
                 self._tths = float(preset.pop('tths'))
-        self._attached_detector.doSetPreset(**preset)
+        self._attached_detector.setPreset(**preset)
         self._lastpreset = self._attached_detector.preset()
 
     def _read_value(self):
@@ -205,7 +204,7 @@ class Detector(MeasureSequencer):
                or self._det_run:
                 ret = [self._step + 1] + \
                     [sum(x) for x in
-                     zip(self._data, self._attached_detector.doRead(maxage))]
+                     zip(self._data, self._attached_detector.read(maxage))]
             else:
                 if self._step == 1 and \
                    MeasureSequencer.status(self, 0)[0] != status.BUSY:
@@ -230,19 +229,19 @@ class Detector(MeasureSequencer):
         self._last_live = 0
         self._step = 0
         self._array_data.fill(0)
-        self._attached_detector.doReset()
+        self._attached_detector.reset()
         self._data = [0] * len(self._attached_detector.valueInfo())
         MeasureSequencer.doReset(self)
         # self._attached_motor.maw(self._startpos)
 
     def doPause(self):
-        self._attached_detector.doPause()
+        self._attached_detector.pause()
 
     def doResume(self):
-        self._attached_detector.doResume()
+        self._attached_detector.resume()
 
     def doFinish(self):
-        self._attached_detector.doFinish()
+        self._attached_detector.finish()
 
     def doSimulate(self, preset):
         return [self.resosteps] + self._attached_detector.doSimulate(preset)
@@ -275,7 +274,7 @@ class Detector(MeasureSequencer):
 
     def _fmtstr(self, value):
         return 'step = %d' + '/%d, ' % value + \
-            self._attached_detector.doReadFmtstr()
+            self._attached_detector.fmtstr
 
     def doReadFmtstr(self):
         return self._fmtstr(self.resosteps)
@@ -291,7 +290,7 @@ class Detector(MeasureSequencer):
             ret = (steptime + self._time_preset) * (self.resosteps - step)
         else:
             ret = (steptime + self._time_preset) * self.resosteps
-        detTime = self._attached_detector.doEstimateTime(elapsed)
+        detTime = self._attached_detector.estimateTime(elapsed)
         ret += detTime if detTime is not None else 0.
         return ret
 

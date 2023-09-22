@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -92,6 +91,8 @@ class NexusSinkHandler(DataSinkHandler):
     def __init__(self, sink, dataset, detector):
         self.startdataset = None
         self._filename = None
+        self.filepath = None
+        self.template = {}
         DataSinkHandler.__init__(self, sink, dataset, detector)
 
     def prepare(self):

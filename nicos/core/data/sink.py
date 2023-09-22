@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -210,7 +209,7 @@ class NicosMetaWriterMixin:
                     unit = device.unit
                     category = 'result'
                 bycategory.setdefault(category, []).append(
-                    ('%s_value' % devname, (str(val) + ' ' + unit).strip()))
+                    ('%s_value' % devname, device.format(val, True).strip()))
                 # refresh status as well
                 stat = device.status()
                 # also map stat[0] to a string

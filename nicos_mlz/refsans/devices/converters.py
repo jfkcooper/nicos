@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -18,37 +17,46 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Matthias Pomm <matthias.pomm@hzg.de> 2018-08-06 11:18:31
+#   Matthias Pomm <matthias.pomm@hzg.de>
 #
 # *****************************************************************************
 
 from nicos.core import Override, Readable
-from nicos.core.params import Attach
+from nicos.core.params import Attach, oneof
+from nicos.devices.abstract import TransformedReadable
 
 from nicos_mlz.stressi.devices.mixins import TransformRead
 
+UNITCONVS = {
+    'mbar': 6.143,
+    'ubar': 2.287,
+    'torr': 6.304,
+    'mtorr': 2.448,
+    'micron': 2.448,
+    'Pa': 3.572,
+    'kPa': 7.429,
+}
 
-class Ttr(Readable):
+
+class Ttr(TransformedReadable):
+
     attached_devices = {
         'att': Attach('center', Readable),
     }
 
-    unitconvs = {
-        'mbar': 6.143,
-        'ubar': 2.287,
-        'torr': 6.304,
-        'mtorr': 2.448,
-        'micron': 2.448,
-        'Pa': 3.572,
-        'kPa': 7.429,
+    parameter_overrides = {
+        'unit': Override(type=oneof(*UNITCONVS.keys())),
     }
 
-    def doRead(self, maxage=0):
-        c = self.unitconvs.get(self.unit, 0.0)
-        return 10**((self._attached_att.read(maxage) - c)/1.286)
+    def _readRaw(self, maxage=0):
+        return self._attached_att.read(maxage)
+
+    def _mapReadValue(self, value):
+        return 10**((value - UNITCONVS.get(self.unit, 0.)) / 1.286)
 
 
-class LinearKorr(TransformRead, Readable):
+class LinearKorr(TransformRead, TransformedReadable):
+
     parameter_overrides = {
         'unit': Override(volatile=False),
     }

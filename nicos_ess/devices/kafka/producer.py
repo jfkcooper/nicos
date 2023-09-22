@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -31,6 +30,9 @@ from nicos.core.constants import SIMULATION
 from nicos_ess.devices.kafka.utils import create_sasl_config
 
 
+MAX_MESSAGE_SIZE = 209_715_200
+
+
 class KafkaProducer:
     """Class for wrapping the Confluent Kafka producer."""
 
@@ -56,6 +58,7 @@ class KafkaProducer:
         """
         config = {
             'bootstrap.servers': ','.join(brokers),
+            'message.max.bytes': MAX_MESSAGE_SIZE,
         }
         self._producer = Producer({**config, **options})
 

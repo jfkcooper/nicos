@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -372,7 +371,7 @@ class CBoxResonanceFrequency(BaseSequencer):
         # accumulate the set capacities
         result = 0
         for i, capacity in enumerate(self.BANK_CAPACITIES[bank - 1]):
-            if bits & (1 << i):
+            if int(bits) & (1 << i):
                 result += capacity
 
         return result

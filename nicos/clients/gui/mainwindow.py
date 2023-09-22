@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -48,6 +47,7 @@ from nicos.clients.gui.tools import createToolMenu, startStartupTools
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
     loadBasicWindowSettings, loadUi, loadUserStyle, splitTunnelString
 from nicos.core.utils import ADMIN
+from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QApplication, QColorDialog, QDialog, QFontDialog, QIcon, QLabel, \
     QMainWindow, QMenu, QMessageBox, QPixmap, QSize, QSystemTrayIcon, Qt, \
@@ -105,6 +105,7 @@ class MainWindow(DlgUtils, QMainWindow):
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
+        colors.init_palette(self.palette())
         loadUi(self, self.ui)
 
         # set app icon in multiple sizes

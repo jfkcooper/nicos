@@ -1,5 +1,3 @@
-# coding: utf-8
-
 description = 'Chopper [Monitor 01]'
 group = 'special'
 
@@ -12,6 +10,18 @@ group = 'special'
 # phase  = Disk Phases
 # gear   = Speed Factor
 # status = Error Status
+
+_chhealth = Column(
+    Block('Basic', [
+        BlockRow(
+            Field(name='Fatal', key='chopper/fatal', width=10),
+        ),
+        BlockRow(
+            Field(name='noWARNUNG', dev='chopper_no_Warning', width=7),
+        ),
+        ],
+    ),
+)
 
 _chconfigcol = Column(
     # This block contains the parameters set through chopper_config
@@ -113,7 +123,7 @@ devices = dict(
         fontsize = 12,
         padding = 5,
         layout = [
-            Row(_chconfigcol),
+            Row(_chconfigcol, _chhealth),
             Row(_tididiagcol)
         ],
     ),

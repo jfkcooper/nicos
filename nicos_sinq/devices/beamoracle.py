@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -24,7 +23,7 @@
 
 from nicos.core import Param, Value
 from nicos.core.status import BUSY, OK
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic import Detector
 
 
@@ -80,6 +79,9 @@ class BeamOracle(EpicsDevice, Detector):
     def doStop(self):
         self._put_pv('writepv', 0, True)
         self._running = False
+
+    def doSimulate(self, preset):
+        return [preset, ]
 
     def doRead(self, maxage=0):
         return [self._get_pv('readpv'), ]

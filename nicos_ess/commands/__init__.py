@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -27,5 +26,5 @@ from nicos.devices.epics.pva.caproto import caget, caput
 from nicos.devices.epics.pva.p4p import pvget, pvput
 
 from nicos_ess.commands.filewriter import list_filewriting_jobs, \
-    nexusfile_open, start_filewriting, stop_filewriting
+    nexusfile_open, replay_job, start_filewriting, stop_filewriting
 from nicos_ess.commands.wait import waitfor_stable

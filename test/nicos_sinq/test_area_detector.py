@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -42,7 +41,7 @@ from epics import PV
 from nicos.core import CommunicationError, status
 from nicos.core.constants import LIVE
 
-from nicos_ess.devices.epics.status import ADKafkaStatus
+from nicos_sinq.devices.epics.status import ADKafkaStatus
 
 from test.nicos_sinq.utils import create_hs00
 

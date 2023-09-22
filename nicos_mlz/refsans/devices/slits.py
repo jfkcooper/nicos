@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -26,8 +25,8 @@
 
 import numpy as np
 
-from nicos.core import Attach, AutoDevice, Moveable, Override, \
-    Param, Value, dictof, dictwith, floatrange, oneof, status, tupleof
+from nicos.core import Attach, AutoDevice, Moveable, Override, Param, Value, \
+    dictof, dictwith, floatrange, oneof, status, tupleof
 from nicos.core.mixins import HasOffset
 from nicos.core.utils import devIter
 from nicos.devices.generic import ManualSwitch
@@ -135,8 +134,8 @@ class DoubleSlit(PseudoNOK, Moveable):
         # the limits to find out the 'open' and 'closed' point for the neutrons
         self.valuetype = tupleof(floatrange(-1, self.maxheight + 1), float)
         # generate auto devices
-        for name, idx, opmode in [('height', 0, CENTERED),
-                                  ('center', 1, CENTERED)]:
+        for name, idx, opmode in [('center', 0, CENTERED),
+                                  ('opening', 1, CENTERED)]:
             self.__dict__[name] = SingleSlitAxis('%s.%s' % (self.name, name),
                                                  slit=self, unit=self.unit,
                                                  visibility=(), index=idx,
@@ -159,12 +158,12 @@ class DoubleSlit(PseudoNOK, Moveable):
         if direction:
             reactor, sample = arg
             opening = self.maxheight - (sample - reactor)
-            height = (sample + reactor) / 2.0
-            res = [opening, height]
+            center = (sample + reactor) / 2.0
+            res = [center, opening]
         else:
-            opening, height = arg
-            reactor = height - (self.maxheight - opening) / 2.0
-            sample = height + (self.maxheight - opening) / 2.0
+            center, opening = arg
+            reactor = center - (self.maxheight - opening) / 2.0
+            sample = center + (self.maxheight - opening) / 2.0
             res = [reactor, sample]
         self.log.debug('res %s', res)
         return res
@@ -181,7 +180,7 @@ class DoubleSlit(PseudoNOK, Moveable):
             self.valuetype((targets[0], 0))
         except ValueError as e:
             why.append('%s' % e)
-        for dev, pos in zip([self._attached_slit_r, self._attached_slit_s],
+        for dev, pos in zip(self._motors,
                             self._calculate_slits(targets, False)):
             ok, _why = dev.isAllowed(pos)
             if not ok:
@@ -216,8 +215,8 @@ class DoubleSlit(PseudoNOK, Moveable):
             dev.poll(n, maxage)
 
     def valueInfo(self):
-        return (Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'),
-                Value('%s.center' % self, unit=self.unit, fmtstr='%.2f'))
+        return (Value('%s.center' % self, unit=self.unit, fmtstr='%.2f'),
+                Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'))
 
 
 class DoubleSlitSequence(SequencerMixin, DoubleSlit):

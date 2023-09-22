@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -321,13 +320,13 @@ class VirtualCounter(VirtualChannel):
     """
 
     parameters = {
-        'countrate':  Param('The maximum countrate', type=float, default=1000.,
-                            settable=False),
-        'gentype':    Param('Type of generating function',
-                            type=oneof('const', 'gauss'), default='gauss',
-                            settable=False),
-        'type':       Param('Type of channel: monitor or counter',
-                            type=oneof('monitor', 'counter'), mandatory=True),
+        'countrate': Param('The maximum countrate', type=float, default=1000.,
+                           settable=False),
+        'gentype':   Param('Type of generating function',
+                           type=oneof('const', 'gauss'), default='gauss',
+                           settable=False),
+        'type':      Param('Type of channel: monitor or counter',
+                           type=oneof('monitor', 'counter'), mandatory=True),
     }
 
     parameter_overrides = {
@@ -454,8 +453,8 @@ class VirtualTemperature(VirtualMotor):
     """A virtual temperature regulation device."""
 
     parameters = {
-        'setpoint':  Param('Last setpoint', settable=True, unit='main',
-                           category='general'),
+        'setpoint': Param('Last setpoint', settable=True, unit='main',
+                          category='general'),
     }
 
     parameter_overrides = {
@@ -520,8 +519,8 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False, default='K'),
-        'timeout':   Override(default=900),
+        'unit':    Override(mandatory=False, default='K'),
+        'timeout': Override(default=900),
     }
 
     _thread = None

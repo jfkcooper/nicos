@@ -15,7 +15,7 @@ devices = dict(
         description = 'ZB3 slit',
         slit_r = 'zb3r',
         slit_s = 'zb3s',
-        fmtstr = 'open: %.3f, zpos: %.3f',
+        fmtstr = 'zpos: %.3f, open: %.3f',
         unit = 'mm',
     ),
     zb3r = device(code_base + 'slits.SingleSlit',
@@ -111,5 +111,5 @@ devices = dict(
 )
 
 alias_config = {
-    'primary_aperture': {'zb3.height': 100},
+    'primary_aperture': {'zb3.opening': 100},
 }

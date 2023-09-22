@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -35,9 +34,9 @@ class TriState(CanDisable, HasOffset, Readable):
     _enabled = True
 
     def doRead(self, maxage=0):
-        self.log.debug('enabled=%s' % self._enabled)
+        self.log.debug('enabled=%s', self._enabled)
         if self._enabled:
-            self.log.debug('offset=%.3f' % self.offset)
+            self.log.debug('offset=%.3f', self.offset)
             return self._attached_port.read(maxage) - self.offset
         return 0
 

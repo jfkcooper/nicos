@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -34,7 +33,7 @@ from nicos.core.constants import LIVE, MASTER, SIMULATION
 from nicos.devices.generic import Detector, ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
-from nicos_ess.devices.kafka.consumer import KafkaSubscriber, KafkaConsumer
+from nicos_ess.devices.kafka.consumer import KafkaConsumer, KafkaSubscriber
 from nicos_ess.devices.kafka.producer import KafkaProducer
 from nicos_ess.devices.kafka.status_handler import DISCONNECTED_STATE, \
     KafkaStatusHandler
@@ -573,7 +572,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         ]
 
     def doReadArrays(self, quality):
-        return [image.doReadArray(quality) for image in self._attached_images]
+        return [image.readArray(quality) for image in self._attached_images]
 
     def _stop_histogramming(self):
         self._send_command(self.command_topic, b'{"cmd": "stop"}')

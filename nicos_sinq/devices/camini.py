@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -28,12 +27,12 @@ from time import monotonic
 
 from nicos import session
 from nicos.core import Attach, Moveable, Param, Readable, Value, pvname, status
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 from nicos.devices.generic import Detector
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqSleep, \
     SequenceItem, SequencerMixin
 
-from nicos_ess.devices.epics.base import EpicsDigitalMoveable
+from nicos_sinq.devices.epics.base import EpicsDigitalMoveable
 
 
 class WaitPV(SequenceItem):
@@ -184,6 +183,8 @@ class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
 
     _timedout = False
 
+    _channels = []
+
     def presetInfo(self):
         return {'t', 'timer', 'm', 'monitor'}
 
@@ -290,6 +291,9 @@ class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
             seq.append(SeqDev(self._attached_shutter, 'closed'))
 
         return seq
+
+    def doSimulate(self, preset):
+        return ['', self._timestamp]
 
     def doRead(self, maxage=0):
         return [self._pvs['filepv'].get(timeout=self.epicstimeout,

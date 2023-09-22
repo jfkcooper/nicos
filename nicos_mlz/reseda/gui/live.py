@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -37,7 +36,7 @@ class CascadeControls(QWidget):
 
     controlsui = f'{uipath}/cascadecontrols.ui'
 
-    foilsnumber = 8
+    foilsnumber = 0
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -46,7 +45,7 @@ class CascadeControls(QWidget):
                   self.timeChannelBox):
             w.setHidden(True)
         self.singleSlidesBox.setDisabled(True)
-        self._foilsorder = list(range(self.foilsnumber))
+        self.setFoilsOrder(list(range(self.foilsnumber)))
 
     def initControls(self, data):
         imagedata = len(data.shape) < 3
@@ -61,12 +60,13 @@ class CascadeControls(QWidget):
         if len(data.shape) > 2:
             if self.singleSlidesBox.isChecked():
                 foil = self._foilsorder.index(self.foilBox.value() - 1)
-                timechannel = self.timeChannelBox.value()
-                if timechannel:
-                    idx = foil * self.foilsnumber + timechannel - 1
+                time_channel = self.timeChannelBox.value()
+                timechannels = data.shape[0] // self.foilsnumber
+                if time_channel:
+                    idx = foil * timechannels + time_channel - 1
                     return data[idx]
-                startfoil = foil * self.foilsnumber
-                return numpy.sum(data[startfoil:startfoil + self.foilsnumber],
+                startfoil = foil * timechannels
+                return numpy.sum(data[startfoil:startfoil + timechannels],
                                  axis=0)
             return numpy.sum(data, axis=0)
         return data
@@ -77,6 +77,9 @@ class CascadeControls(QWidget):
 
 
 class CascadeLiveDataPanel(LiveDataPanel):
+
+    def __init__(self, parent, client, options):
+        LiveDataPanel.__init__(self, parent, client, options)
 
     def _initControlsGUI(self):
         self.controls = CascadeControls()
@@ -102,20 +105,41 @@ class CascadeLiveDataPanel(LiveDataPanel):
         # copy to avoid modifications of original data
         self.controls.setFoilsOrder(
             self.client.eval('psd_channel.foilsorder', []))
-        arrs = [self.controls.handleData(array) for array in arrays]
 
         # if multiple datasets have to be displayed in one widget, they have
         # the same dimensions, so we only need the dimensions of one set
         self.controls.initControls(arrays[0])
-        self._initLiveWidget(arrs[0])
+        self._initLiveWidget(self.controls.handleData(arrays[0]))
         self.applyPlotSettings()
 
-        for widget in self._get_all_widgets():
-            widget.setData(arrs, labels)
-            widget.setTitles(titles)
+        self._setData(arrays, labels, titles)
 
         if self.unzoom and self.widget:
             self.on_actionUnzoom_triggered()
 
+    def _setData(self, arrays, labels, titles):
+        arrs = [self.controls.handleData(array) for array in arrays]
+        for widget in self._get_all_widgets():
+            widget.setData(arrs, labels)
+            widget.setTitles(titles)
+
     def _show(self, params=None, data=None):
         self.showData()
+
+    def setData(self, arrays, labels=None, titles=None, uid=None, display=True):
+        """Dispatch data array to corresponding live widgets.
+        Cache array based on uid parameter. No caching if uid is ``None``.
+        """
+        if uid:
+            if uid not in self._datacache:
+                self.log.debug('add to cache: %s', uid)
+                self._datacache[uid] = {}
+            self._datacache[uid]['dataarrays'] = arrays
+        if display:
+            if uid:
+                if titles is None:
+                    titles = self._datacache[uid].get('titles')
+                if labels is None:
+                    labels = self._datacache[uid].get('labels')
+            self._initLiveWidget(arrays[0])
+            self._setData(arrays, labels, titles)

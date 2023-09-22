@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -27,7 +26,6 @@
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, ConfigurationError, \
     HasLimits, Moveable, Override, Param, limits, oneof, status, tupleof
-from nicos.core.errors import UsageError
 from nicos.utils import createThread
 
 

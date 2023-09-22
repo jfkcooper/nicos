@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -26,28 +25,25 @@
 
 from os import path
 
+from nicos.core.device import Device
 
-class Handler:
-    def __init__(self, log, plotformat):
-        self.log = log
-        self.plotformat = plotformat
-        self.dir = self.logdir = None
+
+class Handler(Device):
+    def doInit(self, mode):
+        self._dir = self._logdir = None
 
     def handle(self, key, timestamp, data):
         fun = getattr(self, f'handle_{key}', None)
         if fun:
             fun(timestamp, data)
 
-    def close(self):
-        pass
-
     def handle_directory(self, time, data):
         """Handle the 'directory' event.
 
            data = [directory, instrument, proposal]
         """
-        self.dir, self.instr, self.proposal = data
-        self.logdir = path.join(self.dir, 'logbook')
+        self._dir, self._instr, self._proposal = data
+        self._logdir = path.join(self._dir, 'logbook')
 
     def handle_newexperiment(self, time, data):
         """Handle the 'newexperiment' event.
@@ -89,6 +85,12 @@ class Handler:
         """Handle the 'attachment' event.
 
            data = [description, fpaths, names]
+        """
+
+    def handle_image(self, time, data):
+        """Handle the 'image' event.
+
+           data = [description, fpaths, extensions, names]
         """
 
     def handle_message(self, time, message):

@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'system setup'
 
 group = 'lowlevel'
@@ -31,20 +29,24 @@ devices = dict(
             'Technische Universität München (TUM)',
         ]),
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
-    Exp=device('nicos_ess.devices.experiment.EssExperiment',
-               description='experiment object',
-               dataroot='/opt/nicos-data',
-               filewriter_root='/opt/nicos-data/cspec',
-               sample='Sample',
-               cache_filepath='/opt/nicos-data/cspec/cached_proposals.json'),
+    Exp=device(
+        'nicos_ess.devices.experiment.EssExperiment',
+        description='experiment object',
+        dataroot='/opt/nicos-data',
+        sample='Sample',
+        cache_filepath='/opt/nicos-data/cached_proposals.json'
+    ),
     conssink=device(
-        'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
+        'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'
+    ),
     daemonsink=device(
         'nicos.devices.datasinks.DaemonSink',
         visibility=(),
     ),
-    liveview=device('nicos.devices.datasinks.LiveViewSink', ),
+    liveview=device(
+        'nicos.devices.datasinks.LiveViewSink'
+    ),
 )

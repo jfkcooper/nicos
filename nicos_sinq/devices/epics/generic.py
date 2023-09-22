@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -25,9 +24,9 @@ import epics
 
 from nicos.core import CommunicationError, Override, Param, none_or, status
 from nicos.core.mixins import HasLimits, HasPrecision
-from nicos.devices.epics import EpicsMoveable, EpicsReadable
+from nicos.devices.epics.pyepics import EpicsMoveable, EpicsReadable
 
-from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
+from nicos_sinq.devices.epics.base import EpicsAnalogMoveableSinq
 
 
 class WindowMoveable(HasLimits, HasPrecision, EpicsMoveable):
@@ -81,7 +80,7 @@ class EpicsArrayReadable(EpicsReadable):
         return result
 
 
-class EpicsAnalogMoveable(HasPrecision, EpicsAnalogMoveableEss):
+class EpicsAnalogMoveable(HasPrecision, EpicsAnalogMoveableSinq):
 
     def doStatus(self, maxage=0):
         pos = self.doRead(0)

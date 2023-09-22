@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -21,18 +20,19 @@
 #   Michele Brambilla <mnichele.brambilla@psi.ch>
 #
 # *****************************************************************************
+from time import time as currenttime
+
 from nicos import session
-from nicos.core import MAIN, Param, pvname, status, usermethod
-
-from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
-from nicos.devices.epics.pyepics import pvget
-
+from nicos.core import MAIN, Param, status
+from nicos.core.constants import SIMULATION
+from nicos.devices.epics.pyepics import PVMonitor, pvget
+from nicos.devices.epics.pyepics.motor import EpicsMotor as EssEpicsMotor
 
 
 class EpicsMotor(EssEpicsMotor):
     parameters = {
         'can_disable': Param('Whether the motor can be enabled/disabled using '
-                             'a PV or not.', type=pvname, mandatory=False,
+                             'a PV or not.', type=bool, mandatory=False,
                              settable=False, userparam=False),
         'auto_enable': Param('Automatically enable the motor when the setup is'
                              ' loaded', type=bool, default=False,
@@ -45,6 +45,13 @@ class EpicsMotor(EssEpicsMotor):
         if self.can_disable:
             self._record_fields['enable'] = ':Enable'
             self._record_fields['enable_rbv'] = ':Enable_RBV'
+        else:
+            if 'enable' in self._record_fields:
+                # NICOS seems to cache the record_fields somewhere.
+                # This solves a bug encountered when changing the
+                # can_disable flag
+                del self._record_fields['enable']
+                del self._record_fields['enable_rbv']
         EssEpicsMotor.doPreinit(self, mode)
 
     def _get_pv_name(self, pvparam):
@@ -82,7 +89,7 @@ class EpicsMotor(EssEpicsMotor):
     @property
     def isEnabled(self):
         """Shows if the motor is enabled or not"""
-        if self.can_disable:
+        if self._mode != SIMULATION and self.can_disable:
             # I need to read this value also in simulation
             # mode when the PV class has been replaced by a
             # hardware stub. This is why I read directly here
@@ -95,3 +102,35 @@ class EpicsMotor(EssEpicsMotor):
         if not self.isEnabled:
             return False, 'Motor disabled'
         return True, ''
+
+
+class AbsoluteEpicsMotor(EpicsMotor):
+    """
+    The instances of this class cannot be homed.
+    """
+
+    def doReference(self):
+        self.log.warning('This motor does not require '
+                         'homing - command ignored')
+
+
+class EpicsMonitorMotor(PVMonitor, EpicsMotor):
+    def doStart(self, target):
+        try:
+            self._put_pv_blocking('writepv', target, timeout=5)
+        except Exception as e:
+            # Use a generic exception to handle any EPICS binding
+            self.log.warning(e)
+            return
+        if target != self.doRead():
+            self._wait_for_start()
+
+    def _on_status_change_cb(self, pvparam, value=None, char_value='', **kws):
+        self._check_move_state_changed(pvparam, value)
+        PVMonitor._on_status_change_cb(self, pvparam, value, char_value, **kws)
+
+    def _check_move_state_changed(self, pvparam, value):
+        # If the fields indicating whether the device is moving change then
+        # the cache needs to be updated immediately.
+        if pvparam in ['donemoving', 'moving']:
+            self._cache.put(self._name, pvparam, value, currenttime())

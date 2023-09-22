@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -26,7 +25,7 @@ from nicos import session
 from nicos.core import Param, oneof, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 
 
 class RadialCollimator(EpicsDevice, MappedMoveable):

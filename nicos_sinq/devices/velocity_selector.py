@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -23,7 +22,7 @@
 # *****************************************************************************
 from nicos.core import Attach, Moveable, Param, listof, tupleof
 
-from nicos_ess.devices.epics.motor import EpicsMotor
+from nicos.devices.epics.pyepics.motor import EpicsMotor
 from nicos_sinq.devices.epics.generic import WindowMoveable
 
 

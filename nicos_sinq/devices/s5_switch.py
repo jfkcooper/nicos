@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -26,9 +25,10 @@
 from time import monotonic
 
 from nicos.core import Override, Param, pvname, status
+from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError, PositionError
 from nicos.devices.abstract import MappedMoveable, MappedReadable
-from nicos.devices.epics import EpicsDevice, EpicsReadable
+from nicos.devices.epics.pyepics import EpicsDevice, EpicsReadable
 
 
 class S5Switch(EpicsDevice, MappedMoveable):
@@ -74,6 +74,8 @@ class S5Switch(EpicsDevice, MappedMoveable):
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
+        if mode == SIMULATION:
+            return
         raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
                                       count=self.byte+1)
         if self.byte > len(raw):
@@ -179,6 +181,8 @@ class S5Bit(EpicsReadable):
 
     def doInit(self, mode):
         EpicsReadable.doInit(self, mode)
+        if mode == SIMULATION:
+            return
         raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
                                       count=self.byte+1)
         if self.byte > len(raw):

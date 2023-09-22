@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -32,7 +31,7 @@ import time
 from nicos.core import Attach, Override, status
 from nicos.core.device import Moveable, Readable
 from nicos.core.params import oneof
-from nicos.devices.epics import EpicsDigitalMoveable
+from nicos.devices.epics.pyepics import EpicsDigitalMoveable
 from nicos.devices.generic import Pulse
 
 

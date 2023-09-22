@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -67,10 +66,10 @@ class McStasSimulation(BaseSimulation):
         'detectorangle': Attach('Rotation of detector around the sample',
                                 Readable),
         'i_nse': Attach('Current of NSE-Coil', Readable),
-        'om0': Attach('Frequency of first rf-flipper',
-                      Readable, optional=True),
-        'om1': Attach('Frequency of second rf-flipper',
-                      Readable, optional=True),
+        'f1': Attach('Frequency of first rf-flipper', Readable),
+        'f2': Attach('Frequency of second rf-flipper', Readable),
+        'psd_distance': Attach('Distance between sample and detector',
+                               Readable),
     }
 
     def _dev(self, dev, scale=1):
@@ -79,8 +78,8 @@ class McStasSimulation(BaseSimulation):
     def _prepare_params(self):
         params = [
             'lam=%s' % self._dev(self._attached_l_ambda),
-            # TODO: Delta lambda calculations
-            'dlam=%s' % self._dev(self._attached_d_lambda, 100),
+            'dlam=%.2f' % (self._attached_d_lambda.read(0) *
+                           self._attached_l_ambda.read(0) / 100),
             'table_x=%s' % self._dev(self._attached_tablex),
             'table_y=%s' % self._dev(self._attached_tabley),
             'table_z=%s' % self._dev(self._attached_tablez),
@@ -92,13 +91,14 @@ class McStasSimulation(BaseSimulation):
             'detectorangle=%s' % self._dev(self._attached_detectorangle),
             'samplenum=%d' % self._attached_sample.sampletype,
             # Param: sourceopen=10
-            # Param: bin=1
-            # Param: int_array=0
-            # Param: tof_file=0
-            # Param: err_file=0
             # Param: foil_dist=0.0,0.00685,0.00455,-1,-1,0.0046,0.00455,0.00658
             # Param: coilrotation=0
             # Param: math_field=1
+            # Param: f1=4500
+            'f1=%s' % self._dev(self._attached_f1),
+            # Param: f2=6200
+            'f2=%s' % self._dev(self._attached_f2),
+            'psd_dist=%s' % self._dev(self._attached_psd_distance),
         ]
         # Param: l1=1.87
         if self._attached_l1:
@@ -110,12 +110,6 @@ class McStasSimulation(BaseSimulation):
         if self._attached_coil_nse_len:
             params.append('coilnselen=%s' % self._dev(
                 self._attached_coil_nse_len))
-        # Param: om0=4500
-        if self._attached_om0:
-            params.append('om0=%s' % self._dev(self._attached_om0))
-        # Param: om1=6200
-        if self._attached_om1:
-            params.append('om1=%s' % self._dev(self._attached_om1))
         return params
 
     def _getNeutronsToSimulate(self):
@@ -134,21 +128,20 @@ class McStasImage(BaseImage):
         'mode': Param('Data acquisition mode (tof or image)',
                       type=oneof('image', 'tof'), settable=True,
                       category='presets'),
-        'tofchannels': Param('Total number of TOF channels to use',
-                             type=intrange(1, 1024), default=16,
-                             settable=True, internal=True,
-                             category='presets'),
-        'foils': Param('Number of spaces for foils in the TOF data',
-                       type=intrange(1, 32), default=8, category='instrument'),
-        'foilsorder': Param('Usable foils, ordered by number. Must match the '
-                            'number of foils configured in the server!',
-                            type=listof(intrange(0, 31)), settable=False,
-                            default=[0, 1, 2, 3, 4, 5],
-                            category='instrument'),
         'roi': Param('Region of interest, given as (x1, y1, x2, y2)',
                      type=tupleof(intrange(-1, 1024), intrange(-1, 1024),
                                   intrange(-1, 1024), intrange(-1, 1024)),
                      default=(-1, -1, -1, -1), settable=True),
+        'tofchannels': Param('Total number of TOF channels to use',
+                             type=intrange(1, 1024), default=128,
+                             settable=True, category='presets'),
+        'foilsorder': Param('Usable foils, ordered by number. Must match the '
+                            'number of foils configured in the server!',
+                            type=listof(intrange(0, 31)), settable=False,
+                            default=[0, 1, 2, 3, 4, 5, 6, 7],
+                            category='instrument'),
+        'foils': Param('Number of spaces for foils in the TOF data',
+                       type=intrange(1, 32), default=8, category='instrument'),
         'fitfoil': Param('Foil for contrast fitting (number BEFORE resorting)',
                          type=int, default=0, settable=True),
     }
@@ -184,6 +177,10 @@ class McStasImage(BaseImage):
                           fmtstr='%.1f'),
                     Value('fit.avgErr', unit='', type='error',
                           errors='none', fmtstr='%.1f'),
+                    Value('fit.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('fit.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'),
                     Value('roi.contrast', unit='', type='other',
                           errors='next', fmtstr='%.3f'),
                     Value('roi.contrastErr', unit='', type='error',
@@ -191,7 +188,11 @@ class McStasImage(BaseImage):
                     Value('roi.avg', unit='', type='other', errors='next',
                           fmtstr='%.1f'),
                     Value('roi.avgErr', unit='', type='error',
-                          errors='none', fmtstr='%.1f'))
+                          errors='none', fmtstr='%.1f'),
+                    Value('roi.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('roi.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'))
         return (Value(self.name + '.roi', unit='cts', type='counter',
                       errors='sqrt', fmtstr='%d'),
                 Value(self.name + '.total', unit='cts', type='counter',
@@ -212,17 +213,18 @@ class McStasImage(BaseImage):
                     return np.squeeze(np.fromfile(
                         str(p), dtype=np.dtype((np.double, self.size))))
                 self.log.warning('No file: %s', p)
-                return np.zeros((self.foils, self.tofchannels) + self.size)
+                return np.zeros((self.tofchannels, ) + self.size)
 
             factor = self._attached_mcstas._getScaleFactor()
             if hasattr(self._attached_mcstas, '_mcstasdirpath'):
                 buf = import_cascade_bin(self._attached_mcstas._mcstasdirpath)
                 self._buf = (buf * factor).astype(np.uint32)
             else:
-                self._buf = np.zeros((self.foils, self.tofchannels) + self.size)
+                self._buf = np.zeros((self.tofchannels, ) + self.size)
         except OSError:
             if quality != LIVE:
                 self.log.exception('Could not read result file', exc=1)
+
         total = self._buf.sum()
         if self.roi != (-1, -1, -1, -1):
             x1, y1, x2, y2 = self.roi
@@ -234,10 +236,11 @@ class McStasImage(BaseImage):
             self.readresult = [roi, total]
 
         # demux timing into foil + timing
+        nperfoil = self._datashape[0] // len(self.foilsorder)
         shaped = self._buf.reshape(
-            (self.foils, self.tofchannels) + self.size)
+            (len(self.foilsorder), nperfoil) + self._datashape[1:])
 
-        x = np.arange(self.tofchannels)
+        x = np.arange(nperfoil)
         ty = shaped[self.fitfoil].sum((1, 2))
         ry = shaped[self.fitfoil, :, y1:y2, x1:x2].sum((1, 2))
 
@@ -259,10 +262,10 @@ class McStasImage(BaseImage):
 
         self.readresult = [
             roi, total,
-            tres.avg, tres.davg, abs(tres.contrast), tres.dcontrast,
-            tres.phase, tres.dphase, tres.freq, tres.dfreq,
-            rres.avg, rres.davg, abs(rres.contrast), rres.dcontrast,
-            rres.phase, rres.dphase, rres.freq, rres.dfreq,
+            abs(tres.contrast), tres.dcontrast, tres.avg, tres.davg,
+            tres.phase, tres.dphase,  # tres.freq, tres.dfreq,
+            abs(rres.contrast), rres.dcontrast,rres.avg, rres.davg,
+            rres.phase, rres.dphase,  # rres.freq, rres.dfreq,
         ]
 
         # also fit per foil data and pack everything together to be send via
@@ -273,10 +276,14 @@ class McStasImage(BaseImage):
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
             tres = self.fitter.run(x, foil_tot, None)
             rres = self.fitter.run(x, foil_roi, None)
-            payload.append([
-                tres._pars[0], tres._pars[1], tres._pars[2], foil_tot.tolist(),
-                rres._pars[0], rres._pars[1], rres._pars[2], foil_roi.tolist(),
-            ])
+            if not tres._failed and not rres._failed:
+                payload.append([
+                    tres._pars[1], tres._pars[2], foil_tot.tolist(),
+                    rres._pars[1], rres._pars[2], foil_roi.tolist(),
+                ])
+            else:
+                payload.append([[0.] * 4, [0.] * 4, foil_tot.tolist(),
+                                [0.] * 4, [0.] * 4, foil_roi.tolist()])
         self.log.debug('payload: %r', payload)
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
 

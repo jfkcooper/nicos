@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -30,6 +29,7 @@ import pytest
 
 pytest.importorskip('file_writer_control')
 pytest.importorskip('streaming_data_types')
+pytest.importorskip('confluent_kafka')
 
 from streaming_data_types import serialise_answ, serialise_wrdn, serialise_x5f2
 from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \

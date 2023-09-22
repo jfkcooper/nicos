@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -243,6 +242,9 @@ class EchoTime(Moveable):
             echotime = float(echotime)
             result[echotime] = {}
             for tunedev, value in tunedevs.items():
-                result[echotime][tunedev] = self._tunedevs[tunedev].valuetype(value)
+                try:
+                    result[echotime][tunedev] = self._tunedevs[tunedev].valuetype(value)
+                except KeyError:  # device not configured
+                    pass
 
         return result

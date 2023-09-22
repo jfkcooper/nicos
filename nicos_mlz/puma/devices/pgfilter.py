@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -64,7 +63,7 @@ class PGFilter(Moveable):
             self.log.info('PG filter: %s', self.read(0))
 
     def doRead(self, maxage=0):
-        result = self._attached_io_status.doRead(0)
+        result = self._attached_io_status.read(maxage)
         if result == 2:
             return 'in'
         elif result == 1:
@@ -73,7 +72,7 @@ class PGFilter(Moveable):
             raise NicosError(self, 'PG filter is not readable, check device!')
 
     def doStatus(self, maxage=0):
-        s = self._attached_io_status.doRead(0)
+        s = self._attached_io_status.read(maxage)
         if s in [1, 2]:
             return (status.OK, 'idle')
         else:

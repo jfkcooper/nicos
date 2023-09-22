@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -21,6 +20,7 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
+from collections.abc import Iterable
 from functools import partial
 from threading import Lock
 
@@ -29,7 +29,7 @@ from p4p.client.thread import Context
 
 from nicos.commands import helparglist, hiddenusercommand
 from nicos.core import CommunicationError, status
-from nicos.devices.epics import SEVERITY_TO_STATUS
+from nicos.devices.epics.status import SEVERITY_TO_STATUS
 
 # Same context can be shared across all devices.
 # nt=False tells p4p not to try to map types itself
@@ -160,10 +160,13 @@ class P4pWrapper:
         return raw_result['control'] if 'control' in raw_result else {}
 
     def get_value_choices(self, pvname):
-        # Only works for enum types like MBBI and MBBO
-        raw_result = _CONTEXT.get(pvname, timeout=self._timeout)
-        if 'choices' in raw_result['value']:
-            self._choices[pvname] = raw_result['value']['choices']
+        value = _CONTEXT.get(pvname, timeout=self._timeout)['value']
+        if isinstance(value, bool):
+            return [False, True]
+        if not isinstance(value, Iterable):
+            return []
+        if 'choices' in value:
+            self._choices[pvname] = value['choices']
             return self._choices[pvname]
         return []
 

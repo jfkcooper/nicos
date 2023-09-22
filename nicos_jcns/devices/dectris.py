@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -34,7 +33,7 @@ from nicos.core.device import Readable, requires
 from nicos.core.errors import InvalidValueError
 from nicos.core.mixins import DeviceMixinBase
 from nicos.core.params import Attach, Override, Param, anytype, dictof, \
-    dictwith, listof, none_or, oneof
+    dictwith, listof, oneof
 from nicos.core.status import BUSY, OK
 from nicos.core.utils import USER, usermethod
 from nicos.devices.datasinks.file import FileSink as BaseFileSink
@@ -71,7 +70,7 @@ class HasEnergy(DeviceMixinBase):
     parameters = {
         'energy': Param(
             'Photon and threshold energy in kilo electron volt.',
-            type=none_or(dictwith(**dict((p, float) for p in ENERGY_PARAMS))),
+            type=dictwith(**dict((p, float) for p in ENERGY_PARAMS)),
             settable=True,
             volatile=True,
             unit='keV',
@@ -95,8 +94,7 @@ class HasEnergy(DeviceMixinBase):
         return [float(f'{v:.3f}') for v in self._cfg_channel.energy]
 
     def doReadEnergy(self):
-        values = self._read_energy()
-        return dict(zip(ENERGY_PARAMS, values)) if all(values) else None
+        return dict(zip(ENERGY_PARAMS, self._read_energy()))
 
     def _write_energy(self, value):
         # only send the energy parameters to the hardware if they have changed
@@ -314,9 +312,9 @@ MX_PARAMETERS = {
 }
 
 
-class PILATUSDetector(HasEnergy, Detector2D):
+class PILATUS300KDetector(Detector2D):
     """Detector that provides access to all necessary parameters of `DECTRIS
-    PILATUS detectors
+    PILATUS3 R 300K detectors
     <https://www.dectris.com/detectors/x-ray-detectors/pilatus3/>`_.
 
     You can attach devices to this detector in order to read out their values
@@ -324,7 +322,6 @@ class PILATUSDetector(HasEnergy, Detector2D):
     parameter.
     """
 
-    # TODO: add proper descriptions
     attached_devices = {
         'detector_distance': Attach(
             'Current detector distance to sample.',
@@ -343,7 +340,7 @@ class PILATUSDetector(HasEnergy, Detector2D):
             Readable, optional=True,
         ),
         'start_angle': Attach(
-            '',
+            'Starting angle of the detector scan.',
             Readable, optional=True,
         ),
         'detector_2theta': Attach(
@@ -351,7 +348,7 @@ class PILATUSDetector(HasEnergy, Detector2D):
             Readable, optional=True,
         ),
         'polarization': Attach(
-            '',
+            'X-ray polarization.',
             Readable, optional=True,
         ),
         'alpha': Attach(
@@ -375,11 +372,11 @@ class PILATUSDetector(HasEnergy, Detector2D):
             Readable, optional=True,
         ),
         'start_position': Attach(
-            '',
+            'Starting position of the detector scan.',
             Readable, optional=True,
         ),
         'shutter_time': Attach(
-            '',
+            'Time the shutter was open.',
             Readable, optional=True,
         ),
     }
@@ -450,6 +447,18 @@ class PILATUSDetector(HasEnergy, Detector2D):
 
     def _getWaiters(self):
         return self._channels  # ignore devices attached for mx settings
+
+
+class PILATUS1MDetector(HasEnergy, PILATUS300KDetector):
+    """Detector that provides access to all necessary parameters of `DECTRIS
+    PILATUS3 R 1M detectors
+    <https://www.dectris.com/detectors/x-ray-detectors/pilatus3/>`_, including
+    ``energy``.
+
+    You can attach devices to this detector in order to read out their values
+    and store them in the PILATUS image header via the ``mxsettings``
+    parameter.
+    """
 
     @usermethod
     @requires(level=USER)

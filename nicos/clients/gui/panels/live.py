@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -35,9 +34,9 @@ import numpy
 from gr import COLORMAPS as GR_COLORMAPS
 
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
-from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import dialogFromUi, enumerateWithProgress, \
-    loadUi, uipath, waitCursor
+from nicos.clients.gui.panels.plot import PlotPanel
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi, uipath, \
+    waitCursor
 from nicos.core.constants import FILE, LIVE
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
@@ -67,7 +66,7 @@ FILETAG = Qt.ItemDataRole.UserRole + 2
 FILEUID = Qt.ItemDataRole.UserRole + 3
 
 DEFAULTS = dict(
-    marks='omark',
+    marks='circle',
     offset=0,
     plotcount=1,
     colors='blue',
@@ -82,7 +81,7 @@ def readDataFromFile(filename, filetype):
         raise NicosError('Unsupported file format %r' % filetype) from None
 
 
-class LiveDataPanel(Panel):
+class LiveDataPanel(PlotPanel):
     """Provides a generic "detector live view".
 
     For most instruments, a specific panel must be implemented that takes care
@@ -121,7 +120,7 @@ class LiveDataPanel(Panel):
       Each entry will be applied to one of the detector's datasets.
 
       * ``plotcount`` (default 1) - Amount of plots in the dataset.
-      * ``marks`` (default 'omark') - Shape of the markers (if displayed).
+      * ``marks`` (default 'circle') - Shape of the markers (if displayed).
         Possible values are:
 
           'dot', 'plus', 'asterrisk', 'circle', 'diagonalcross', 'solidcircle',
@@ -183,7 +182,7 @@ class LiveDataPanel(Panel):
     ui = path.join(uipath, 'panels', 'live.ui')
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        PlotPanel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
 
         self._allowed_filetypes = set()
@@ -376,6 +375,7 @@ class LiveDataPanel(Panel):
 
         # create a new one
         self.widget = widgetcls(self, xscale=self.xscale, yscale=self.yscale)
+        self.currentPlot = self.widget.gr
 
         # enable/disable controls and set defaults for new livewidget instances
         self.setControlsEnabled(True)
@@ -483,23 +483,9 @@ class LiveDataPanel(Panel):
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
-        suffix = '.svg'  # self.widget.SAVE_EXT
-        newdlg.filename.setText(
-            safeName('data_' + self.fileList.currentItem().data(FILEUID)
-                     + suffix))
-        ret = newdlg.exec()
-        if ret != QDialog.DialogCode.Accepted:
-            return
-        descr = newdlg.description.text()
-        fname = newdlg.filename.text()
-        pathname = self.widget.gr.saveQuietly()
-        with open(pathname, 'rb') as fp:
-            remotefn = self.client.ask('transfer', fp.read())
-        if remotefn is not None:
-            self.client.eval('_LogAttach(%r, [%r], [%r])' %
-                             (descr, remotefn, fname))
-        os.unlink(pathname)
+        self.attachElogDialogExec(
+            safeName('data_' + self.fileList.currentItem().data(FILEUID))
+        )
 
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)
@@ -1108,14 +1094,14 @@ class AutoScaleLiveWidget1D(LiveWidget1D):
     def getYMax(self):
         minupperedge = 1
         if self._arrays is not None:
-            minupperedge = max([array.max() for array in self._arrays])
+            minupperedge = max(array.max() for array in self._arrays)
             minupperedge *= 2.15 if self._logscale else 1.05
         return minupperedge
 
     def getYMin(self):
         maxloweredge = 0.09 if self._logscale else 0
         if self._arrays is not None:
-            maxloweredge = min([array.min() for array in self._arrays])
+            maxloweredge = min(array.min() for array in self._arrays)
             maxloweredge *= 0.5 if self._logscale else 0.95
         return maxloweredge
 

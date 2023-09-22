@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -29,15 +28,16 @@ This module implements the EPICS area detector integration.
 import numpy as np
 
 from nicos import session
-from nicos.core import LIVE, ArrayDesc, AutoDevice, HasAutoDevices, \
-    Param, Value, listof, multiStatus, oneof, pvname, status, usermethod
+from nicos.core import LIVE, SIMULATION, ArrayDesc, AutoDevice, \
+    HasAutoDevices, Param, Value, listof, multiStatus, oneof, pvname, status, \
+    usermethod
 from nicos.core.device import Device
-from nicos.devices.epics import EpicsDevice, EpicsMoveable
+from nicos.devices.epics.pyepics import EpicsDevice, EpicsMoveable
 from nicos.devices.generic import Detector, ImageChannelMixin
 
-from nicos_ess.devices.epics.detector import EpicsDetector, \
+from nicos_sinq.devices.epics.detector import EpicsDetector, \
     EpicsPassiveChannel, EpicsTimerPassiveChannel
-from nicos_ess.devices.epics.status import ADKafkaStatus
+from nicos_sinq.devices.epics.status import ADKafkaStatus
 
 data_type_t = {
     'Int8': np.int8,
@@ -407,6 +407,8 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
 
     def doInit(self, mode):
         EpicsPassiveChannel.doInit(self, mode)
+        if mode == SIMULATION:
+            return
         self.doPrepare()
 
     def doPrepare(self):

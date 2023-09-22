@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -74,79 +73,13 @@ _ccmsanssc = Block('Magnet Sample Changer', [
     setups='ccmsanssc',
 )
 
-_ccm2a2 = Block('CCM2a2 Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm2a2', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='B_ccm2a2/target', width=12),
-        Field(name='Readback', dev='B_ccm2a2_readback', width=12),
-    ),
-    BlockRow(
-        Field(name='T1', dev='ccm2a2_T1', width=12),
-        Field(name='T2', dev='ccm2a2_T2', width=12),
-    ),
-    BlockRow(
-        Field(name='TA', dev='ccm2a2_TA', width=12),
-        Field(name='TB', dev='ccm2a2_TB', width=12),
-    ),
-    ],
-    setups='ccm2a2',
-)
+_ccm2a2 = SetupBlock('ccm2a2')
+_ccm2a2_temperature = SetupBlock('ccm2a2', 'temperatures')
+_ccm2a2_plot = SetupBlock('ccm2a2', 'plot')
 
-_ccm2a2_plot = Block('CCM2a2 Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=1800,
-              devices=['B_ccm2a2', 'B_ccm2a2/target'],
-              names=['30min', 'Target'],
-              legend=True),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=12*3600,
-              devices=['B_ccm2a2', 'B_ccm2a2/target'],
-              names=['12h', 'Target'],
-              legend=True),
-    ),
-    ],
-    setups='ccm2a2',
-)
-
-_ccm2a5 = Block('CCM2a5 Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm2a5', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='B_ccm2a5/target', width=12),
-        Field(name='Readback', dev='B_ccm2a5_readback', width=12),
-    ),
-    BlockRow(
-        Field(name='T1', dev='ccm2a5_T1', width=12),
-        Field(name='T2', dev='ccm2a5_T2', width=12),
-    ),
-    BlockRow(
-        Field(name='TA', dev='ccm2a5_TA', width=12),
-        Field(name='TB', dev='ccm2a5_TB', width=12),
-    ),
-    ],
-    setups='ccm2a5',
-)
-
-_ccm2a5_plot = Block('CCM2a5 Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=1800,
-              devices=['B_ccm2a5', 'B_ccm2a5/target'],
-              names=['30min', 'Target'],
-              legend=True),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=15, plotwindow=12*3600,
-              devices=['B_ccm2a5', 'B_ccm2a5/target'],
-              names=['12h', 'Target'],
-              legend=True),
-    ),
-    ],
-    setups='ccm2a5',
-)
+_ccm2a5 = SetupBlock('ccm2a5')
+_ccm2a5_temperature = SetupBlock('ccm2a5', 'temperatures')
+_ccm2a5_plot = SetupBlock('ccm2a5', 'plot')
 
 _st2 = Block('Sample Table 2', [
     BlockRow(
@@ -353,59 +286,9 @@ _irf10_plot = Block('IRF10 plot', [
     setups='irf10',
 )
 
-_ccmsans = Block('SANS-1 5T Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm5h', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='B_ccm5h/target', width=12),
-        Field(name='Asymmetry', key='B_ccm5h/asymmetry', width=12),
-    ),
-    BlockRow(
-        Field(name='Power Supply 1', dev='I1_ccm5h', width=12),
-        Field(name='Power Supply 2', dev='I2_ccm5h', width=12),
-    ),
-    ],
-    setups='ccm5h',
-)
-
-_ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
-    BlockRow(
-        Field(name='CH Stage 1', dev='ccm5h_T_stage1', width=12),
-        Field(name='CH Stage 2', dev='ccm5h_T_stage2', width=12),
-    ),
-    BlockRow(
-        Field(name='Shield Top', dev='ccm5h_T_shield_top', width=12),
-        Field(name='Shield Bottom', dev='ccm5h_T_shield_bottom', width=12),
-    ),
-    BlockRow(
-        Field(name='Magnet TL', dev='ccm5h_T_topleft', width=12),
-        Field(name='Magnet TR', dev='ccm5h_T_topright', width=12),
-    ),
-    BlockRow(
-        Field(name='Magnet BL', dev='ccm5h_T_bottomleft', width=12),
-        Field(name='Magnet BR', dev='ccm5h_T_bottomright', width=12),
-    ),
-    ],
-    setups='ccm5h',
-)
-
-_ccmsans_plot = Block('SANS-1 5T Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=20, plotwindow=1800,
-              devices=['B_ccm5h', 'B_ccm5h/target'],
-              names=['30min', 'Target'],
-              legend=True),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=40, height=20, plotwindow=12*3600,
-              devices=['B_ccm5h', 'B_ccm5h/target'],
-              names=['12h', 'Target'],
-              legend=True),
-        ),
-    ],
-    setups='ccm5h',
-)
+_ccm5h = SetupBlock('ccm5h')
+_ccm5h_temperature = SetupBlock('ccm5h', 'temperatures')
+_ccm5h_plot = SetupBlock('ccm5h', 'plot')
 
 _miramagnet = Block('MIRA 0.5T Magnet', [
     BlockRow(
@@ -495,7 +378,7 @@ _spinflipper = Block('Spin Flipper', [
 )
 
 rscs = []
-for k in [1,2,3,4,5,10,11,12]:
+for k in [1,2,3,10,11,12]:
     rscs.append(Block('RSC%02d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_rsc%02d' % k,
@@ -551,29 +434,9 @@ for k in range(10, 22 + 1):
     ))
 
 cryos = []
-for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'ccidu01', 'ccidu02']:
-    cryos.append(Block(cryo.title(), [
-        BlockRow(
-            Field(name='Setpoint', key='t_%s/setpoint' % cryo,
-                  unitkey='t/unit'),
-            Field(name='Target', key='t_%s/target' % cryo,
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power', key='t_%s/heaterpower' % cryo,
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-             Field(name='A', dev='T_%s_A' % cryo),
-             Field(name='B', dev='T_%s_B' % cryo),
-        ),
-        BlockRow(
-             Field(name='C', dev='T_%s_C' % cryo),
-             Field(name='D', dev='T_%s_D' % cryo),
-        ),
-        ],
-        setups=cryo,
-    ))
+for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
+             'cci3he12', 'ccidu01', 'ccidu02']:
+    cryos.append(SetupBlock(cryo))
 
 _birmag = Block('17 T Magnet', [
     BlockRow(
@@ -892,8 +755,10 @@ devices = dict(
                 Column(_sc1, _sc2, _sc_t, _st2, _st1, *rscs),
                 Column(_tisane_counts, _fg1, _helios01),
                 Column(_fc, _fg2),
-                Column(_htf01, _htf03, _irf01, _irf10, _ccm2a2, _ccm2a5,
-                       _ccmsans, _ccmsans_temperature,
+                Column(_htf01, _htf03, _irf01, _irf10,
+                       _ccm2a2, _ccm2a2_temperature,
+                       _ccm2a5, _ccm2a5_temperature,
+                       _ccm5h, _ccm5h_temperature,
                        _miramagnet, _amagnet,
                        _sans1julabo, _dilato, _pressure_box),
                 Column(_htf01_plot, _htf03_plot,
@@ -909,7 +774,7 @@ devices = dict(
                 Column(_dilato_plot3),
             ),
             Row(
-                Column(_ccmsans_plot, _miramagnet_plot,
+                Column(_ccm5h_plot, _miramagnet_plot,
                        _amagnet_plot, _ccm2a2_plot, _ccm2a5_plot),
                 Column(*T_Ts_plot),
             ),

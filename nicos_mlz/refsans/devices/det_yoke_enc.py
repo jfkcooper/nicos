@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -45,4 +44,4 @@ class BasePos(Readable):
 
     def doRead(self, maxage=0):
         return int(self._attached_comm.communicate(
-                   '$0%d?*\r\n' % self.index)[1:-1])
+                   '$0%d?*' % self.index)[1:-1])

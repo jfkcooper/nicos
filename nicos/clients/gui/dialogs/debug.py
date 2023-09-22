@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -101,8 +100,13 @@ class ConsoleBox(QPlainTextEdit):
 
     def getConstruct(self, command):
         self.construct.append(command)
-        res = self.compiler('\n'.join(self.construct),
-                            '<interactive>', 'single')
+        try:
+            res = self.compiler('\n'.join(self.construct),
+                                '<interactive>', 'single')
+        except SyntaxError:
+            # syntax error, start from scratch
+            self.construct = []
+            raise
         if res is not None:
             # construct is complete and parsed successfully
             self.construct = []

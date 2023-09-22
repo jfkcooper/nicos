@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -22,12 +21,12 @@
 #
 # *****************************************************************************
 
-from nicos.core import HasPrecision, Moveable, Readable, status
+from nicos.core import Moveable, Readable, status
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Attach, Override, Param, floatrange
 
 
-class FocusPoint(HasLimits, HasPrecision, Moveable):
+class FocusPoint(HasLimits, Moveable):
     attached_devices = {
         'table': Attach('table', Moveable),
         'pivot': Attach('pivot', Readable),

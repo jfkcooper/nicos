@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -29,9 +28,9 @@
 
 import threading
 
-from nicos.core import Override, Param, oneof, pvname, status
+from nicos.core import Moveable, Override, Param, oneof, pvname, status
 from nicos.core.errors import ConfigurationError
-from nicos.core.mixins import CanDisable, HasOffset
+from nicos.core.mixins import CanDisable, HasLimits, HasOffset
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.epics.pva.epics_devices import EpicsMoveable
 
@@ -42,10 +41,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     record. The PV names for the fields of the record (readback, speed, etc.)
     are derived by combining the motorpv-parameter with the predefined field
     names.
+
     The errorbitpv and reseterrorpv can be provided optionally in case the
     controller supports reporting errors and a reset-mechanism that tries to
     recover from certain errors. If present, these are used when calling the
     reset()-method.
+
     Another optional PV is the errormsgpv, which contains an error message that
     may originate from the motor controller or the IOC. If it is present,
     doStatus uses it for some of the status messages.
@@ -93,14 +94,25 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                   settable=False,
                   userparam=False,
                   mandatory=False),
-
         'temp':   Param('Motor internal temperature sensor.', type=float,
                         mandatory=False, settable=False, userparam=True, unit='°C', fmtstr='%.2f'),
         'temppv': Param('Optional PV with temperature sensor value.', type=pvname,
                         mandatory=False, settable=False, userparam=False),
-        'pvdesc': Param('Description of motor in EPICS', type=str,
-                        mandatory=False, settable=False, userparam=False),
-        }
+        'position_deadband':
+            Param('Acceptable distance between target and final position.',
+                  type=float,
+                  settable=False,
+                  volatile=True,
+                  userparam=False,
+                  mandatory=False),
+        'pv_desc':
+            Param('The description defined at the EPICS level.',
+                  type=str,
+                  settable=False,
+                  volatile=True,
+                  userparam=False,
+                  mandatory=False),
+    }
 
     parameter_overrides = {
         # readpv and writepv are determined automatically from the base PV
@@ -115,7 +127,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         # Units are set by EPICS, so cannot be changed
         'unit': Override(mandatory=False, settable=False, volatile=True),
         'description': Override(mandatory=False, settable=False, volatile=True),
-        }
+    }
 
     _motor_status = (status.OK, '')
 
@@ -143,6 +155,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'units': 'EGU',
         'alarm_status': 'STAT',
         'alarm_severity': 'SEVR',
+        'position_deadband': 'RDBD',
+        'description': 'DESC',
         'pvdesc': 'DESC',
     }
 
@@ -152,7 +166,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'writepv': 'target',
         'temppv': 'temp',
         'pvdesc': 'pvdesc',
-        }
+    }
 
     def doInit(self, mode):
         self._lock = threading.Lock()
@@ -169,6 +183,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         """
         Implementation of inherited method to automatically account for fields
         present in motor record.
+
         :return: List of PV aliases.
         """
         pvs = set(self._record_fields.keys())
@@ -211,6 +226,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         Implementation of inherited method that translates between PV aliases
         and actual PV names. Automatically adds a prefix to the PV name
         according to the motorpv parameter.
+
         :param pvparam: PV alias.
         :return: Actual PV name.
         """
@@ -289,7 +305,6 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         else:
             return 0.
 
-
     def doStatus(self, maxage=0):
         with self._lock:
             epics_status, message = self._get_alarm_status()
@@ -309,10 +324,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         if self.powerautopv:
             powerauto_enabled = self._get_pv('powerautopv')
         else:
-            powerauto_enabled = 1
+            powerauto_enabled = 0
 
-        # TODO: ECDC to check how this should actually work, manual disable is possible
-        if not powerauto_enabled or not self._get_pv('enable'):
+        if not powerauto_enabled and not self._get_pv('enable'):
             return status.WARN, 'motor is not enabled'
 
         miss = self._get_pv('miss')
@@ -404,3 +418,23 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
     def doReadUnit(self):
         return self._get_pv('units')
+
+    def _check_in_range(self, curval, userlimits):
+        if userlimits == (0, 0) and self.abslimits == (0, 0):
+            # No limits defined, so must be in range
+            return status.OK, ''
+
+        return HasLimits._check_in_range(self, curval, userlimits)
+
+    def doReadPosition_Deadband(self):
+        return self._get_pv('position_deadband')
+
+    def doReadPv_Desc(self):
+        return self._get_pv('description')
+
+    def isAllowed(self, pos):
+        if self.userlimits == (0, 0) and self.abslimits == (0, 0):
+            # No limits defined
+            return True, ''
+
+        return Moveable.isAllowed(self, pos)

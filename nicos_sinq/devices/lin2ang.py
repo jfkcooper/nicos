@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -35,6 +34,8 @@ class Lin2Ang(TransformedMoveable):
     of a translation table.
     """
 
+    hardware_access = False
+
     parameters = {
         'length': Param('distance translation motor -- pivot point',
                         type=float),
@@ -67,7 +68,7 @@ class Lin2Ang(TransformedMoveable):
         return self.length * math.tan(math.radians(target + self.offset))
 
     def doStatus(self, maxage=0):
-        return self._attached_translation.doStatus(maxage)
+        return self._attached_translation.status(maxage)
 
     def doIsAllowed(self, target):
         return self._attached_translation.isAllowed(

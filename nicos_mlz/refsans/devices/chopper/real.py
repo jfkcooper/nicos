@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -81,10 +80,6 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
                        userparam=True),
     }
 
-    parameter_overrides = {
-        'resolution': Override(type=intrange(0, 6)),
-    }
-
     def doWriteDelay(self, delay):
         self._write_controller('m4079=%dm4080=%%d' % 1,
                                int(round(delay * 100)))
@@ -138,7 +133,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         return ', '.join(msg)
 
     def _hot_off(self):
-        self.log.warn('chopper is shut down because of hot cores!')
+        self.log.warning('chopper is shut down because of hot cores!')
         self._shut_down()
 
     def _shut_down(self):

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -23,22 +22,23 @@
 # *****************************************************************************
 
 authors_list = '''\
-NICOS is written and maintained by:
+NICOS is maintained by:
 
 * Georg Brandl <g.brandl@fz-juelich.de>
 * Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 * Christian Felder <c.felder@fz-juelich.de>
 * Jens Krüger <jens.krueger@frm2.tum.de>
-* Alexander Lenz <alexander.lenz@frm2.tum.de>
 * Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 
 Contributors:
 
 * Nikolas Arend <n.arend@fz-juelich.de>
+* Josef Baudisch <josef.baudisch@frm2.tum.de>
 * Nikhil Biyani <nikhil.biyani@psi.ch>
 * Pierre Boillat <pierre.boillat@psi.ch>
 * Matt Clarke <matt.clarke@ess.eu>
 * Robert Georgii <robert.georgii@frm2.tum.de>
+* Jonathan Haehne <jonathan.haehne@frm2.tum.de>
 * Moritz Hannemann <m.hannemann@fz-juelich.de>
 * Ümit Hardal <umit.hardal@ess.eu>
 * Michael Hart <michael.hart@stfc.ac.uk>
@@ -46,11 +46,13 @@ Contributors:
 * Lea Kleesattel <lea.kleesattel@frm2.tum.de>
 * Mark Könnecke <Mark.Koennecke@psi.ch>
 * Jakob Lass <jakob.lass@gmail.com>
+* Alexander Lenz <alexander.lenz@frm2.tum.de>
 * Peter Link <peter.link@frm2.tum.de>
 * Kenan Muric <kenan.muric@ess.eu>
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
 * Tobias Neuwirth <tobias.neuwirth@frm2.tum.de>
 * Konstantin Kholostov <k.kholostov@fz-juelich.de>
+* George O'Neill <george.oneill@ess.eu>
 * Adrian Potter <adrian.potter@tessella.com>
 * Jörg Pulz <joerg.pulz@frm2.tum.de>
 * Stefan Rainow <s.rainow@fz-juelich.de>
@@ -60,14 +62,17 @@ Contributors:
 * Tobias Unruh <tobias.unruh@krist.uni-erlangen.de>
 * Michael Wedel <michael.wedel@esss.se>
 * Wolfgang Wein <wein@informatik.tu-muenchen.de>
+* Alexander Zaft <a.zaft@fz-juelich.de>
 * Markus Zolliker <markus.zolliker@psi.ch>
-* Jonathan Haehne <jonathan.haehne@frm2.tum.de>
 
 Instrument-specific code was contributed by:
 
+* Stefanos Athanasopoul <stefanos.athanasopoulos@ess.eu>
 * Fabian Beule <f.beule@fz-juelich.de>
+* Alexander Book <alexander.book@frm2.tum.de>
 * Michele Brambilla <michele.brambilla@psi.ch>
 * Alexey Bykov <redi87@bk.ru>
+* Daniel Cacabelos <daniel.cacabelos@ess.eu>
 * Petr Čermák <cermak@mag.mff.cuni.cz>
 * Goetz Eckold <geckold@gwdg.de>
 * Artem Feoktystov <a.feoktystov@fz-juelich.de>
@@ -103,6 +108,7 @@ Instrument-specific code was contributed by:
 * Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>
 * Tobias Schrader <t.schrader@fz-juelich.de>
 * Michael Schulz <michael.schulz@frm2.tum.de>
+* Simon Sebold <simon.sebold@frm2.tum.de>
 * Sandra Seger <sandra.seger@frm2.tum.de>
 * Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>
 * Oleg Sobolev <oleg.sobolev@frm2.tum.de>

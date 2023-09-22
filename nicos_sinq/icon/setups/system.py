@@ -15,7 +15,7 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
-requires = ['shutters']
+includes = ['shutters']
 
 display_order = 100
 
@@ -53,9 +53,9 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    emergency = device('nicos.devices.epics.EpicsReadable',
+    emergency = device('nicos.devices.epics.pyepics.EpicsReadable',
         description = 'Emergency stop indicator',
-        readpv = 'SQ:ICON:b1io1:EmergencyRBV',
+        readpv = 'SQ:ICON:b2io1:EmergencyRBV',
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     asciisink = device('nicos.devices.datasinks.AsciiScanfileSink',

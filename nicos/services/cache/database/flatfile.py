@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -287,7 +286,13 @@ class FlatfileCacheDatabase(CacheDatabase):
                     continue
                 fields = line.rstrip().split(None, nsplit)
                 if fields[0] == subkey:
-                    time = float(fields[1])
+                    try:
+                        time = float(fields[1])
+                    except Exception as e:
+                        self.log.exception('Error converting timestamp in '
+                                           'cache file %s/%s/%s-%s',
+                                           year, monthday, category, subkey)
+                        continue
                     value = fields[-1]
                     if value == '-':
                         value = ''

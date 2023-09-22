@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -859,9 +858,6 @@ class ScanningDetector(SubscanMeasurable):
 
     def doRead(self, maxage=0):
         return self.readresult
-
-    def doFinish(self):
-        pass
 
     def _processDataset(self, dataset):
         return []  # implement in subclass if necessary

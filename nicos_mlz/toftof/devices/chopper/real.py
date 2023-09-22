@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -31,8 +30,8 @@ from nicos import session
 from nicos.core import ADMIN, SIMULATION, Attach, NicosError, requires, status
 from nicos.devices.entangle import StringIO
 
-from nicos_mlz.toftof.lib import calculations as calc
 from nicos_mlz.toftof.devices.chopper.base import BaseChopperController
+from nicos_mlz.toftof.lib import calculations as calc
 
 WAVE_LENGTH = 4181
 ACT_POS = 4191
@@ -104,7 +103,7 @@ class Controller(BaseChopperController):
     def doRead(self, maxage=0):
         return BaseChopperController.doRead(self, maxage)
 
-    def doPreInit(self):
+    def doPreinit(self, mode):
         self._dev = self._attached_io
 
     def doInit(self, mode):

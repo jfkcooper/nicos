@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -33,6 +32,9 @@ class SANSWL(TransformedMoveable):
 
     where a and b are constants.
     """
+
+    hardware_access = False
+
     parameters = {
         'a': Param('Additive constant for the wavelength calculation',
                    type=float, settable=False),
@@ -53,7 +55,7 @@ class SANSWL(TransformedMoveable):
         return 1./((target - self.a)/self.b)
 
     def doStatus(self, maxage=0):
-        return self._attached_speed.doStatus(maxage)
+        return self._attached_speed.status(maxage)
 
     def _readRaw(self, maxage=0):
         return self._attached_speed.read(maxage)

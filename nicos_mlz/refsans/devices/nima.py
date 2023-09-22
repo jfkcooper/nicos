@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -154,7 +153,7 @@ class Press(HasPrecision, MoveName):
 
     def doWritePrecision(self, value):
         self._command('set:precision:%f' % value)
-        self.log.info('write Precison %f. unsaved' % value)
+        self.log.info('write Precison %f. unsaved', value)
 
     def doReadPrecision(self, value):
         value = float(self._command('get:precision'))

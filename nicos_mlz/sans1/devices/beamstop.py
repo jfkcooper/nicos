@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -50,7 +49,7 @@ class BeamStopAxis(Axis):
             self.userlimits = self.abslimits
         if mode not in (SIMULATION, SLAVE) and \
            self._attached_motor.status()[0] != status.BUSY:
-            self._attached_motor.doSetPosition(self._attached_coder.read())
+            self._attached_motor.setPosition(self._attached_coder.read())
             self._attached_motor.userlimits = self._attached_motor.abslimits
 
     def doReadOffset(self):

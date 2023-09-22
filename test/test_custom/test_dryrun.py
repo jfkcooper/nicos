@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -26,10 +25,8 @@
 instrument setups.
 """
 
-import glob
-import os
 from logging import ERROR, LogRecord
-from os import path
+from pathlib import Path
 from uuid import uuid1
 
 import pytest
@@ -98,26 +95,27 @@ custom_subdirs = {}
 
 
 def find_scripts():
-    for custom_dir in [d for d in glob.glob(path.join(module_root, 'nicos_*'))
-                       if path.isdir(d) and d != 'nicos_demo']:
-        facility = path.basename(custom_dir)
-        for instr in sorted(os.listdir(custom_dir)):
-            testdir = path.join(custom_dir, instr, 'testscripts')
-            if not path.isdir(testdir):
+    for custom_dir in [d for d in Path(module_root).glob('nicos_*')
+                       if d.is_dir() and d.name != 'nicos_demo']:
+        facility = custom_dir.name
+        for testdir in Path(custom_dir).rglob('testscripts'):
+            if not testdir.is_dir():
                 continue
-            nicosconf = path.join(custom_dir, instr, 'nicos.conf')
+            nicosconf = testdir.parent.joinpath('nicos.conf')
+            idx = testdir.parts.index(facility) + 1
+            instr = '.'.join(testdir.parts[idx:-1])
             full_instr = f'{facility}.{instr}'
             custom_subdirs[full_instr] = []
             cfg = readToml(nicosconf)
             subdirs = cfg.get('nicos', {}).get('setup_subdirs')
             if subdirs is not None:
                 custom_subdirs[full_instr] = subdirs
-            for testscript in sorted(os.listdir(testdir)):
+            for testscript in sorted(testdir.iterdir()):
                 # For now, only the "basic" scripts are run.
-                if testscript.endswith('basic.py'):
+                if testscript.name == 'basic.py':
                     yield pytest.param(
                         facility, instr, testscript,
-                        id=f'{facility}-{instr}-{testscript}')
+                        id=f'{facility}-{instr}-{testscript.name}')
 
 
 @pytest.mark.parametrize('facility, instr, script', find_scripts())
@@ -129,15 +127,17 @@ def test_dryrun(session, facility, instr, script):
     needs_modules = []
     timing_condition = None
     subdirs = custom_subdirs[f'{facility}.{instr}']
-    custom_dir = path.join(module_root, facility)
-    fullpath = path.join(custom_dir, instr, 'testscripts', script)
-    cachepath = path.join(custom_dir, instr, 'testscripts', 'cache')
+    custom_dir = Path(module_root).joinpath(facility)
+    fullpath = custom_dir.joinpath(instr, 'testscripts', script)
+    cachepath = custom_dir.joinpath(instr, 'testscripts', 'cache')
 
-    with open(fullpath, encoding='utf-8') as fp:
+    with fullpath.open(encoding='utf-8') as fp:
         for line in fp:
             if line.startswith('# test:'):
                 parts = line.split(None, 4)
                 if len(parts) < 4:  # -> # test: name = value...
+                    if parts[2] == 'skip':
+                        pytest.skip('test should be skipped')
                     continue
                 if parts[2] == 'subdirs':
                     subdirs.extend(v.strip() for v in parts[4].split(','))
@@ -146,7 +146,7 @@ def test_dryrun(session, facility, instr, script):
                 elif parts[2] == 'setupcode':
                     setupcode.insert(0, parts[4] + '\n')
                 elif parts[2] == 'needs':
-                    needs_modules.append(parts[4].strip())
+                    needs_modules.extend(v.strip() for v in parts[4].split(','))
                 elif parts[2] == 'timing':
                     timing_condition = parts[4].strip()
                 else:
@@ -165,7 +165,8 @@ def test_dryrun(session, facility, instr, script):
         except Exception:
             pytest.skip('required module %r is not available' % modname)
 
-    setup_subdirs = ','.join(path.join(custom_dir, sbd) for sbd in subdirs)
+    setup_subdirs = ','.join('%s' % Path(custom_dir).joinpath(sbd)
+                             for sbd in subdirs)
     uuid = uuid1()
     emitter = Emitter(uuid, code)
     supervisor = SimulationSupervisor(None, str(uuid), code, setups,

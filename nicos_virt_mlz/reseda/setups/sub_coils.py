@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Substraction coils'
 group = 'lowlevel'
 display_order = 26
@@ -11,7 +9,7 @@ devices = dict(
         pollinterval = 60,
         maxage = 119,
         unit = 'A',
-        abslimits = (0, 2),
+        abslimits = (-5, 5),
         # precision = 0.0005,
     ),
     nse1 = device('nicos.devices.generic.ManualMove',
@@ -20,7 +18,7 @@ devices = dict(
         pollinterval = 60,
         maxage = 119,
         unit = 'A',
-        abslimits = (0, 2),
+        abslimits = (-5, 5),
         # precision = 0.0005,
     ),
     phase = device('nicos.devices.generic.ManualMove',
@@ -29,7 +27,7 @@ devices = dict(
         pollinterval = 60,
         maxage = 119,
         unit = 'A',
-        abslimits = (0, 2),
+        abslimits = (0, 5),
         # precision = 0.005,
     ),
 )

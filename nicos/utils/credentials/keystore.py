@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -40,7 +39,12 @@ To set a password in the default store, run the keyring utility:
 
 import os.path
 
-from keyring.util import properties
+try:
+    from jaraco.classes import properties
+except ImportError:
+    # Back compatibility with keyring versions < 24.0.0
+    from keyring.util import properties
+
 from keyrings.alt.file import EncryptedKeyring
 
 from nicos import config

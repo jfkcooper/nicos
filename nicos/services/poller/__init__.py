@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -44,6 +43,7 @@ from nicos.utils.files import findSetup
 POLL_MIN_VALID_TIME = 0.15  # latest time slot to poll before value times out due to maxage
 POLL_BUSY_INTERVAL = 0.5    # if dev is busy, poll this often
 POLL_MIN_WAIT = 0.1         # minimum amount of time between two calls to poll()
+                            # POLL_MIN_WAIT < POLL_BUSY_INTERVAL / 2 !!!
 
 
 class Poller(Device):
@@ -132,16 +132,14 @@ class Poller(Device):
 
             while not self._stoprequest:
                 # determine maximum waiting time with a default of 1h
-                ct = currenttime()
+                now = currenttime()
                 nextpoll = lastpoll + (interval or 3600)
                 # note: dev.maxage is intended here!
                 timesout = lastpoll + (dev.maxage - POLL_MIN_VALID_TIME
                                        if dev.maxage else POLL_MIN_VALID_TIME)
-                dnext = nextpoll - ct
-                dto = timesout - ct
-                maxwait = min(dnext, dto)
+                maxwait = min(nextpoll, timesout) - now
                 self.log.debug('%-10s: maxwait is %g (nextpoll=%g, timesout=%g)',
-                               dev, maxwait, dnext, dto)
+                               dev, maxwait, nextpoll, timesout)
 
                 # only wait for events if there is time, otherwise just poll
                 if maxwait > 0:
@@ -158,15 +156,14 @@ class Poller(Device):
                             maxage = interval / 2.
                             # also poll
                         elif event == 'adev_normal':  # one of our attached_devices is no more busy
-                            pass  # also poll
+                            pass  # just poll
                         elif event == 'adev_target':  # one of our attached_devices got new target
                             interval = POLL_BUSY_INTERVAL
                             maxage = interval / 2.
                             continue
                         elif event == 'adev_value':  # one of our attached_devices changed value
-                            interval = POLL_BUSY_INTERVAL
-                            maxage = interval / 2.
-                            continue
+                            maxage = POLL_BUSY_INTERVAL / 2
+                            pass  # just poll
                         elif event == 'dev_busy':  # our device went busy
                             interval = POLL_BUSY_INTERVAL
                             maxage = interval / 2.
@@ -351,7 +348,7 @@ class Poller(Device):
             if fn[0] is None:
                 return
         else:
-            fn = session._setup_info[setupname]['filenames']
+            fn = session._setup_info[setupname]['_filenames_']
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting poller process')
         self.quit()

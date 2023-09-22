@@ -166,40 +166,9 @@ for i in range(10, 22 + 1):
 
 cryos = []
 for cryo in 'cci3he01 cci3he02 cci3he03 ccidu01 ccidu02'.split():
-    cryos.append(Block(cryo.title(), [
-        BlockRow(
-            Field(name='Setpoint', key='t_%s/setpoint' % cryo,
-                   unitkey='t/unit'),
-            Field(name='Target', key='t_%s/target' % cryo,
-                   unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power', key='t_%s/heaterpower' % cryo,
-                   unitkey='t/unit'),
-        ),
-        BlockRow(
-             Field(name='A', dev='T_%s_A' % cryo),
-             Field(name='B', dev='T_%s_B' % cryo),
-        ),
-        ],
-        setups=cryo,
-    ))
+    cryos.append(SetupBlock(cryo))
 
-_ccm5h = Block('SANS-1 5T Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm5h', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='b_ccm5h/target', width=12),
-        Field(name='Asymmetry', key='b_ccm5h/asymmetry', width=12),
-    ),
-    BlockRow(
-        Field(name='Power Supply 1', dev='I1_ccm5h', width=12),
-        Field(name='Power Supply 2', dev='I2_ccm5h', width=12),
-    ),
-    ],
-    setups='ccm5h',
-)
+_ccm5h = SetupBlock('ccm5h')
 
 _miramagnet = Block('MIRA 0.5T Magnet', [
     BlockRow(
@@ -233,27 +202,10 @@ _amagnet = Block('Antares Magnet', [
     setups='amagnet',
 )
 
-_ccm2a = Block('CCM2a Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_ccm2a', width=12),
-    ),
-    BlockRow(
-        Field(name='Target', key='B_ccm2a/target', width=12),
-        Field(name='Readback', dev='B_ccm2a_readback', width=12),
-    ),
-    BlockRow(
-        Field(name='T1', dev='ccm2a_T1', width=12),
-        Field(name='T2', dev='ccm2a_T2', width=12),
-    ),
-    BlockRow(
-        Field(name='TA', dev='ccm2a_TA', width=12),
-        Field(name='TB', dev='ccm2a_TB', width=12),
-    ),
-    ],
-    setups='ccm2a',
-)
+_ccm2a2 = SetupBlock('ccm2a2')
+_ccm2a2_temperature = SetupBlock('ccm2a2', 'temperatures')
 
-magnets = [_ccm2a, _ccm5h, _miramagnet, _amagnet]
+magnets = [_ccm2a2, _ccm2a2_temperature, _ccm5h, _miramagnet, _amagnet]
 
 _column3 = Column(
     Block('Cascade detector', [

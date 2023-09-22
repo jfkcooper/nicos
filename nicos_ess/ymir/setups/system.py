@@ -35,9 +35,8 @@ devices = dict(
         'nicos_ess.devices.experiment.EssExperiment',
         description='experiment object',
         dataroot='/opt/nicos-data',
-        filewriter_root='/ess/data/ymir',
         sample='Sample',
-        cache_filepath='/opt/nicos-data/ymir/cached_proposals.json'),
+        cache_filepath='/opt/nicos-data/cached_proposals.json'),
     conssink=device(
         'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink',),
     daemonsink=device('nicos.devices.datasinks.DaemonSink',),

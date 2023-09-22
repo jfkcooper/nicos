@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -30,9 +29,8 @@ import pytest
 pytest.importorskip('epics')
 
 from nicos.core import status
-from nicos.devices.epics import EpicsMoveable, EpicsReadable
+from nicos.devices.epics.pyepics import EpicsMoveable, EpicsReadable
 
-from nicos_ess.devices.epics.base import EpicsMoveableEss
 from nicos_ess.estia.devices.attocube import IDS3010Axis, IDS3010Control
 
 session_setup = 'estia'
@@ -137,7 +135,7 @@ class TestIDS3010ControlEpics(TestCase):
     @pytest.fixture(autouse=True)
     def initialize_devices(self, session):
         self.session = session
-        create_method_patch(self, EpicsMoveableEss, '_get_mapped_epics_status',
+        create_method_patch(self, EpicsMoveable, '_get_mapped_epics_status',
                             return_value_wrapper((status.OK, '')))
         create_method_patch(self, IDS3010Control, '_get_pv',
                             self.on_get_pv_at_init)

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -102,6 +101,9 @@ class Cellarray(gr.pygr.PlotSurface):
 
 
 class GRWidget(InteractiveGRWidget):
+
+    SAVE_EXT = ['.svg', '.png']
+
     def __init__(self, widget, **kwargs):
         InteractiveGRWidget.__init__(self, widget, **kwargs)
         self.widget = widget
@@ -147,7 +149,7 @@ class GRWidget(InteractiveGRWidget):
         return pathname
 
     def saveQuietly(self):
-        return self._save('.svg')
+        return [(self._save(ext), ext) for ext in self.SAVE_EXT]
 
 
 class Plot(OrigPlot):
@@ -711,7 +713,7 @@ class LiveWidget1D(LiveWidgetBase):
         # self._axesrange = dict(x=(1, 1), y=(1, 1), z=(1, 1))
         self.setSymbols(False)
         self.setLines(False)
-        self.setMarks(['omark'])
+        self.setMarks(['circle'])
         self._labels = None
         self._markersize = 1.0
 
@@ -722,7 +724,7 @@ class LiveWidget1D(LiveWidgetBase):
         ny = self.axes.getWindow()[3]
 
         # leave a visually equal padding on top for logscale and normal view
-        minupperedge = max([max(array) for array in self._arrays])
+        minupperedge = max(max(array) for array in self._arrays)
 
         if self._logscale:
             return max(ny, minupperedge * 2.15)
@@ -785,10 +787,10 @@ class LiveWidget1D(LiveWidgetBase):
 
     def setMarks(self, marktype):
         if isinstance(marktype, list):
-            self._marktype = GRMARKS.get(marktype[0] if marktype else 'omark',
-                                         GRMARKS['omark'])
+            self._marktype = GRMARKS.get(marktype[0] if marktype else 'circle',
+                                         GRMARKS['circle'])
         else:
-            self._marktype = GRMARKS.get(marktype, GRMARKS['omark'])
+            self._marktype = GRMARKS.get(marktype, GRMARKS['circle'])
 
     def setMarkerSize(self, size):
         self._markersize = size

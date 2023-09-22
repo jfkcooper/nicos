@@ -1,5 +1,3 @@
-# coding: utf-8
-
 description = 'Scattering Geometry, Experiment and Detector [Monitor 03]'
 group = 'special'
 
@@ -20,6 +18,8 @@ _Instrcol = Column(
             Field(name='NL2b Guide', dev='NL2b', width=10),
             Field(name='shutter', dev='shutter', width=10),
             Field(name='\u0263 shutter', dev='shutter_gamma', width=10),
+            Field(name='noWARNUNG', dev='chopper_no_Warning', width=7),
+            Field(name='Fatal', key='chopper/fatal', width=10),
         ),
         BlockRow(
             Field(name='FAK40 capacity', dev='FAK40_Cap', width=10, format='%.1f', unit='(l)'),

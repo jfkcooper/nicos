@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -28,6 +27,7 @@ from time import time
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.colors import colors
 from nicos.guisupport.qt import QActionGroup, QBrush, QColor, QFontMetrics, \
     QIcon, QListWidgetItem, QMenu, QPen, QPixmap, QSize, QStyledItemDelegate, \
     Qt, QTimer, QToolBar, pyqtSlot
@@ -149,7 +149,7 @@ class ScriptStatusPanel(Panel):
         self.bar = None
         self.queueFrame.hide()
         self.statusLabel.hide()
-        self.pause_color = QColor('#ffdddd')
+        self.pause_color = colors.cmd_running
         self.idle_color = parent.user_color
 
         self.script_queue = ScriptQueue(self.queueFrame, self.queueView)

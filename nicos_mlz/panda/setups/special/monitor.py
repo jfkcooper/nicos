@@ -200,56 +200,12 @@ lakeshoreplot = Block('LakeShore', [
 cryos = []
 cryosupps = []
 cryoplots = []
-cryodict = dict(cci3he01='3He-insert', cci3he02='3He-insert', cci3he03='3He-insert',
-                ccidu01='Dilution-insert', ccidu02='Dilution-insert')
-for cryo, name in cryodict.items():
-    cryos.append(
-        Block('%s %s' % (name, cryo.title()), [
-            BlockRow(
-                Field(dev='t_%s'   % cryo, name='Regulation', max=38),
-                Field(dev='t_%s_a' % cryo, name='Sensor A', max=38),
-                Field(dev='t_%s_b' % cryo, name='Sensor B', max=7),
-            ),
-            BlockRow(
-                Field(key='t_%s/setpoint' % cryo, name='Setpoint'),
-                Field(key='t_%s/p' % cryo, name='P', width=7),
-                Field(key='t_%s/i' % cryo, name='I', width=7),
-                Field(key='t_%s/d' % cryo, name='D', width=7),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
-    cryosupps.append(
-        Block('%s-misc' % cryo.title(), [
-            BlockRow(
-                Field(dev='%s_p1' % cryo, name='Pump', width=10),
-                Field(dev='%s_p4' % cryo, name='Cond.', width=10),
-            ),
-            BlockRow(
-                Field(dev='%s_p5' % cryo, name='Dump', width=10),
-                Field(dev='%s_p6' % cryo, name='IVC', width=10),
-            ),
-            BlockRow(
-                Field(key='%s_flow' % cryo, name='Flow', width=10),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
-    cryoplots.append(
-        Block(cryo.title(), [
-            BlockRow(
-                Field(widget='nicos.guisupport.plots.TrendPlot',
-                      plotwindow=300, width=25, height=25,
-                      devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
-                      names=['Setpoint', 'Regulation'],
-                ),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
+cryonames = ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
+             'cci3he12', 'ccidu01', 'ccidu02']
+for cryo in cryonames:
+    cryos.append(SetupBlock(cryo))
+    cryosupps.append(SetupBlock(cryo, 'pressures'))
+    cryoplots.append(SetupBlock(cryo, 'plots'))
 
 
 # generic CCR-stuff
@@ -323,40 +279,8 @@ miramagnet = Block('MIRA Magnet', [
 )
 
 # for setup magnet frm2-setup
-magnet55 = Block('5T Magnet', [
-    BlockRow(
-        Field(dev='B_ccm55v'),
-        Field(key='B_ccm55v/target', name='Target', fmtstr='%.2f'),
-    ),
-    ],
-    setups='ccm55v',
-)
-
-magnet55supp = Block('Magnet', [
-    BlockRow(
-        Field(dev='sth_ccm55v', name='sth'),
-    ),
-    # Maximum temperatures for field operation above 6.6 T (80A) taken from the
-    # manual
-    BlockRow(
-        Field(dev='ccm55v_T1', max=4.3),
-        Field(dev='ccm55v_T2', max=4.3),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T3', max=5.1),
-        Field(dev='ccm55v_T4', max=4.7),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T5'),
-        Field(dev='ccm55v_T6'),
-    ),
-    BlockRow(
-        Field(dev='ccm55v_T7'),
-        Field(dev='ccm55v_T8', max=4.3),
-    ),
-    ],
-    setups='ccm55v',
-)
+ccm5v5 = SetupBlock('ccm5v5')
+ccm5v5supp = SetupBlock('ccm5v5', 'temperatures')
 
 # for setup magnet jcns
 wm5v = Block('5T Magnet', [
@@ -501,11 +425,11 @@ memograph = Block('Water Flow', [
     ],
 )
 
-column1 = Column(filters, primary, sample, analyzer) + Column(magnet55)
+column1 = Column(filters, primary, sample, analyzer) + Column(ccm5v5)
 column2 = Column(collimation, detector, bambus, lakeshore_hts, ccm12v) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, miramagnet, wm5v, vti)
 
-column3 = Column(magnet55supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
+column3 = Column(ccm5v5supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(*cryoplots) + Column(*ccrplots) + \

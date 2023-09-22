@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -30,7 +29,7 @@ import numpy as np
 from nicos.core import SIMULATION, ArrayDesc, ConfigurationError, Override, \
     Param, Value, intrange, listof, oneof, tupleof
 from nicos.core.data import GzipFile
-from nicos.devices.datasinks.raw import SingleRawImageFileReader, \
+from nicos.devices.datasinks.raw import RawImageFileReader, \
     SingleRawImageSink, SingleRawImageSinkHandler
 from nicos.devices.entangle import ImageChannel
 from nicos.protocols.cache import FLAG_NO_STORE
@@ -160,6 +159,10 @@ class CascadeDetector(ImageChannel):
                           fmtstr='%.1f'),
                     Value('fit.avgErr', unit='', type='error',
                           errors='none', fmtstr='%.1f'),
+                    Value('fit.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('fit.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'),
                     Value('roi.contrast', unit='', type='other',
                           errors='next', fmtstr='%.3f'),
                     Value('roi.contrastErr', unit='', type='error',
@@ -167,7 +170,11 @@ class CascadeDetector(ImageChannel):
                     Value('roi.avg', unit='', type='other', errors='next',
                           fmtstr='%.1f'),
                     Value('roi.avgErr', unit='', type='error',
-                          errors='none', fmtstr='%.1f'))
+                          errors='none', fmtstr='%.1f'),
+                    Value('roi.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('roi.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'))
         return (Value(self.name + '.roi', unit='cts', type='counter',
                       errors='sqrt', fmtstr='%d'),
                 Value(self.name + '.total', unit='cts', type='counter',
@@ -224,7 +231,9 @@ class CascadeDetector(ImageChannel):
         self.readresult = [
             roi, total,
             abs(tres.contrast), tres.dcontrast, tres.avg, tres.davg,
+            tres.phase, tres.dphase,
             abs(rres.contrast), rres.dcontrast, rres.avg, rres.davg,
+            rres.phase, rres.dphase,
         ]
 
         # also fit per foil data and pack everything together to be send
@@ -235,8 +244,13 @@ class CascadeDetector(ImageChannel):
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
             tres = self.fitter.run(x, foil_tot, None)
             rres = self.fitter.run(x, foil_roi, None)
-            payload.append([tres._pars[1], tres._pars[2], foil_tot.tolist(),
-                            rres._pars[1], rres._pars[2], foil_roi.tolist()])
+            if not tres._failed and not rres._failed:
+                payload.append([
+                    tres._pars[1], tres._pars[2], foil_tot.tolist(),
+                    rres._pars[1], rres._pars[2], foil_roi.tolist()])
+            else:
+                payload.append([[0.] * 4, [0.] * 4, foil_tot.tolist(),
+                                [0.] * 4, [0.] * 4, foil_roi.tolist()])
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
         return data
 
@@ -244,6 +258,7 @@ class CascadeDetector(ImageChannel):
 class CascadePadSinkHandler(SingleRawImageSinkHandler):
 
     filetype = 'pad'
+    update_headerinfo = False
 
 
 class CascadePadSink(SingleRawImageSink):
@@ -262,6 +277,7 @@ class CascadePadSink(SingleRawImageSink):
 class CascadeTofSinkHandler(SingleRawImageSinkHandler):
 
     filetype = 'tof'
+    update_headerinfo = False
 
 
 class CascadeTofSink(SingleRawImageSink):
@@ -279,7 +295,7 @@ class CascadeTofSink(SingleRawImageSink):
         return len(arraydesc.shape) == 3
 
 
-class CascadeImageReader(SingleRawImageFileReader):
+class CascadeImageReader(RawImageFileReader):
     filetypes = [
         ('pad', 'PAD Image File (*.pad)'),
         ('tof', 'TOF Image File (*.tof)'),

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -30,7 +29,7 @@ from nicos.devices.entangle import Actuator
 
 
 class AsymmetricMagnet(HasTimeout, Actuator):
-    """Class for the asymmetric ccmsans.
+    """Class for the asymmetric 5T SANS magnet.
 
     Provides the ability to set the current field, and the asymmetry ratio.
     """

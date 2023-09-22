@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'Arm 2 (MIEZE)'
 group = 'optional'
 
@@ -11,6 +9,7 @@ devices = dict(
     arm2_rot_mot = device('nicos.devices.entangle.Motor',
         description = 'Rotation arm 2 (motor)',
         tangodevice = '%s/arm2/2theta' % tango_base,
+        unit = 'deg',
         fmtstr = '%.3f',
         visibility = (),
         # abslimits = (-5.0, 60.0)

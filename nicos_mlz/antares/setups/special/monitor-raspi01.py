@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 description = 'Configuration for raspi01 status monitor'
 
 name = 'setup for the status monitor'
@@ -57,7 +56,7 @@ _detectorneocolumn = Column(
             ),
         BlockRow(
             Field(name='Status', key='neo/status[1]', width=25),
-            Field(dev='neoTemp'),
+            Field(dev='temp_neo'),
             Field(name='elshuttermode', key='neo.elshuttermode', width=6),
             Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
         ),

@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the status monitor'
 group = 'special'
 
@@ -7,23 +5,23 @@ _detectorcolumn = Column(
     Block('Detector', [
         BlockRow(
             Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
-            Field(name='Last Image', key='ccd.lastfilename', width=50),
+            Field(name='Last Image', key='ikonl.lastfilename', width=50),
         ),
         BlockRow(
-            Field(name='CCD status', key='ccd/status[1]', width=25),
-            Field(dev='ccdTemp'),
-            Field(name='hsspeed', key='ccd.hsspeed', width=4),
-            Field(name='vsspeed', key='ccd.vsspeed', width=4),
-            Field(name='pgain', key='ccd.pgain', width=4),
+            Field(name='CCD status', key='ikonl/status[1]', width=25),
+            Field(dev='temp_ikonl'),
+            Field(name='hsspeed', key='ikonl.hsspeed', width=4),
+            Field(name='vsspeed', key='ikonl.vsspeed', width=4),
+            Field(name='pgain', key='ikonl.pgain', width=4),
         ),
         BlockRow(
-            Field(name='roi', key='ccd.roi'),
-            Field(name='bin', key='ccd.bin'),
-            Field(name='flip (H,V)', key='ccd.flip'),
-            Field(name='rotation', key='ccd.rotation'),
+            Field(name='roi', key='ikonl.roi'),
+            Field(name='bin', key='ikonl.bin'),
+            Field(name='flip (H,V)', key='ikonl.flip'),
+            Field(name='rotation', key='ikonl.rotation'),
         ),
         ],
-        setups='detector',
+        setups='detector_ikonl',
     ),
 )
 
@@ -87,60 +85,16 @@ _cryomanipulatorblock = SetupBlock('cryomanipulator')
 cryos = []
 cryosupps = []
 cryoplots = []
-cryodict = dict(cci3he01='3He-insert', cci3he02='3He-insert', cci3he03='3He-insert',
-                ccidu01='Dilution-insert', ccidu02='Dilution-insert')
-for cryo, name in cryodict.items():
-    cryos.append(
-        Block('%s %s' % (name, cryo.title()), [
-            BlockRow(
-                Field(dev='t_%s'   % cryo, name='Regulation', max=38),
-                Field(dev='t_%s_a' % cryo, name='Sensor A', max=38),
-                Field(dev='t_%s_b' % cryo, name='Sensor B',max=7),
-            ),
-            BlockRow(
-                Field(key='t_%s/setpoint' % cryo, name='Setpoint'),
-                Field(key='t_%s/p' % cryo, name='P', width=7),
-                Field(key='t_%s/i' % cryo, name='I', width=7),
-                Field(key='t_%s/d' % cryo, name='D', width=7),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
-    cryosupps.append(
-        Block('%s-misc' % cryo.title(),[
-            BlockRow(
-                Field(dev='%s_p1' % cryo, name='Pump', width=10),
-                Field(dev='%s_p4' % cryo, name='Cond.', width=10),
-            ),
-            BlockRow(
-                Field(dev='%s_p5' % cryo, name='Dump', width=10),
-                Field(dev='%s_p6' % cryo, name='IVC', width=10),
-            ),
-            BlockRow(
-                Field(key='%s_flow' % cryo, name='Flow', width=10),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
-    cryoplots.append(
-        Block(cryo.title(), [
-            BlockRow(
-                Field(widget='nicos.guisupport.plots.TrendPlot',
-                      plotwindow=3600, width=25, height=25,
-                      devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
-                      names=['Setpoint', 'Regulation'],
-                ),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
+cryonames = ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
+             'cci3he12', 'ccidu01', 'ccidu02']
+for cryo in cryonames:
+    cryos.append(SetupBlock(cryo))
+    cryosupps.append(SetupBlock(cryo, 'pressures'))
+    cryoplots.append(SetupBlock(cryo, 'plots'))
 
 _leftcolumn = Column(
-	_live,
-	_selectorblock,
+    _live,
+    _selectorblock,
     _temperatureblock,
     _filterwheelblock,
     _sockets1block,

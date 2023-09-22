@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -138,14 +137,14 @@ class PressureController(entangle.TemperatureController):
         else:
             self._controller = HardwareStub(self)
 
-    def doStart(self, value):
+    def doStart(self, target):
         cval = self._dev.value
 
-        if cval - self.pressuretolerance < value < cval + self.pressuretolerance:
+        if cval - self.pressuretolerance < target < cval + self.pressuretolerance:
             self.log.warning('Pressure already within tolerance of %.2f mbar ',
-                             self.pressuretolerance, value)
+                             self.pressuretolerance, target)
         else:
-            self._controller.setPressure(value)
+            self._controller.setPressure(target)
 
     def doStop(self):
         pass

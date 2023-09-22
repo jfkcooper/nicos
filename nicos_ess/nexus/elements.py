@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -206,7 +205,8 @@ class NXLink(NexusElementBase):
         self.target = target
 
     def structure(self, name, metainfo):
-        return [{'type': 'link', 'name': name, 'target': self.target}]
+        return [{'module': 'link', 'config': {'name': name,
+                                              'source': self.target}}]
 
 
 class KafkaStream(NexusElementBase):

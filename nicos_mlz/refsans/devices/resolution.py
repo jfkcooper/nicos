@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -48,7 +47,7 @@ class Resolution(Readable):
 
     def doRead(self, maxage=0):
         return chopper_resolution(
-            self._attached_chopper.target['chopper2_pos'],
+            self._attached_chopper.read(maxage).get('chopper2_pos', 5),
             self._attached_flightpath.read(maxage))
 
     def doReadUnit(self):

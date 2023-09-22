@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -29,6 +28,7 @@ import pytest
 from test.utils import ErrorLogged
 
 pytest.importorskip('streaming_data_types')
+pytest.importorskip('confluent_kafka')
 
 from nicos.commands.measure import count
 from nicos.commands.scan import scan

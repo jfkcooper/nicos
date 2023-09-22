@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -27,7 +26,8 @@ from logging import ERROR, INFO, WARNING, Handler
 
 from nicos import session
 from nicos.core.sessions.simple import SingleDeviceSession
-from nicos.guisupport.qt import QApplication, QIcon, QPalette, Qt
+from nicos.guisupport.colors import colors
+from nicos.guisupport.qt import QApplication, QColor, QIcon, QPalette, Qt
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
 from nicostools.cacheinspector.cacheclient import CICacheClient
@@ -47,9 +47,10 @@ class StatusBarHandler(Handler):
         if self._statusbar:
             msg = record.message
             palette = self._statusbar.palette()
-            color = Qt.GlobalColor.black
+            color = colors.text
             if record.levelno == WARNING:
-                color = Qt.GlobalColor.darkMagenta
+                color = colors.switch_color(Qt.GlobalColor.darkMagenta,
+                                            QColor('#FDEE00'))
                 msg = 'Warning: ' + msg
             elif record.levelno == ERROR:
                 color = Qt.GlobalColor.red

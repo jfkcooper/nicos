@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -24,9 +23,9 @@
 import pytest
 
 from nicos.core.device import Device
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 
-from nicos_ess.devices.epics.extensions import HasDisablePv
+from nicos.devices.epics.pyepics.mixins import HasDisablePv
 
 session_setup = 'ess_extensions'
 

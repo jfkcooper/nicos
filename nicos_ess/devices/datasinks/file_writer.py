@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -205,7 +204,7 @@ class FileWriterStatus(KafkaStatusHandler):
         if self._jobs[job_id].error_msg:
             session.log.error(
                 'Job #%s failed to write successfully, '
-                'run `list_jobs` for more details',
+                'run `list_filewriting_jobs` for more details',
                 self._jobs[job_id].job_number)
         del self._jobs[job_id]
 
@@ -362,7 +361,7 @@ class FileWriterSinkHandler(DataSinkHandler):
             proposal_path = session.experiment.proposalpath_of(
                 session.experiment.propinfo.get('proposal')
             )
-            file_path = path.join(proposal_path, 'raw', filename)
+            file_path = path.join(proposal_path, filename)
         else:
             file_path = path.join(self.sink.subdir, filename)
 
@@ -540,15 +539,19 @@ class FileWriterControlSink(FileSink):
         self._manual_start = False
         self._handler = None
         self._active_sim_job = False
+        self._consumer = None
         self._controller = FileWriterController(
             self.brokers, self.pool_topic, self._attached_status.statustopic,
             self.timeoutinterval)
+        if mode != SIMULATION:
+            self._consumer = KafkaConsumer.create(self.brokers)
+            self._consumer.subscribe(self.pool_topic)
 
     def start_job(self):
         """Start a new file-writing job."""
         self.check_okay_to_start()
         self._manual_start = False
-        if session.mode == SIMULATION:
+        if self._mode == SIMULATION:
             self._active_sim_job = True
         else:
             # Begin a point but remove it from the stack immediately to avoid an
@@ -626,7 +629,7 @@ class FileWriterControlSink(FileSink):
 
     def check_okay_to_start(self):
         if not session.experiment.propinfo.get('proposal'):
-            if session.mode == SIMULATION:
+            if self._mode == SIMULATION:
                 self.log.warning('no proposal number has been set. '
                                  'When performing the real run a proposal '
                                  'number is required to start writing.')
@@ -639,7 +642,7 @@ class FileWriterControlSink(FileSink):
                                'progress')
 
     def get_active_jobs(self):
-        if session.mode == SIMULATION:
+        if self._mode == SIMULATION:
             if self._active_sim_job:
                 return ['abcd1234-abcd-1234-abcd-abcdef123456']
             return []
@@ -681,6 +684,8 @@ class FileWriterControlSink(FileSink):
         printTable(headers, items, session.log.info)
 
     def replay_job(self, job_number):
+        if self._mode == SIMULATION:
+            return
         self.check_okay_to_start()
         self._manual_start = False
 
@@ -697,15 +702,13 @@ class FileWriterControlSink(FileSink):
                                'for that job')
 
         partition, offset = job_to_replay.kafka_offset
-        consumer = KafkaConsumer.create(self.pool_topic)
-        consumer.subscribe(self.pool_topic, partitions=[partition])
-        consumer.seek(self.pool_topic, partition=partition, offset=offset)
+        self._consumer.seek(self.pool_topic, partition=partition, offset=offset)
         poll_start = time.monotonic()
-        data = consumer.poll(timeout_ms=5)
+        data = self._consumer.poll(timeout_ms=5)
         time_out_s = 5
         while not data:
-            data = consumer.poll(timeout_ms=5)
-            if not data and time.monotonic_ns() > poll_start + time_out_s:
+            data = self._consumer.poll(timeout_ms=5)
+            if not data and time.monotonic() > poll_start + time_out_s:
                 raise RuntimeError(
                     'Could not replay job as could not retrieve job '
                     'information from Kafka')
@@ -721,4 +724,7 @@ class FileWriterControlSink(FileSink):
         session.experiment.data.beginPoint(replay_info=replay_info)
         self._manual_start = True
         session.experiment.data.finishPoint()
-        consumer.close()
+
+    def doShutdown(self):
+        if self._consumer:
+            self._consumer.close()

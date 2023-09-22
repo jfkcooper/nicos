@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -168,7 +167,7 @@ class TableWidget(QTableWidget):
         if parent:
             self.log = parent.parent().log
         self.setShowGrid(False)
-        self.setSelectionBehavior(QAbstractItemView.SelectionMode.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         # self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.setDragEnabled(True)
         self.setAcceptDrops(True)

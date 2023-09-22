@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -24,7 +23,7 @@
 
 
 from nicos.core import Param, pvname, status
-from nicos.devices.epics import EpicsAnalogMoveable
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable
 
 from nicos_sinq.devices.epics.generic import WindowMoveable
 
@@ -42,11 +41,11 @@ class ChopperMoveable(WindowMoveable):
     def doStatus(self, maxage=0):
         tg = self._get_pv('targetpv')
         if self._starting:
-            if abs(tg - self._target) < self.window:
+            if abs(tg - self._target) < self.precision:
                 self._starting = False
             return status.BUSY, 'starting'
         pos = self.read(0)
-        if abs(pos - tg) < self.window:
+        if abs(pos - tg) < self.precision:
             return status.OK, 'At target'
         return status.BUSY, 'Moving ...'
 

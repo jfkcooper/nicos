@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -27,8 +26,10 @@ from test.utils import cache_addr
 name = 'elog setup'
 
 devices = dict(
+    LogbookHtml = device('nicos.services.elog.handler.html.Handler'),
+    LogbookText = device('nicos.services.elog.handler.text.Handler'),
     Logbook = device('nicos.services.elog.Logbook',
-        prefix = 'logbook/',
+        handlers = ['LogbookHtml', 'LogbookText'],
         cache = cache_addr,
     ),
 )

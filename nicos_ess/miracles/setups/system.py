@@ -19,16 +19,15 @@ devices = dict(
         responsible='A Person <a.person@ess.eu>',
         website='https://europeanspallationsource.se/instruments/miracles'),
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
     Exp=device(
         'nicos_ess.devices.experiment.EssExperiment',
         description='experiment object',
         dataroot='/opt/nicos-data',
-        filewriter_root='/opt/nicos-data/miracles',
         sample='Sample',
-        cache_filepath='/opt/nicos-data/miracles/cached_proposals.json'),
+        cache_filepath='/opt/nicos-data/cached_proposals.json'),
     conssink=device(
         'nicos_ess.devices.datasinks.console_scan_sink.ConsoleScanSink'),
     daemonsink=device('nicos.devices.datasinks.DaemonSink', ),

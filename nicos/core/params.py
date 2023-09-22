@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -266,6 +265,9 @@ class Attach:
       instead.  If a device is configured, but cannot be created due to an
       error, the error will be propagated.  Defaults to False.
 
+    - *dontfix*: if True, the device(s) mentioned in the setup won't be fixed
+      when this device is fixed. Defaults to False.
+
     Note: *optional* specifies that devices need not be configured, whereas
     *missingok* specifies that devices must be configured, but need not exist
     at runtime.  The two options can be combined.
@@ -277,7 +279,7 @@ class Attach:
     Only description and class are mandatory parameters.
     """
     def __init__(self, description, devclass, optional=False, multiple=False,
-                 missingok=False):
+                 missingok=False, dontfix=False):
         def complain(multiple, test):
             raise ProgrammingError('devclass %r (%s): multiple should be a '
                                    'bool or a list of integers, but is %r '
@@ -322,6 +324,7 @@ class Attach:
         self.multiple = multiple
         self.single = single
         self.missingok = missingok
+        self.dontfix = dontfix
 
     def check(self, dev, aname, configargs):
         """Checks if the given arguments are valid for this entry.

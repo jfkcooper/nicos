@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -163,7 +162,7 @@ class Monitor(BaseCacheClient):
 
     def _checker(self):
         setupname = session.explicit_setups[0]
-        fn = session._setup_info[setupname]['filenames']
+        fn = session._setup_info[setupname]['_filenames_']
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting monitor process')
         reexecProcess()

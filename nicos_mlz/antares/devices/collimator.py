@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -32,6 +31,8 @@ from nicos.core.params import Attach, Override
 class CollimatorLoverD(Readable):
     """Special device related to the L over d relation."""
 
+    hardware_access = False
+
     attached_devices = {
         'l': Attach('Distance device', Readable),
         'd': Attach('Pinhole', Readable),
@@ -57,6 +58,8 @@ class GeometricBlur(Readable):
     """Special device to calculate geometric blur.
 
     Calculated from collimation and sample to detector distance."""
+
+    hardware_access = False
 
     attached_devices = {
         'l': Attach('Distance device', Readable),
@@ -87,8 +90,7 @@ class GeometricBlur(Readable):
                 float(self._attached_l.read(maxage))
             return 1000 * ret  # convert to um
         except ValueError:
-            ret = 0
-        return ret
+            return 0
 
     def doReadUnit(self):
         return 'um'

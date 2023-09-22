@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -38,7 +37,7 @@ from nicos.core.errors import AccessError, CacheLockError, \
     ModeError, MoveError, NicosError, PositionError, ProgrammingError, \
     UsageError
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
-    HasPrecision, HasTimeout, IsController
+    HasTimeout, IsController
 from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
     Value, anytype, dictof, floatrange, listof, nicosdev, none_or, oneof, \
     setof, tupleof
@@ -455,6 +454,16 @@ class Device(metaclass=DeviceMeta):
             self.__dict__['_attached_%s' % aname] = self._adevs[aname] = \
                 devlist[0] if entry.single else devlist
 
+    def _iterAdevDefinitions(self):
+        """Yield (attached_dev_name, Attach instance, actual attached dev)."""
+        for adevname, attinfo in self.attached_devices.items():
+            devs = self._adevs[adevname]
+            if isinstance(devs, list):
+                for entry in devs:
+                    yield adevname, attinfo, entry
+            else:
+                yield adevname, attinfo, devs
+
     def init(self):
         """Initialize the object; this is called by the NICOS system when the
         device instance has been created.
@@ -862,7 +871,7 @@ class Device(metaclass=DeviceMeta):
         """Return a list of versions for this device.
 
         These are tuples (component, version) where a "component" can be the
-        name of a Python module, or an external dependency (like a TACO
+        name of a Python module, or an external dependency (like a Tango
         server).
 
         The base implementation already collects VCS revision information
@@ -1145,17 +1154,9 @@ class Readable(Device):
                 if value is None:
                     value = self.read(maxage)
                 ul = self.userlimits
-                # take precision into account in case we drive exactly to the
-                # user limit but the device overshoots a little
-                prec = self.precision if isinstance(self, HasPrecision) else 0
-                if value < ul[0] - prec:
-                    stvalue = status.WARN, \
-                        statusString(stvalue[1], 'below user limit (%s)' %
-                                     self.format(ul[0], unit=True))
-                elif value > ul[1] + prec:
-                    stvalue = status.WARN, \
-                        statusString(stvalue[1], 'above user limit (%s)' %
-                                     self.format(ul[1], unit=True))
+                result = self._check_in_range(value, ul)
+                if result[0] == status.WARN:
+                    stvalue = status.WARN, statusString(stvalue[1], result[1])
 
         return stvalue
 
@@ -1762,6 +1763,12 @@ class Moveable(Waitable):
         """Fix the device: don't allow movement anymore.
 
         This blocks :meth:`start` or :meth:`stop` when called on the device.
+
+        .. method:: doFix(reason)
+
+           This method must be present and is called in addition to fixing
+           the current device.  By default, it also fixes all attached devices
+           whose `dontfix` attribute is not set to True.
         """
         eu = session.getExecutingUser()
         if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
@@ -1772,16 +1779,34 @@ class Moveable(Waitable):
             if self.status()[0] == status.BUSY:
                 self.log.warning('device appears to be busy')
             if reason:
-                reason += ' (fixed by %r)' % eu.name
+                suffix = ' (fixed by %r)' % eu.name
+                if not reason.endswith(suffix):
+                    reason += suffix
             else:
                 reason = 'fixed by %r' % eu.name
+            # handle self
             self._setROParam('fixed', reason)
             self._setROParam('fixedby', (eu.name, eu.level))
+            # handle recursive fixes
+            self.doFix(reason)
             return True
+
+    def doFix(self, reason):
+        for name, attinfo, dev in self._iterAdevDefinitions():
+            if not attinfo.dontfix:
+                if isinstance(dev, Moveable):
+                    dev.fix(reason)
 
     @usermethod
     def release(self):
-        """Release the device, i.e. undo the effect of fix()."""
+        """Release the device, i.e. undo the effect of fix().
+
+        .. method:: doRelease()
+
+           This method must be present and is called in addition to releasing
+           the current device.  By default, it also releases all attached
+           devices whose `dontfix` attribute is not set to True.
+        """
         eu = session.getExecutingUser()
         if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
@@ -1789,9 +1814,18 @@ class Moveable(Waitable):
                            'to release it', self.fixedby[0])
             return False
         else:
+            # handle recursive releases
+            self.doRelease()
+            # handle self
             self._setROParam('fixed', '')
             self._setROParam('fixedby', None)
             return True
+
+    def doRelease(self):
+        for name, attinfo, dev in self._iterAdevDefinitions():
+            if not attinfo.dontfix:
+                if isinstance(dev, Moveable):
+                    dev.release()
 
     def doEstimateTime(self, elapsed):
         """return the estimated time until end of movement or return None"""
@@ -2145,6 +2179,7 @@ class SubscanMeasurable(Measurable):
     Subclasses *need* to implement:
 
     * doRead(maxage=0)
+    * doSetPreset(**preset)
     * doStart()
 
     Subclasses *can* implement:
@@ -2166,6 +2201,9 @@ class SubscanMeasurable(Measurable):
         self.doStart()
 
     def doStop(self):
+        pass
+
+    def doFinish(self):
         pass
 
     def doIsCompleted(self):

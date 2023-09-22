@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -63,6 +62,7 @@ class MiniPlot(LiveWidget1D):
                            markertype=DOT_MARKER),
         ]
         self._curves[0].markersize = 3
+        self._curves[0].markertype = GRMARKS['circle']
         for curve in self._curves:
             self.axes.addCurves(curve)
         # Disable creating a mouse selection to zoom
@@ -91,13 +91,12 @@ class FoilWidget(QWidget):
         self.plotwidget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,
                                       QSizePolicy.Policy.MinimumExpanding)
         self.verticalLayout.insertWidget(0, self.plotwidget)
-        self.do_update([['avg', 'contrast', 'phase', 'freq'],
-                        (0, 0, 0, 0), (0, 0, 0, 0), [0] * 16] * 2)
+        self.do_update([[0.] * 4, [0.] * 4, [0] * 16] * 2)
 
     def do_update(self, data, roi=False):
         # data contains a list [avg, avgErr, contrast, contrastErr,
         # freq, freErr, phase, phaseErr, 16 * counts]
-        popt, perr, counts = data[int(roi) * 4:(int(roi) + 1) * 4][1:]
+        popt, perr, counts = data[int(roi) * 3:(int(roi) + 1) * 3]
         avg, contrast, phase, freq = popt
         davg, dcontrast, dphase, dfreq = perr
 
@@ -158,7 +157,7 @@ class MiezePanel(Panel):
         for foil, x, y in zip(self.foils, self.rows * list(range(self.columns)),
                               sum([self.columns * [i] for i in
                                    range(self.rows)], [])):
-            foilwidget = FoilWidget(name='Foil %d' % foil, parent=self)
+            foilwidget = FoilWidget(name=f'Foil {foil + 1}', parent=self)
             self.mywidgets.append(foilwidget)
             self.gridLayout.addWidget(foilwidget, y, x)
         self.client.cache.connect(self.on_client_cache)
@@ -181,7 +180,8 @@ class MiezePanel(Panel):
 
     def do_update(self):
         if self._do_updates and self._data:
-            for d, w in zip(self._data, self.mywidgets):
+            for d, w in zip([self._data[i] for i in self.foils],
+                            self.mywidgets):
                 w.do_update(d, self.roiCheckBox.isChecked())
 
     def on_client_cache(self, data):

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -37,8 +36,7 @@ class SatBox(HasTimeout, Moveable):
     """
     Device Object for PANDA's Attenuator
 
-    controlled by a WUT-device via a ModBusTCP interface via a ModBus TACO
-    Server.
+    controlled by a WUT-device via a ModBusTCP interface.
     """
 
     valuetype = int

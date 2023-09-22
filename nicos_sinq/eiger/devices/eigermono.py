@@ -1,4 +1,3 @@
-#  -*- Coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -56,10 +55,10 @@ class EigerA2Controller(InterfaceLogicalMotorHandler):
 
     def doRead(self, maxage=0):
         result = {}
-        result['a2'] = self._attached_reala2.doRead(maxage)
+        result['a2'] = self._attached_reala2.read(maxage)
         a2Target = self._attached_reala2.target
-        vall = self._attached_left.doRead(maxage)
-        valr = self._attached_right.doRead(maxage)
+        vall = self._attached_left.read(maxage)
+        valr = self._attached_right.read(maxage)
         d2ro = self.sizes[1] - a2Target
         d2lo = self.sizes[0] + a2Target
         a2w = (d2lo - vall) + (d2ro - valr)
@@ -102,13 +101,11 @@ class EigerMonochromator(SinqMonochromator):
             curve = vfocuspars[0] + vfocuspars[1]/math.sin(math.radians(
                 abs(th)))
             focusv.move(curve)
-            self.log.info('Moving %s to %8.4f', focusv.name, curve)
         focush = self._attached_focush
         if focush:
             hcurve = hfocuspars[0] + hfocuspars[1]*math.sin(math.radians(
                 abs(th)))
             focush.move(hcurve)
-            self.log.info('Moving %s to %8.4f', focush.name, hcurve)
         mt = self._attached_mt
         if mt:
             mtpos = self.translation_pars[0] + self.translation_pars[1] * pow(
@@ -119,14 +116,11 @@ class EigerMonochromator(SinqMonochromator):
             if mtpos >= limits[1]:
                 mtpos = limits[1] - .1
             mt.start(mtpos)
-            self.log.info('Moving %s to %8.4f', mt.name, mtpos)
 
     def doStart(self, target):
         th, tt = self._calc_angles(to_k(target, self.unit))
         self._attached_twotheta.start(tt)
-        self.log.info('Moving %s to %8.4f', self._attached_twotheta.name, tt)
         self._attached_theta.start(th)
-        self.log.info('Moving %s to %8.4f', self._attached_theta.name, th)
         self._movefoci(self.focmode, th, self.hfocuspars, self.vfocuspars)
         self._sim_setValue(target)
 

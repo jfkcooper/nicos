@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -43,6 +42,7 @@ from nicos_sinq.devices.sample import CrystalSample
 
 class TwoThetaArray(NexusElementBase):
     def __init__(self, startmotor, step, length, **attrs):
+        NexusElementBase.__init__(self)
         self.startdevice = startmotor
         self.step = step
         self.length = length
@@ -51,7 +51,6 @@ class TwoThetaArray(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
                 self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         if (self.startdevice, 'value') in sinkhandler.dataset.metainfo:
@@ -70,6 +69,7 @@ class TwoThetaArray(NexusElementBase):
 
 class FixedArray(NexusElementBase):
     def __init__(self, start, step, length, **attrs):
+        NexusElementBase.__init__(self)
         self._start = start
         self._step = step
         self._len = length
@@ -78,7 +78,6 @@ class FixedArray(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
                 self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         dset = h5parent.create_dataset(name, (self._len,), 'float32')
@@ -93,6 +92,7 @@ class ConfArray(NexusElementBase):
     """
 
     def __init__(self, array_name, **attrs):
+        NexusElementBase.__init__(self)
         self._scale = 1.
         self._array_name = array_name
         self.attrs = {}
@@ -102,7 +102,6 @@ class ConfArray(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
                 self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         try:
@@ -151,6 +150,7 @@ class ArrayParam(NexusElementBase):
     For writing an array parameter to a NeXus file
     """
     def __init__(self, dev, parameter, dtype, reshape=None, **attrs):
+        NexusElementBase.__init__(self)
         self.dev = dev
         self.parameter = parameter
         self.dtype = dtype
@@ -160,7 +160,6 @@ class ArrayParam(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
                 self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         if (self.dev, self.parameter) in sinkhandler.dataset.metainfo:
@@ -182,6 +181,7 @@ class Reflection(NexusElementBase):
     Writes reflection data to the NeXus file
     """
     def __init__(self, idx, reflist, **attrs):
+        NexusElementBase.__init__(self)
         self.idx = idx
         self.reflist = reflist
         self.attrs = {}
@@ -189,7 +189,6 @@ class Reflection(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
                 self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         try:
@@ -378,13 +377,13 @@ class DevStat(NexusElementBase):
     written when it exists.
     """
     def __init__(self, statname, **attr):
+        NexusElementBase.__init__(self)
         self._statname = statname
         self.attrs = {}
         for key, val in attr.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
-        NexusElementBase.__init__(self)
 
     def _find_devstatistics(self, sinkhandler):
         for dev in sinkhandler.dataset.environment:
@@ -418,9 +417,9 @@ class ScanSampleEnv(NexusElementBase):
     """
 
     def __init__(self):
+        NexusElementBase.__init__(self)
         self.doAppend = True
         self._managed_devices = []
-        NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
         for dev, inf in zip(sinkhandler.dataset.environment,
@@ -464,6 +463,7 @@ class SaveSampleEnv(NexusElementBase):
 
     def __init__(self, update_interval=10, postfix='_log',
                  blocklist=None, nexus_map=None):
+        NexusElementBase.__init__(self)
         self._update_interval = update_interval
         self._last_update = {}
         self._postfix = postfix
@@ -477,7 +477,6 @@ class SaveSampleEnv(NexusElementBase):
             self.nexus_map = {'Ts': 'temperature', 'B': 'magnetic_field'}
         self.doAppend = True
         self._managed_devices = []
-        NexusElementBase.__init__(self)
 
     def _get_logname(self, devicename):
         return self.nexus_map.get(devicename, devicename)

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -36,7 +35,7 @@ from nicos.core import MASTER
 from nicos.utils import updateFileCounter
 
 from test.utils import TestSession, cache_addr, cleanup, killSubprocess, \
-    startCache, startSubprocess
+    startCache, startElog
 
 
 # This fixture will run during the entire test suite.  Therefore, the special
@@ -54,7 +53,7 @@ def setup_test_suite():
         sys.stderr.write('=' * 80)
         raise
     cache = startCache(cache_addr)
-    elog = startSubprocess('elog')
+    elog = startElog()
     yield
     killSubprocess(elog)
     killSubprocess(cache)

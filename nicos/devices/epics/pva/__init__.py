@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -23,6 +22,6 @@
 # *****************************************************************************
 
 from nicos.devices.epics.pva.epics_devices import EpicsAnalogMoveable, \
-    EpicsDevice, EpicsDigitalMoveable, EpicsMappedMoveable, \
-    EpicsMappedReadable, EpicsMoveable, EpicsReadable, EpicsStringMoveable, \
-    EpicsStringReadable
+    EpicsBoolMoveable, EpicsBoolReadable, EpicsDevice, EpicsDigitalMoveable, \
+    EpicsMappedMoveable, EpicsMappedReadable, EpicsMoveable, EpicsReadable, \
+    EpicsStringMoveable, EpicsStringReadable

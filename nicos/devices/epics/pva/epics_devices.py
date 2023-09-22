@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -33,14 +32,15 @@ import numpy
 from nicos import session
 from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
-    Readable, anytype, floatrange, none_or, pvname, status
+    Readable, anytype, dictof, floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable, MappedReadable
 from nicos.utils import HardwareStub
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
     'EpicsMoveable', 'EpicsStringMoveable', 'EpicsAnalogMoveable',
-    'EpicsDigitalMoveable', 'EpicsMappedMoveable', 'EpicsMappedReadable'
+    'EpicsDigitalMoveable', 'EpicsMappedMoveable', 'EpicsMappedReadable',
+    'EpicsBoolMoveable', 'EpicsBoolReadable',
 ]
 
 DEFAULT_EPICS_PROTOCOL = os.environ.get('DEFAULT_EPICS_PROTOCOL', 'ca')
@@ -140,7 +140,7 @@ class EpicsDevice(DeviceMixinBase):
         if is_connected:
             self.log.debug('%s connected!', name)
         else:
-            self.log.warn('%s disconnected!', name)
+            self.log.warning('%s disconnected!', name)
 
     def _get_cache_relation(self, param):
         # Returns the cache key associated with the parameter.
@@ -532,3 +532,15 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
     def doStatus(self, maxage=0):
         stat, msg = MappedMoveable.doStatus(self, maxage)
         return stat, '' if stat == status.OK else msg
+
+
+class EpicsBoolReadable(EpicsMappedReadable):
+    parameter_overrides = {
+        'mapping': Override(type=dictof(bool, anytype)),
+    }
+
+
+class EpicsBoolMoveable(EpicsMappedMoveable):
+    parameter_overrides = {
+        'mapping': Override(type=dictof(bool, anytype)),
+    }

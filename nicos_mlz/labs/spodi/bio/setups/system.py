@@ -12,7 +12,7 @@ sysconfig = dict(
     # Adapt this name to your instrument's name (also below).
     instrument = 'BIO',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'rawsink', ],
     notifiers = [],
 )
 
@@ -27,7 +27,7 @@ devices = dict(
         description = 'instrument object',
         instrument = 'BIO',
         responsible = 'Anatoliy Senyshyn <anatoliy.senyshyn@frm2.tum.de>',
-        website = 'http://instrument.website',
+        website = 'http://www.mlz-garching.de/spodi',
         operators = ['MLZ'],
         facility = 'MLZ',
     ),
@@ -47,6 +47,13 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
+    rawsink = device ('nicos.devices.datasinks.RawImageSink',
+        description = 'Saves image data in RAW format',
+        filenametemplate = [
+            '%(proposal)s_%(pointcounter)s.raw',
+            # '%(proposal)s_%(scancounter)s_%(pointcounter)s_%(pointnumber)s.raw'
+        ],
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = 'data',
@@ -55,7 +62,7 @@ devices = dict(
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
-        path = 'log',
+        path = '/control/log',
         warnlimits = (.5, None),
         minfree = 0.5,
         visibility = (),

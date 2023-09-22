@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -173,16 +172,15 @@ class IPCModBus(Device):
     A device of this type is needed as the ``.bus`` parameter of the other IPC
     devices.
 
-    Concrete implementations are `IPCModBusTaco`, `IPCModBusTCP`,
+    Concrete implementations are `IPCModBusTango`, `IPCModBusTCP`,
     `IPCModBusSerial`.
     """
 
 
 class IPCModBusRS232(HasCommunication, IPCModBus):
-    """Base class for IPC connections not using the RS485 TACO server.
+    """Base class for IPC connections.
 
-    This is an abstract class; use one of `IPCModBusTacoSerial`,
-    `IPCModBusTCP` or `IPCModBusSerial`.
+    This is an abstract class; use one of `IPCModBusTCP` or `IPCModBusSerial`.
     """
 
     parameters = {

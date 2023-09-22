@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -31,13 +30,14 @@ from streaming_data_types import deserialise_ADAr
 from streaming_data_types.utils import get_schema
 
 from nicos import session
-from nicos.core import Attach, Measurable, Override, Param, pvname, status, \
-    usermethod, LIVE, floatrange, listof, host, oneof, Value, ArrayDesc, \
-    multiStatus
-from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
+from nicos.core import LIVE, SIMULATION, ArrayDesc, Attach, CacheError, \
+    Measurable, Override, Param, Value, floatrange, host, listof, \
+    multiStatus, oneof, pvname, status, usermethod
 from nicos.devices.epics.pva import EpicsDevice
+from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.generic import Detector, ImageChannelMixin, ManualSwitch
 from nicos.utils import byteBuffer
+
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 from nicos_sinq.devices.epics.area_detector import \
     ADKafkaPlugin as ADKafkaPluginBase
@@ -73,6 +73,7 @@ class ImageMode(Enum):
     MULTIPLE = 1
     CONTINUOUS = 2
 
+
 class ImageType(ManualSwitch):
     """
     Class that contains the image type for a tomography experiment using the
@@ -105,10 +106,14 @@ class ImageType(ManualSwitch):
         return status.OK, self._image_key_to_image_type[self.target]
 
     def doStart(self, target):
-        curr_time = time.time()
-        self._cache.put(self._name, 'value', target, curr_time)
         ManualSwitch.doStart(self, target)
-        self._cache.put(self._name, 'status', self.doStatus(), curr_time)
+        if self._mode != SIMULATION:
+            if not self._cache:
+                raise CacheError(self, 'Detector requires a running cache for '
+                                 'full functionality. Please check its status.')
+            curr_time = time.time()
+            self._cache.put(self._name, 'value', target, curr_time)
+            self._cache.put(self._name, 'status', self.doStatus(), curr_time)
 
     @usermethod
     def set_to_projection(self):
@@ -332,7 +337,7 @@ class AreaDetector(KafkaSubscriber, EpicsDevice, ImageChannelMixin, Measurable):
             if (data := self._consumer.poll(timeout_ms=100)):
                 message = (data.timestamp()[1], data.value())
                 self.new_messages_callback([message])
-                approx_imsize = numpy.sqrt(len(data.value())/2)
+                approx_imsize = numpy.sqrt(len(data.value()) / 2)
                 sleep_time = (approx_imsize / 2048) * 2
                 time.sleep(sleep_time)
                 self._consumer.seek_to_end()
@@ -536,6 +541,7 @@ class AreaDetectorCollector(Detector):
     }
 
     _presetkeys = set()
+    _hardware_access = False
 
     def doPreinit(self, mode):
         for image_channel in self._attached_images:
@@ -563,21 +569,18 @@ class AreaDetectorCollector(Detector):
         for controller in self._controlchannels:
             sub_preset = preset.get(controller.name, None)
             if sub_preset:
-                controller.doSetPreset(**{'n':sub_preset})
+                controller.doSetPreset(**{'n': sub_preset})
 
         self._lastpreset = preset.copy()
 
     def doStatus(self, maxage=0):
-        curstatus = self._cache.get(self, 'status')
-        if curstatus and curstatus[0] == status.ERROR:
-            return curstatus
         return multiStatus(self._attached_images, maxage)
 
     def doRead(self, maxage=0):
         return []
 
     def doReadArrays(self, quality):
-        return [image.doReadArray(quality) for image in self._attached_images]
+        return [image.readArray(quality) for image in self._attached_images]
 
     def doReset(self):
         pass

@@ -1,5 +1,3 @@
-#  -*- coding: utf-8 -*-
-
 description = 'setup for the HTML status monitor'
 group = 'special'
 
@@ -58,7 +56,7 @@ _detectorneocolumn = Column(
         ),
         BlockRow(
             Field(name='Status', key='neo/status[1]', width=25),
-            Field(dev='neoTemp'),
+            Field(dev='temp_neo'),
             Field(name='elshuttermode', key='neo.elshuttermode', width=6),
             Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
         ),
@@ -133,14 +131,14 @@ _temperatureblock = Block('Cryo Temperature', [
         Field(dev='T', name='CCI 3He'),
     ),
     BlockRow(
-        Field(plot='Temperature', name='CCI 3He', dev='T_cci3he02', width=60,
+        Field(plot='Temperature', name='CCI 3He', dev='T_cci3he02_pot', width=60,
               height=40, plotwindow=3600),
     ),
     ],
     setups='ccr7',
 )
 
-_batteryfurnaceblock = Block('Furnace Temperature', [
+_batteryblock = Block('Furnace Temperature', [
     BlockRow(
         Field(dev='T', name='Furnace'),
     ),
@@ -149,7 +147,7 @@ _batteryfurnaceblock = Block('Furnace Temperature', [
               plotwindow=3600),
     ),
     ],
-    setups='battery_furnace',
+    setups='battery',
 )
 
 _tensileblock = Block('Tensile Rig', [
@@ -184,20 +182,20 @@ _flipperblock = SetupBlock('mezeiflip')
 
 _lockinblock = Block('Lock-In', [
     BlockRow(
-        Field(dev='sr830[0]', name='X (V)', format='%1.6f', width=12),
-        Field(dev='sr830[1]', name='Y (V)', format='%1.6f', width=12),
+        Field(dev='sr850[0]', name='X (V)', format='%1.6f', width=12),
+        Field(dev='sr850[1]', name='Y (V)', format='%1.6f', width=12),
     ),
     BlockRow(
-        Field(dev='sr830[2]', name='abs (V)', format='%1.6f', width=12),
-        Field(dev='sr830[3]', name='phase (deg)', width=12),
+        Field(dev='sr850[2]', name='abs (V)', format='%1.6f', width=12),
+        Field(dev='sr850[3]', name='phase (deg)', width=12),
     ),
     BlockRow(
-        Field(plot='Lock-In', name='X', dev='sr830[0]', width=40, height=20,
+        Field(plot='Lock-In', name='X', dev='sr850[0]', width=40, height=20,
               plotwindow=1*3600),
-        Field(plot='Lock-In', name='Y', dev='sr830[1]'),
+        Field(plot='Lock-In', name='Y', dev='sr850[1]'),
     ),
     ],
-    setups='sr830',
+    setups='sr850',
 )
 
 _monochromatorblock = SetupBlock('monochromator')
@@ -210,50 +208,19 @@ _cryomanipulatorblock = SetupBlock('cryomanipulator')
 cryos = []
 cryosupps = []
 cryoplots = []
-cryodict = dict(cci3he01='3He-insert', cci3he02='3He-insert', cci3he03='3He-insert',
-                ccidu01='Dilution-insert', ccidu02='Dilution-insert')
-for cryo, name in cryodict.items():
-    cryos.append(
-        Block('%s %s' % (name, cryo.title()), [
-            BlockRow(
-                Field(dev='t_%s'   % cryo, name='Regulation', max=38),
-                Field(dev='t_%s_a' % cryo, name='Sensor A', max=38),
-                Field(dev='t_%s_b' % cryo, name='Sensor B',max=7),
-            ),
-            BlockRow(
-                Field(key='t_%s/setpoint' % cryo, name='Setpoint'),
-                Field(key='t_%s/p' % cryo, name='P', width=7),
-                Field(key='t_%s/i' % cryo, name='I', width=7),
-                Field(key='t_%s/d' % cryo, name='D', width=7),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
-    cryosupps.append(
-        Block('%s-misc' % cryo.title(),[
-            BlockRow(
-                Field(dev='%s_p1' % cryo, name='Pump', width=10),
-                Field(dev='%s_p4' % cryo, name='Cond.', width=10),
-            ),
-            BlockRow(
-                Field(dev='%s_p5' % cryo, name='Dump', width=10),
-                Field(dev='%s_p6' % cryo, name='IVC', width=10),
-            ),
-            BlockRow(
-                Field(key='%s_flow' % cryo, name='Flow', width=10),
-            ),
-            ],
-            setups=cryo,
-        )
-    )
+cryonames = ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
+             'cci3he12', 'ccidu01', 'ccidu02']
+for cryo in cryonames:
+    suffix = 'pot' if cryo.startswith('cci3he') else 'mc'
+    cryos.append(SetupBlock(cryo))
+    cryosupps.append(SetupBlock(cryo, 'pressures'))
     cryoplots.append(
         Block(cryo.title(), [
             BlockRow(
                 Field(plot=cryo, plotwindow=3600, width=50, height=30,
-                      key='t_%s/setpoint' % cryo),
+                      key=f't_{cryo}_{suffix}/setpoint'),
                 Field(plot=cryo, plotwindow=3600, width=50, height=30,
-                      dev='t_%s' % cryo),
+                      dev=f't_{cryo}_{suffix}'),
                 # Field(widget='nicos.guisupport.plots.TrendPlot',
                 #       plotwindow=3600, width=25, height=25,
                 #       devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
@@ -291,7 +258,7 @@ _rightcolumn = Column(
     _flipperblock,
     _lockinblock,
     _garfieldblock,
-    _batteryfurnaceblock,
+    _batteryblock,
     _sockets6block,
     _sockets7block,
     _ngiblock,

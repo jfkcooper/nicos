@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -29,7 +28,7 @@ import pytest
 from .utils import is_at_target, unit_value
 
 try:
-    from nicos_ess.devices.epics.extensions import HasDisablePv
+    from nicos.devices.epics.pyepics.mixins import HasDisablePv
 except ImportError:
     HasDisablePv = None
 

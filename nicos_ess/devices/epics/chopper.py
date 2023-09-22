@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -27,8 +26,8 @@
 # *****************************************************************************
 from nicos.core import Attach, Override, Param, Readable, Waitable, status
 from nicos.devices.abstract import MappedMoveable, Moveable
-from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.devices.epics.pva import EpicsDevice
+from nicos.devices.epics.status import SEVERITY_TO_STATUS, STAT_TO_STATUS
 
 
 class ChopperAlarms(EpicsDevice, Readable):
@@ -159,7 +158,7 @@ class EssChopperController(MappedMoveable):
 
     def doStatus(self, maxage=0):
         if self._attached_alarms:
-            stat, msg = self._attached_alarms.doStatus(maxage)
+            stat, msg = self._attached_alarms.status(maxage)
             if stat != status.OK:
                 return stat, msg
         if self._attached_chic_conn.read() != 'Connected':

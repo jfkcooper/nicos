@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -27,7 +26,7 @@ from nicos.core import Attach, Readable
 from nicos.core.errors import NicosError
 from nicos.core.status import BUSY
 
-from nicos_ess.devices.epics.motor import EpicsMotor, HomingProtectedEpicsMotor
+from nicos.devices.epics.pyepics.motor import EpicsMotor, HomingProtectedEpicsMotor
 
 # pylint: disable=no-else-raise
 

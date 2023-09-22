@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -27,9 +26,9 @@ from time import monotonic
 from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import PositionError
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice
 
-from nicos_ess.devices.epics.base import EpicsReadable
+from nicos_sinq.devices.epics.base import EpicsReadable
 
 
 class SpsSwitch(EpicsDevice, MappedMoveable):

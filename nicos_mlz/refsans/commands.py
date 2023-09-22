@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -29,9 +28,10 @@ from nicos.commands.device import move
 
 
 @usercommand
-@helparglist('wlmin, wlmax, [D=22.8, chopper2_pos=3, gap=0.1]')
+@helparglist("wlmin, wlmax, [D=22.8, chopper2_pos=3, gap=0.1, manner='normal']")
 @parallel_safe
-def chopper_config(wl_min, wl_max, D=22.8, chopper2_pos=3, gap=.1):
+def chopper_config(wl_min, wl_max, D=22.8, chopper2_pos=3, gap=.1,
+                   manner='normal'):
     """Configures the chopper.
 
     The chopper system will be moved to the settings for speed, and chopper
@@ -39,10 +39,10 @@ def chopper_config(wl_min, wl_max, D=22.8, chopper2_pos=3, gap=.1):
 
     Examples:
 
-    >>> chopper_config(0, 22) # D=22.8, chopper2_pos=3, gap=0.1
-    >>> chopper_config(0, 22, 21.455)  # chopper2_pos=3, gap=0.1
-    >>> chopper_config(0, 22, 21.455, 1)  # gap=0.1
-    >>> chopper_config(0, 22, 21.455, 2, 0.1)
+    >>> chopper_config(0, 22)  # D=22.8, chopper2_pos=3, gap=0.1, manner='normal'
+    >>> chopper_config(0, 22, 21.455)  # chopper2_pos=3, gap=0.1, manner='normal'
+    >>> chopper_config(0, 22, 21.455, 1)  # gap=0.1, manner='normal'
+    >>> chopper_config(0, 22, 21.455, 2, 0.1)  # manner='normal'
 
     """
     target = {
@@ -50,6 +50,7 @@ def chopper_config(wl_min, wl_max, D=22.8, chopper2_pos=3, gap=.1):
         'wlmax': wl_max,
         'D': D,
         'chopper2_pos': chopper2_pos,
-        'gap': gap
+        'gap': gap,
+        'manner': manner,
     }
     move('chopper', target)

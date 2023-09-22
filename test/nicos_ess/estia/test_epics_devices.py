@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -36,9 +35,8 @@ pytest.importorskip('epics')
 pytest.importorskip('kafka')
 
 from nicos.core import status
-from nicos.devices.epics import EpicsDevice
+from nicos.devices.epics.pyepics import EpicsDevice, EpicsReadable
 
-from nicos_ess.devices.epics.base import EpicsReadableEss
 from nicos_ess.estia.devices.pt100 import EpicsPT100Temperature, error_bits, \
     get_pt100_status_message
 
@@ -155,7 +153,7 @@ class TestEpicsPT100(TestCase):
         statuspv = sensor.statuspv
         sensor._setROParam('statuspv', None)
         sensor._value = 132
-        create_method_patch(self, EpicsReadableEss, 'doRead',
+        create_method_patch(self, EpicsReadable, 'doRead',
                             return_value_wrapper(42))
         assert sensor.read() == 42
         sensor._setROParam('statuspv', statuspv)

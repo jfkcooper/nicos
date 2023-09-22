@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -33,6 +32,9 @@ class InterpolatedMotor(TransformedMoveable):
     This class implements a logical motor driving a real one
     according to an interpolation table provided.
     """
+
+    hardware_access = False
+
     parameters = {
         'target_positions': Param('List of positions for this motor',
                                   type=listof(float)),
@@ -62,7 +64,7 @@ class InterpolatedMotor(TransformedMoveable):
         return self._attached_raw_motor.read(maxage)
 
     def doStatus(self, maxage=0):
-        return self._attached_raw_motor.doStatus(maxage)
+        return self._attached_raw_motor.status(maxage)
 
     def doIsAllowed(self, target):
         low = self.target_positions[0]

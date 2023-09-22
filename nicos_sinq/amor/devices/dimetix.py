@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -24,13 +23,13 @@
 
 from nicos.core import HasOffset
 
-from nicos_ess.devices.epics.base import EpicsReadableEss
+from nicos_sinq.devices.epics.base import EpicsReadableSinq
 
 
-class EpicsDimetix(HasOffset, EpicsReadableEss):
+class EpicsDimetix(HasOffset, EpicsReadableSinq):
     """ AMOR's laser distance measurement device called dimetix.
     """
 
     def doRead(self, maxage=0):
-        return int(round(EpicsReadableEss.doRead(self, maxage)*0.1)) - \
+        return int(round(EpicsReadableSinq.doRead(self, maxage)*0.1)) - \
                self.offset

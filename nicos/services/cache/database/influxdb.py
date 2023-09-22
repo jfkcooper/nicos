@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -22,9 +21,10 @@
 #
 # *****************************************************************************
 
+import ast
+import csv
 from datetime import datetime
 import threading
-import ast
 
 from influxdb_client import InfluxDBClient, BucketRetentionRules, Point
 from influxdb_client.client.write_api import SYNCHRONOUS as write_option
@@ -33,6 +33,9 @@ from nicos.core import Param, ConfigurationError
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.utils.credentials.keystore import nicoskeystore
+
+
+csv.field_size_limit(0xA00000) # 10 MB limit for influx queries with big fields
 
 
 class InfluxDBWrapper:
@@ -47,7 +50,7 @@ class InfluxDBWrapper:
         self._org = org
         self._bucket = bucket
         self._client = InfluxDBClient(url=self._url, token=self._token,
-                                      org=self._org)
+                                      org=self._org, timeout=30_000)
         self._write_api = self._client.write_api(write_options=write_option)
         self.addNewBucket(self._bucket)
 
@@ -72,51 +75,43 @@ class InfluxDBWrapper:
                 bucket_name=bucket_name,
                 retention_rules=retention_rules, org=self._org)
 
-    def query(self, measurement=None, field=None, fromtime=None, totime=None,
-              interval=None):
-        """Returns queried data as InfluxDB tables.
-        If measurement is not set, returns as many tables as there are
-        measurements available.
-        If field is not set, returns as many tables as there are fields for a
-        measuremnt or for all the measurements.
-        If fromtime not set, will be used timestamp of a month ago.
-        If totime is not set, will be used current time.
-        In case both fromtime and totime are not set it implies last recorded
-        value is required.
-        If interval is set, an aggregation filter will be applied. This will
-        return only the latest values for a time interval in seconds.
+    def query(self):
+        """Returns last value for every key/subkey.
+        _start and _stop columns do not contain any valuable information, yet
+        the influxdb-client module still parses them into datetime object.
+        Dropping these columns saves 66% of computation time on the
+        influxdb-client module side.
+        Parsing of time codes from influxdb can be even faster if ciso8601
+        module is installed.
         """
 
         with self._update_lock:
             self._write(self._update_queue)
             self._update_queue = []
-        single_entry = not fromtime and not totime
-        if fromtime is not None:
-            fromtime = datetime.utcfromtimestamp(fromtime).strftime(
-                "%Y-%m-%dT%H:%M:%SZ")
-        else:
-            since_last_month = datetime.now().timestamp() - 30*24*3600
-            fromtime = datetime.utcfromtimestamp(since_last_month).strftime(
-                "%Y-%m-%dT%H:%M:%SZ")
-        if totime is not None:
-            totime = datetime.utcfromtimestamp(totime).strftime(
-                "%Y-%m-%dT%H:%M:%SZ")
-        else:
-            totime = 'now()'
-        msg = f'from(bucket:"{self._bucket}")'
-        msg += f'|> range(start: {fromtime}, stop: {totime})'
-        if measurement:
-            msg += f'|> filter(fn:(r) => r._measurement == "{measurement}")'
-        if field:
-            msg += f'|> filter(fn:(r) => r._field == "{field}")'
-        if single_entry:
-            msg += '|> filter(fn:(r) => r.expired == "False")'
-            msg += '|> last(column: "_time")'
+        msg = f'''from(bucket:"{self._bucket}")
+            |> range(start: 2007-01-01T00:00:00Z, stop: now())
+            |> last(column: "_time")
+            |> drop(columns: ["_start", "_stop"])'''
+        return self._client.query_api().query(msg)
+
+    def queryHistory(self, measurement, field, fromtime, totime, interval):
+        """
+        Queries history from InfluxDB.
+        """
+
+        with self._update_lock:
+            self._write(self._update_queue)
+            self._update_queue = []
+        t1 = datetime.utcfromtimestamp(fromtime).strftime("%Y-%m-%dT%H:%M:%SZ")
+        t2 = datetime.utcfromtimestamp(totime).strftime("%Y-%m-%dT%H:%M:%SZ")
+        msg = f'''from(bucket:"{self._bucket}")
+            |> range(start: {t1}, stop: {t2})
+            |> filter(fn:(r) => r._measurement == "{measurement}")
+            |> filter(fn:(r) => r._field == "{field}")'''
         if interval:
             msg += f'|> aggregateWindow(every: {interval}s, fn: last, createEmpty: false)'
         msg += '|> drop(columns: ["_start", "_stop"])'
-        tables = self._client.query_api().query(msg)
-        return tables
+        yield self._client.query_api().query_stream(msg)
 
     def update(self, measurement, ts, field, value, expired):
         point = Point(measurement).time(ts).field(f'{field}', value)\
@@ -196,7 +191,7 @@ class InfluxDBCacheDatabase(CacheDatabase):
     def initDatabase(self):
         tables = self._client.query()
         for table in tables:
-            for record in table.records:
+            for record in table:
                 category = record['_measurement']
                 subkey = record['_field']
                 time = record['_time'].timestamp()
@@ -205,11 +200,11 @@ class InfluxDBCacheDatabase(CacheDatabase):
                         _, lock, db = self._recent[category]
                         with lock:
                             db[subkey] = CacheEntry(time, None, record['_value'])
-                            db[subkey].expired = record['expired']
+                            db[subkey].expired = record['expired'] == 'True'
                     else:
                         db = {}
                         db[subkey] = CacheEntry(time, None, record['_value'])
-                        db[subkey].expired = record['expired']
+                        db[subkey].expired = record['expired'] == 'True'
                         self._recent[category] = [None, threading.Lock(), db]
 
     def doShutdown(self):
@@ -257,11 +252,10 @@ class InfluxDBCacheDatabase(CacheDatabase):
 
     def queryHistory(self, dbkey, fromtime, totime, interval):
         category, subkey = dbkey
-        tables = self._client.query(category, subkey, fromtime, totime,
-                                    interval)
-        for table in tables:
-            for record in table:
+        for records in self._client.queryHistory(category, subkey, fromtime,
+                                                 totime, interval):
+            for record in records:
                 time = record['_time'].timestamp()
                 entry = CacheEntry(time, None, record['_value'])
-                entry.expired = record['expired']
+                entry.expired = record['expired'] == 'True'
                 yield entry

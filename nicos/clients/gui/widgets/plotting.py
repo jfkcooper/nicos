@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -39,8 +38,8 @@ from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgPresets, DlgUtils, dialogFromUi, loadUi
-from nicos.guisupport.plots import DATEFMT, TIMEFMT, MaskedPlotCurve, \
-    NicosPlotAxes, NicosTimePlotAxes
+from nicos.guisupport.plots import DATEFMT, GRMARKS, TIMEFMT, \
+    MaskedPlotCurve, NicosPlotAxes, NicosTimePlotAxes
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFont, QListWidgetItem, QMenu, QPoint, Qt
 from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, \
@@ -412,7 +411,7 @@ class NicosPlotCurve(MaskedPlotCurve):
     _parent = ''
 
     def __init__(self, x, y, errBar1=None, errBar2=None,
-                 linetype=gr.LINETYPE_SOLID, markertype=gr.MARKERTYPE_DOT,
+                 linetype=gr.LINETYPE_SOLID, markertype=GRMARKS['dot'],
                  linecolor=None, markercolor=1, legend=None, fillx=0, filly=0):
         MaskedPlotCurve.__init__(self, x, y, errBar1, errBar2,
                                  linetype, markertype, linecolor, markercolor,
@@ -485,7 +484,7 @@ class NicosPlotCurve(MaskedPlotCurve):
 class NicosPlot(DlgUtils):
 
     HAS_AUTOSCALE = False
-    SAVE_EXT = '.png'
+    SAVE_EXT = ['.png']
 
     def __init__(self, window, timeaxis=False):
         DlgUtils.__init__(self, 'Plot')
@@ -591,9 +590,9 @@ class NicosPlot(DlgUtils):
         raise NotImplementedError
 
     def saveQuietly(self):
-        """Save plot quietly to a temporary file with default format.
+        """Save plot quietly to temporary files with default formats.
 
-        Return the created filename.
+        Return a list of tuples (created filname, extension)
         """
         raise NotImplementedError
 
@@ -714,7 +713,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     axescls = NicosPlotAxes
     HAS_AUTOSCALE = True
-    SAVE_EXT = '.svg'
+    SAVE_EXT = ['.svg', '.png']
 
     def __init__(self, parent, window, timeaxis=False):
         InteractiveGRWidget.__init__(self, parent)
@@ -726,7 +725,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.mouselocation = None
         self._cursor = self.cursor()
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
-        self._markertype = gr.MARKERTYPE_OMARK
+        self._markertype = GRMARKS['circle']
 
         dictPrintType = dict(gr.PRINT_TYPE)
         for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
@@ -735,6 +734,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                            ";;".join(gr.GRAPHIC_TYPE.values()))
         self._saveName = None
         self._color = ColorIndexGenerator()
+        # avoid the first and therefore most used color being yellow
+        self._color.getNextColorIndex()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
         self._plot.setLegendWidth(0.05)
         self._axes = self.axescls(viewport=self._plot.viewport)
@@ -861,7 +862,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.update()
 
     def setSymbols(self, on):
-        markertype = self._markertype if on else gr.MARKERTYPE_DOT
+        markertype = self._markertype if on else GRMARKS['dot']
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.markertype = markertype
@@ -962,7 +963,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             else:
                 color = plotcurve.linecolor
             plotcurve.markertype = self._markertype if self.hasSymbols \
-                else gr.MARKERTYPE_DOT
+                else GRMARKS['dot']
             if plotcurve.errorBar1:
                 plotcurve.errorBar1.markercolor = color
             if plotcurve.errorBar2:
@@ -985,14 +986,14 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         """Get current gr.pygr.Plot object."""
         return self._plot
 
-    def _save(self, extension=".pdf"):
+    def _save(self, extension):
         fd, pathname = tempfile.mkstemp(extension)
         self.save(pathname)
         os.close(fd)
         return pathname
 
     def saveQuietly(self):
-        return self._save(".svg")
+        return [(self._save(ext), ext) for ext in self.SAVE_EXT]
 
     def _getCurveData(self, curve):
         errBar1 = curve.errorBar1
@@ -1032,7 +1033,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                                      legend=fitter._title,
                                      linecolor=color, markercolor=color)
         self.addPlotCurve(resultcurve, True)
-        resultcurve.markertype = gr.MARKERTYPE_DOT
+        resultcurve.markertype = GRMARKS['dot']
         self.parent_window.statusBar.showMessage("Fitting complete")
 
         text = '\n'.join(
@@ -1295,7 +1296,7 @@ class DataSetPlot(NicosGrPlot):
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
         if curve.function:
-            plotcurve.markertype = gr.MARKERTYPE_DOT
+            plotcurve.markertype = GRMARKS['dot']
         return plotcurve
 
     def setCurveData(self, curve, plotcurve):

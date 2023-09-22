@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -32,8 +31,9 @@ class Sample(BaseSample):
 
     parameters = {
         'sampletype': Param('Sample type: '
-                            '1 - SANS spheres'
-                            '2 - Incoherent',
-                            type=oneof(1, 2), userparam=True,
-                            settable=True),
+                            '1 - Incoherent'
+                            # '2 - Magnon BCC'
+                            '3 - SANS spheres',
+                            type=oneof(1, 3), userparam=True, settable=True,
+                            default=1),
     }

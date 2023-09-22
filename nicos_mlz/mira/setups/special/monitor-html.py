@@ -72,14 +72,7 @@ _column3 = Column(
         ],
         setups='cascade',
     ),
-    Block('2.2T Magnet (HTS)', [
-        BlockRow(
-            Field(name='Target', dev='B_ccm2a'),
-            Field(name='Readback', dev='B_ccm2a_readback'),
-        ),
-        ],
-        setups='ccm2a',
-    ),
+    SetupBlock('ccm2a2'), SetupBlock('ccm2a2', 'temperatures'),
     Block('3He cell', [
         BlockRow(
             Field(name='Polarization', dev='pol', width=7),
@@ -216,19 +209,6 @@ _column2 = Column(
         ],
         setups='euler',
     ),
-    Block('Sample environment', [
-        BlockRow(
-            Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
-            Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
-            Field(name='C', dev='T_ccr5_C'),
-        ),
-        BlockRow(
-            Field(name='P', key='t/p'), Field(name='I', key='t/i'),
-            Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1'),
-        ),
-        ],
-        setups='ccr5',
-    ),
     Block('Sample environment CCR11', [
         BlockRow(
             Field(name='Setpoint', key='t_ccr11/setpoint', unitkey='t_ccr11/unit'),
@@ -296,103 +276,16 @@ _column2 = Column(
         ],
         setups='htf20',
     ),
-    Block('3He-4He insert (ccidu02)', [
-        BlockRow(
-            Field(name='Setpoint', key='t/setpoint', unitkey='t/unit',
-                  format='%.2f'),
-            Field(name='T', dev='T'),
-            Field(name='Ts', dev='Ts'),
-        ),
-        BlockRow(
-            Field(name='P', key='t/p', width=4),
-            Field(name='I', key='t/i', width=4),
-            Field(name='D', key='t/d', width=4),
-            Field(name='turbo', dev='ccidu02_p1'),
-            Field(name='cycle', dev='ccidu02_p4'),
-        ),
-        ],
-        setups='ccidu02',
-    ),
-    Block('3He-4He insert (ccidu01)', [
-        BlockRow(
-            Field(name='Setpoint', key='t/setpoint', unitkey='t/unit',
-                  format='%.2f'),
-            Field(name='T', dev='T'),
-            Field(name='Ts', dev='Ts'),
-        ),
-        BlockRow(
-            Field(name='P', key='t/p', width=4),
-            Field(name='I', key='t/i', width=4),
-            Field(name='D', key='t/d', width=4),
-            Field(name='turbo', dev='ccidu01_p1'),
-            Field(name='cycle', dev='ccidu01_p4'),
-        ),
-        ],
-        setups='ccidu01',
-    ),
-    Block('3He insert (cci3he02)', [
-        BlockRow(
-            Field(name='Setpoint', key='t/setpoint', unitkey='t/unit',
-                  format='%.2f'),
-            Field(name='T', dev='T'),
-            Field(name='Ts', dev='Ts'),
-        ),
-        BlockRow(
-            Field(name='P', key='t/p', width=4),
-            Field(name='I', key='t/i', width=4),
-            Field(name='D', key='t/d', width=4),
-            Field(name='turbo', dev='cci3he02_pInlet'),
-            Field(name='cycle', dev='cci3he02_pDump'),
-        ),
-        ],
-        setups='cci3he02',
-    ),
-    Block('3He insert (cci3he01)', [
-        BlockRow(
-            Field(name='Setpoint', key='t/setpoint', unitkey='t/unit',
-                  format='%.2f'),
-            Field(name='T', dev='T'),
-            Field(name='Ts', dev='Ts'),
-        ),
-        BlockRow(
-            Field(name='P', key='t/p', width=4),
-            Field(name='I', key='t/i', width=4),
-            Field(name='D', key='t/d', width=4),
-            Field(name='turbo', dev='cci3he01_pInlet'),
-            Field(name='cycle', dev='cci3he01_pDump'),
-        ),
-        ],
-        setups='cci3he01',
-    ),
-    Block('FRM Magnet', [
-        BlockRow(
-            Field(dev='B'),
-            Field(name='sth', dev='sth_ccm55v_stick'),
-            Field(name='T1', dev='ccm55v_T1', width=6),
-            Field(name='T2', dev='ccm55v_T2', width=6),
-        ),
-        BlockRow(
-            Field(name='T3', dev='ccm55v_T3', width=6),
-            Field(name='T4', dev='ccm55v_T4', width=6),
-            Field(name='T8', dev='ccm55v_T8', width=6),
-        ),
-        ],
-        setups='ccm55v',
-    ),
-    Block('SANS-1 Magnet', [
-        BlockRow(
-            Field(dev='B'),
-            Field(name='T2', dev='ccmsans_T2', width=6),
-            Field(name='T3', dev='ccmsans_T3', width=6),
-        ),
-        BlockRow(
-            Field(name='T4', dev='ccmsans_T4', width=6),
-            Field(name='T5', dev='ccmsans_T5', width=6),
-            Field(name='T6', dev='ccmsans_T6', width=6),
-        ),
-        ],
-        setups='ccmsans',
-    ),
+    SetupBlock('cci3he01'), SetupBlock('cci3he01', 'pressures'),
+    SetupBlock('cci3he02'), SetupBlock('cci3he02', 'pressures'),
+    SetupBlock('cci3he03'), SetupBlock('cci3he03', 'pressures'),
+    SetupBlock('cci3he10'), SetupBlock('cci3he10', 'pressures'),
+    SetupBlock('cci3he11'), SetupBlock('cci3he11', 'pressures'),
+    SetupBlock('cci3he12'), SetupBlock('cci3he12', 'pressures'),
+    SetupBlock('ccidu01'), SetupBlock('ccidu01', 'pressures'),
+    SetupBlock('ccidu02'), SetupBlock('ccidu02', 'pressures'),
+    SetupBlock('ccm5v5'), SetupBlock('ccm5v5', 'temperatures'),
+    SetupBlock('ccm5h'), SetupBlock('ccm5h', 'temperatures'),
     Block('TTi + Huber', [
         BlockRow(
             Field(dev='dct1'),
@@ -488,38 +381,18 @@ _column1 = Column(
 )
 
 _column4 = Column(
-    Block('Temperature plots', [
-        BlockRow(
-            Field(dev='T', plot='T', plotwindow=12*3600, width=100, height=40),
-            Field(dev='Ts', plot='T'),
-            Field(dev='TBe', name='Filter', plot='T'),
-        ),
-        ],
-        setups='ccr5',
-    ),
+    SetupBlock('ccm5v5', 'plots'),
     Block('Magnet temp. plots', [
         BlockRow(
-            Field(dev='ccm55v_T1', name='T1', plot='Tm', plotwindow=24*3600,
+            Field(dev='ccm5h_T_stage2', name='T2', plot='Tm5', plotwindow=24*3600,
                   width=100, height=40),
-            Field(dev='ccm55v_T2', name='T2', plot='Tm'),
-            Field(dev='ccm55v_T3', name='T3', plot='Tm'),
-            Field(dev='ccm55v_T4', name='T4', plot='Tm'),
-            Field(dev='B', plot='Tm'),
+            Field(dev='ccm5h_T_shield_top', name='T3', plot='Tm5'),
+            Field(dev='ccm5h_T_shield_bottom', name='T4', plot='Tm5'),
+            Field(dev='ccm5h_T_topleft', name='T5', plot='Tm5'),
+            Field(dev='ccm5h_T_topright', name='T6', plot='Tm5'),
         ),
         ],
-        setups='ccm55v',
-    ),
-    Block('Magnet temp. plots', [
-        BlockRow(
-            Field(dev='ccmsans_T2', name='T2', plot='Tm5', plotwindow=24*3600,
-                  width=100, height=40),
-            Field(dev='ccmsans_T3', name='T3', plot='Tm5'),
-            Field(dev='ccmsans_T4', name='T4', plot='Tm5'),
-            Field(dev='ccmsans_T5', name='T5', plot='Tm5'),
-            Field(dev='ccmsans_T6', name='T6', plot='Tm5'),
-        ),
-        ],
-        setups='ccmsans',
+        setups='ccm5h',
     ),
 )
 

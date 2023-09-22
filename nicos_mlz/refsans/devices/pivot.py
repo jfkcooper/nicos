@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -18,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Matthias Pomm <matthias.pomm@hzg.de> 2018-08-08 08:33:38
+#   Matthias Pomm <matthias.pomm@hzg.de>
 #
 # *****************************************************************************
 
@@ -41,6 +40,3 @@ class PivotPoint(ManualSwitch):
     parameter_overrides = {
         'requires': Override(default={'level': ADMIN}, settable=False),
     }
-
-    def doStart(self, target):
-        ManualSwitch.doStart(self, target)

@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -60,7 +59,7 @@ class McStasSimulation(Readable):
 
     _mythread = None
     _process = None
-    _started = None
+    _started = False
     _start_time = None
 
     # to be implemented in derived classes
@@ -166,7 +165,7 @@ class McStasSimulation(Readable):
             self.log.debug('still running, finishing up')
             self._send_signal(SIGTERM)
             self._joinProcess()
-        self._started = None
+        self._started = False
         self._mcstas_params = None
 
     def _send_signal(self, sig):
@@ -196,7 +195,12 @@ class McStasSimulation(Readable):
     def _getTime(self):
         """Return elapsed time for simulation."""
         if self._started:
+            if self._start_time is None:
+                # MsStas about to be started, preparations still in progress
+                return 0
+            # McStas already running
             return min(monotonic() - self._start_time, self.preselection)
+        # no McStas running or about to run, i.e. finished
         return self.preselection
 
     def _getScaleFactor(self):
@@ -239,7 +243,7 @@ class McStasSimulation(Readable):
         if self._process:
             self._process.wait()
         self._process = None
-        self._started = None
+        self._started = False
 
 
 class McStasImage(ImageChannelMixin, PassiveChannel):

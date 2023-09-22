@@ -1,4 +1,3 @@
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
@@ -26,8 +25,8 @@
 
 import requests
 
-from nicos.core import HasPrecision, Moveable, Override, Param, Readable, \
-    intrange, oneof, status, usermethod
+from nicos.core import HasPrecision, Override, Param, Readable, intrange, \
+    oneof, status, usermethod
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError
 from nicos.core.mixins import HasOffset
@@ -50,19 +49,19 @@ class JsonBase(Readable):
 
     def _read_controller(self, keys):
         line = '_read_controller %s' % keys
-        self.log.debug(line)
+        self.log.debug('%s', line)
         try:
             data = requests.get(self.url, timeout=self.timeout).json()
             self.log.debug(data)
         except requests.Timeout as e:
-            self.log.info(line)
-            self.log.info('url %s' % self.url)
-            self.log.info('err %s' % e)
+            self.log.info('%s', line)
+            self.log.info('url %s', self.url)
+            self.log.info('err %s', e)
             raise CommunicationError(self, 'HTTP Timeout failed') from e
         except Exception as e:
-            self.log.info(line)
-            self.log.info('url %s' % self.url)
-            self.log.info('err %s' % e)
+            self.log.info('%s', line)
+            self.log.info('url %s', self.url)
+            self.log.info('err %s', e)
             raise ConfigurationError(self, 'HTTP request failed') from e
         res = {}
         for key in keys:
@@ -147,7 +146,7 @@ class CPTReadout(HasOffset, JsonBase):
 class CPTReadoutproof(HasPrecision, CPTReadout):
 
     attached_devices = {
-        'chopper': Attach('to get status of controller', Moveable),
+        'chopper': Attach('to get status of controller', Readable),
         'speed': Attach('self speed', Readable),
     }
 
