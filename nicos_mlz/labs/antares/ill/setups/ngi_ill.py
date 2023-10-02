@@ -2,7 +2,7 @@ description = 'Neutron Grating Interferometer'
 
 group = 'optional'
 
-excludes = ['ngi', 'neutrosense']
+excludes = ['ngi', 'neutrosense', 'ngi_icon']
 
 tango_base = 'tango://192.168.20.64:10000/box/'
 
