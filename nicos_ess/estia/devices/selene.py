@@ -759,7 +759,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         return [self._attached_m_cart, self._attached_interferometer]
 
     def doInit(self, dummy=None):
-        self._sa=np.sqrt(self._sc**2+self._sb**2)
+        self._sa=np.sqrt(self._ellipse_linear_eccentricity ** 2 + self._ellipse_semi_minor_axis ** 2)
         self._cache.addCallback(self._attached_m_cart, 'value', self._on_status_change_external)
         self._cache.addCallback(self._attached_m_cart, 'status', self._on_status_change_external)
         self._cache.addCallback(self._attached_interferometer, 'status', self._on_status_change_external)
@@ -781,11 +781,11 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         pos = self._attached_m_cart()-self.cart_center
         if abs(pos)>50:
             pos = self._x_for_cart(pos)
-        mirror = int((pos+self._mw/2)//self._mw + 8) # mirrors are 480 wide and 8 is the central one
-        rpos = (pos+self._mw/2)%self._mw-self._mw/2 # relative position on mirror
+        mirror = int((pos + self._mirror_width / 2) // self._mirror_width + 8) # mirrors are 480 wide and 8 is the central one
+        rpos = (pos + self._mirror_width / 2) % self._mirror_width - self._mirror_width / 2 # relative position on mirror
         if abs(rpos)<10:
             return (0, mirror)
-        elif (abs(rpos)+self._sx-self._mw/2)<10:
+        elif (abs(rpos) + self._screw_mirror_dist - self._mirror_width / 2)<10:
             if rpos<0:
                 return (-1, mirror)
             else:
@@ -804,7 +804,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
             rel_pos, mirror = position
         else:
             raise ValueError("Position should be tuple (rel. location, mirror) w/ rel. location in [-1,0,1]")
-        calc_pos = self._mw*(mirror-8) + rel_pos*(self._mw/2-self._sx)
+        calc_pos = self._mirror_width * (mirror - 8) + rel_pos * (self._mirror_width / 2 - self._screw_mirror_dist)
         dest_pos = self.cart_center + self._cart_for_x(calc_pos)
 
         # reset last values before starting to move, so any value but nan should be for the current location

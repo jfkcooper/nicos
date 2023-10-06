@@ -1,45 +1,53 @@
 """
-Help module that is used for calculations in SeleneMetrology
+Help module that is used for calculations in Selene Metrology
 this allows off-line and unit testing.
 """
 import numpy as np
 from numpy import testing
 from unittest import TestCase
 
+
 class SeleneCalculator:
-    _sb = 104.7 # selene distance center-ellipse
-    _sc = 6000. # selene distance center-focus
-    _sa = np.sqrt(_sc ** 2 + _sb ** 2)
+    _ellipse_semi_minor_axis = 104.7
+    _ellipse_linear_eccentricity = 6000.
+    _ellipse_semi_major_axis = np.sqrt(_ellipse_linear_eccentricity ** 2 + _ellipse_semi_minor_axis ** 2)
 
-    _mw = 480. # mirror width
-    _sx = 42.5 # distance of screw from edge of mirror
+    _mirror_width = 480.
+    _screw_mirror_dist = 42.5
 
-    # these attributes will be overwritte in device
+    # these attributes will be overwritten in device
     eta_v = 14.92
     delta_v = 120.
     delta_x = -15.
 
-    eta_h1=16.39
-    delta_h1 = 70.0
-    zret_h1 = 50.0
-    zcol_h1 = 120.0
-    eta_h2 = 15.47
-    delta_h2 = 80.0
-    zret_h2 = 10.0
-    zcol_h2 = 160.0
+    inter_to_retro_1_angle = 16.39
+    xz_to_retro_1_dist = 70.0
+    xy_to_retro_1_dist = 50.0
+    xy_to_col_1_dist = 120.0
+    inter_to_retro_2_angle = 15.47
+    xz_to_retro_2_dist = 80.0
+    xy_to_retro_2_dist = 10.0
+    xy_to_col_2_dist = 160.0
 
-    col_h1 = (46., -135., 143.5)
-    ret_h1 = (-15., -70., 62.5)
-    col_h2 = (44.5, -132.4, 201.5)
-    ret_h2 = (-15., -80., 17)
+    collimator_1_pos = (46., -135., 143.5)
+    retroreflector_1_pos = (-15., -70., 62.5)
+    collimator_2_pos = (44.5, -132.4, 201.5)
+    retroreflector_2_pos = (-15., -80., 17)
 
     def _ellipse(self, xpos):
-        # return selene ellipse height at distance from center
-        return self._sb/self._sa*np.sqrt(self._sa**2-xpos**2)
+        """
+        Gives the ellipse height at distance xpos from center
+        Parameters:
+            xpos: float, position along ellipse in mm
+
+        Returns:
+             float, height at that position
+        """
+        return self._ellipse_semi_minor_axis/self._ellipse_semi_major_axis*np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2)
 
     def _ellipse_angle(self, xpos):
         # return the inclanation of the ellipse at defined position
-        return -self._sb*xpos/(self._sa*np.sqrt(self._sa**2-xpos**2))
+        return -self._ellipse_semi_minor_axis*xpos/(self._ellipse_semi_major_axis * np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2))
 
     def _cart_for_x(self, xpos, zero_range=True):
         """
@@ -104,8 +112,8 @@ class SeleneCalculator:
         # h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
         # h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1/2*np.pi/180.),
         #                    -self.delta_h1, self.zcol_h1])
-        h1_ret = np.array(self.ret_h1)
-        h1_col = np.array(self.col_h1)
+        h1_ret = np.array(self.retroreflector_1_pos)
+        h1_col = np.array(self.collimator_1_pos)
         h1_p1, h1_p2 = self._diagnoal_paths(xpos, h1_col, h1_ret)
         if hasattr(self, 'log'):
             self.log.debug(f'Calculated path: {h1_col}->{h1_p1}->{h1_p2}->{h1_ret}')
@@ -117,8 +125,8 @@ class SeleneCalculator:
         # h2_ret = np.array([self.delta_x, -self.delta_h2, self.zret_h2])
         # h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2/2*np.pi/180.),
         #                    -self.delta_h2, self.zcol_h2])
-        h2_ret = np.array(self.ret_h2)
-        h2_col = np.array(self.col_h2)
+        h2_ret = np.array(self.retroreflector_2_pos)
+        h2_col = np.array(self.collimator_2_pos)
         h2_p1, h2_p2 = self._diagnoal_paths(xpos, h2_col, h2_ret)
         if hasattr(self, 'log'):
             self.log.debug(f'Calculated path: {h2_col}->{h2_p1}->{h2_p2}->{h2_ret}')
@@ -162,7 +170,7 @@ class CalcTester(TestCase):
 
     def test_ellipse(self):
         y = self.calc._ellipse(0.)
-        self.assertAlmostEqual(y, self.calc._sb)
+        self.assertAlmostEqual(y, self.calc._ellipse_semi_minor_axis)
 
     def test_cartx(self):
         # test that the x-position conversion is inverse
