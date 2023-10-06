@@ -8,9 +8,14 @@ from unittest import TestCase
 
 
 class SeleneCalculator:
+    """
+    Calculations for moving the metronomy cart and correcting the mirror positions.
+    All angles are in degrees, all distances are in mm.
+    """
     _ellipse_semi_minor_axis = 104.7
     _ellipse_linear_eccentricity = 6000.
     _ellipse_semi_major_axis = np.sqrt(_ellipse_linear_eccentricity ** 2 + _ellipse_semi_minor_axis ** 2)
+    _ellipse_eccentricity = _ellipse_semi_minor_axis / _ellipse_semi_major_axis
 
     _mirror_width = 480.
     _screw_mirror_dist = 42.5
@@ -30,9 +35,9 @@ class SeleneCalculator:
     xy_to_col_2_dist = 160.0
 
     collimator_1_pos = (46., -135., 143.5)
-    retroreflector_1_pos = (-15., -70., 62.5)
+    retro_1_pos = (-15., -70., 62.5)
     collimator_2_pos = (44.5, -132.4, 201.5)
-    retroreflector_2_pos = (-15., -80., 17)
+    retro_2_pos = (-15., -80., 17)
 
     def _ellipse(self, xpos):
         """
@@ -41,13 +46,24 @@ class SeleneCalculator:
             xpos: float, position along ellipse in mm
 
         Returns:
-             float, height at that position
+             float, height at that position in mm
         """
-        return self._ellipse_semi_minor_axis/self._ellipse_semi_major_axis*np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2)
+        return self._ellipse_eccentricity * np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2)
 
     def _ellipse_angle(self, xpos):
+        """
+        Gives the ellipse tangent at distance xpos from center
+        Parameters:
+            xpos: float, position along ellipse in mm
+
+        Returns:
+             float, gradient of the tangent to the ellipse at given position in radians
+        """
         # return the inclanation of the ellipse at defined position
-        return -self._ellipse_semi_minor_axis*xpos/(self._ellipse_semi_major_axis * np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2))
+        ellipse_height = self._ellipse(xpos)
+        gradient = -1 * xpos * ellipse_height
+
+        return gradient
 
     def _cart_for_x(self, xpos, zero_range=True):
         """
@@ -112,7 +128,7 @@ class SeleneCalculator:
         # h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
         # h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1/2*np.pi/180.),
         #                    -self.delta_h1, self.zcol_h1])
-        h1_ret = np.array(self.retroreflector_1_pos)
+        h1_ret = np.array(self.retro_1_pos)
         h1_col = np.array(self.collimator_1_pos)
         h1_p1, h1_p2 = self._diagnoal_paths(xpos, h1_col, h1_ret)
         if hasattr(self, 'log'):
@@ -125,7 +141,7 @@ class SeleneCalculator:
         # h2_ret = np.array([self.delta_x, -self.delta_h2, self.zret_h2])
         # h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2/2*np.pi/180.),
         #                    -self.delta_h2, self.zcol_h2])
-        h2_ret = np.array(self.retroreflector_2_pos)
+        h2_ret = np.array(self.retro_2_pos)
         h2_col = np.array(self.collimator_2_pos)
         h2_p1, h2_p2 = self._diagnoal_paths(xpos, h2_col, h2_ret)
         if hasattr(self, 'log'):
@@ -171,6 +187,13 @@ class CalcTester(TestCase):
     def test_ellipse(self):
         y = self.calc._ellipse(0.)
         self.assertAlmostEqual(y, self.calc._ellipse_semi_minor_axis)
+
+    def test_ellipse_angle(self):
+        zero_angle = self.calc._ellipse_angle(0.0)
+        self.assertAlmostEqual(zero_angle, 0.0)
+
+        end_angle = self.calc._ellipse_angle(self.calc._ellipse_semi_major_axis)
+        self.assertAlmostEqual(end_angle, 90.0)
 
     def test_cartx(self):
         # test that the x-position conversion is inverse
