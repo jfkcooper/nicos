@@ -50,33 +50,36 @@ class SeleneCalculator:
         """
         return self._ellipse_eccentricity * np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2)
 
-    def _ellipse_angle(self, xpos):
+    def _ellipse_gradient(self, xpos):
         """
         Gives the ellipse tangent at distance xpos from center
         Parameters:
             xpos: float, position along ellipse in mm
 
         Returns:
-             float, gradient of the tangent to the ellipse at given position in radians
+             float, gradient of the tangent to the ellipse at given position
         """
-        # return the inclanation of the ellipse at defined position
-        ellipse_height = self._ellipse(xpos)
-        gradient = -1 * xpos * ellipse_height
+        return -self._ellipse_eccentricity * xpos / np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2)
 
-        return gradient
-
-    def _cart_for_x(self, xpos, zero_range=True):
+    def _cart_pos_correction(self, xpos, zero_range=True):
         """
         Calculate the cart position necessary to measure at a certain x-position on the ellipse.
         This has to take into account the location of the correct interferometer heads
         and the change in reflection spot location due to ellipse surface changing distance to cart.
+        Parameters:
+            xpos: float, position along the ellipse in mm
+            zero_range: bool, flag to apply no correction when within the central 100 mm, defaults to True
+        Returns:
+            float, correct position to move the cart to in mm
         """
-        if zero_range and abs(xpos)<100.:
+        if zero_range and abs(xpos) < 100.:
             # if around center of guide, don't perform any correction
             return xpos
+
         # In the optimal configuration the retro reflector receives the beam with
         # half of the nominal angle plus 2x the surface inclination.
-        alpha = self.eta_v*np.pi/360. - self._ellipse_angle(abs(xpos))/2.
+        alpha = self.eta_v * np.pi / 360. - self._ellipse_gradient(abs(xpos)) / 2.
+
         # distance of that reflection is the nominal distance at center minus ellipse height
         h = self.delta_v + self._ellipse(xpos)
         div = self.delta_x + np.tan(alpha)*h
@@ -91,7 +94,7 @@ class SeleneCalculator:
         delta=100.
         xout = xpos
         while delta>1.:
-            dpos = self._cart_for_x(xout, zero_range=False)-xpos
+            dpos = self._cart_pos_corrrection(xout, zero_range=False) - xpos
             xout -= dpos
             delta = abs(dpos)
         return xout
@@ -117,7 +120,7 @@ class SeleneCalculator:
         xpos = self._x_for_cart(pos_motor)
         # length of laser is distance reflector-mirror + collimator-mirror
         # vertical mirrors
-        dalpha = self._ellipse_angle(abs(xpos))/2.
+        dalpha = self._ellipse_gradient(abs(xpos)) / 2.
         ye = self._ellipse(xpos)
         h = self.delta_v + ye
         v_l1 = h/np.cos(self.eta_v/2*np.pi/180.+dalpha) # reflector angle gets larger
@@ -189,18 +192,18 @@ class CalcTester(TestCase):
         self.assertAlmostEqual(y, self.calc._ellipse_semi_minor_axis)
 
     def test_ellipse_angle(self):
-        zero_angle = self.calc._ellipse_angle(0.0)
+        zero_angle = self.calc._ellipse_gradient(0.0)
         self.assertAlmostEqual(zero_angle, 0.0)
 
-        end_angle = self.calc._ellipse_angle(self.calc._ellipse_semi_major_axis)
-        self.assertAlmostEqual(end_angle, 90.0)
+        end_angle = self.calc._ellipse_gradient(5000)
+        self.assertAlmostEqual(end_angle, -0.0262897641)
 
     def test_cartx(self):
         # test that the x-position conversion is inverse
         x=np.linspace(-3500, 3500, 25)
         xcart = []
         for xi in x:
-            xcart.append(self.calc._cart_for_x(xi, zero_range=False))
+            xcart.append(self.calc._cart_pos_corrrection(xi, zero_range=False))
         xr = []
         for xi in xcart:
             xr.append(self.calc._x_for_cart(xi))

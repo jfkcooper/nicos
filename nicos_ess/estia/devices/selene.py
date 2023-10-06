@@ -805,7 +805,7 @@ class SeleneMetrology(SeleneCalculator, BaseSequencer):
         else:
             raise ValueError("Position should be tuple (rel. location, mirror) w/ rel. location in [-1,0,1]")
         calc_pos = self._mirror_width * (mirror - 8) + rel_pos * (self._mirror_width / 2 - self._screw_mirror_dist)
-        dest_pos = self.cart_center + self._cart_for_x(calc_pos)
+        dest_pos = self.cart_center + self._cart_pos_corrrection(calc_pos)
 
         # reset last values before starting to move, so any value but nan should be for the current location
         self.last_raw = (np.nan, np.nan, np.nan, np.nan)
