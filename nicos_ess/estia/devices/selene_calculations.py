@@ -78,23 +78,28 @@ class SeleneCalculator:
 
         # In the optimal configuration the retro reflector receives the beam with
         # half of the nominal angle plus 2x the surface inclination.
-        alpha = self.eta_v * np.pi / 360. - self._ellipse_gradient(abs(xpos)) / 2.
+        alpha = (self.eta_v * np.pi / 360.) - (self._ellipse_gradient(abs(xpos)) / 2.)
 
         # distance of that reflection is the nominal distance at center minus ellipse height
         h = self.delta_v + self._ellipse(xpos)
-        div = self.delta_x + np.tan(alpha)*h
-        direction=np.sign(xpos) # select if up-stream or down-stream collimators are used
-        return xpos-direction*div
+        div = self.delta_x + np.tan(alpha) * h
+        direction = np.sign(xpos)  # select if up-stream or down-stream collimators are used
+        return xpos - direction * div
 
-    def _x_for_cart(self, xpos):
+    def _laser_pos_from_cart(self, xpos):
         """
         Calculate the approximate position the laser hits the mirror
         for a given cart position
+        Parameters:
+            xpos: float, cart position along the ellipse in mm
+
+        Returns:
+            float, laser position along the ellipse in mm
         """
         delta=100.
         xout = xpos
-        while delta>1.:
-            dpos = self._cart_pos_corrrection(xout, zero_range=False) - xpos
+        while delta > 1.:
+            dpos = self._cart_pos_correction(xout, zero_range=False) - xpos
             xout -= dpos
             delta = abs(dpos)
         return xout
@@ -117,7 +122,7 @@ class SeleneCalculator:
         """
         if pos_motor is None:
             pos_motor = self._attached_m_cart()-self.cart_center
-        xpos = self._x_for_cart(pos_motor)
+        xpos = self._laser_pos_from_cart(pos_motor)
         # length of laser is distance reflector-mirror + collimator-mirror
         # vertical mirrors
         dalpha = self._ellipse_gradient(abs(xpos)) / 2.
@@ -203,10 +208,10 @@ class CalcTester(TestCase):
         x=np.linspace(-3500, 3500, 25)
         xcart = []
         for xi in x:
-            xcart.append(self.calc._cart_pos_corrrection(xi, zero_range=False))
+            xcart.append(self.calc._cart_pos_correction(xi, zero_range=False))
         xr = []
         for xi in xcart:
-            xr.append(self.calc._x_for_cart(xi))
+            xr.append(self.calc._laser_pos_from_cart(xi))
         testing.assert_array_almost_equal(x, np.array(xr), decimal=2)
 
     def test_lengths(self):
