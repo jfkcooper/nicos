@@ -43,7 +43,7 @@ class SeleneCalculator:
 
     def _cart_for_x(self, xpos, zero_range=True):
         """
-        Calculate the cart position necessary to measure at a certain x-positin on the ellipse.
+        Calculate the cart position necessary to measure at a certain x-position on the ellipse.
         This has to take into account the location of the correct interferometer heads
         and the change in reflection spot location due to ellipse surface changing distance to cart.
         """
@@ -54,7 +54,7 @@ class SeleneCalculator:
         # half of the nominal angle plus 2x the surface inclination.
         alpha = self.eta_v*np.pi/360. - self._ellipse_angle(abs(xpos))/2.
         # distance of that reflection is the nominal distance at center minus ellipse height
-        h = self.delta_v  + self._ellipse(xpos)
+        h = self.delta_v + self._ellipse(xpos)
         div = self.delta_x + np.tan(alpha)*h
         direction=np.sign(xpos) # select if up-stream or down-stream collimators are used
         return xpos-direction*div
