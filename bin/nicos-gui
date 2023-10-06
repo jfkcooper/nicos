@@ -24,9 +24,15 @@
 
 import sys
 from os import path
+import os
+os.environ["NICOS_QT"] = "5"
 
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-
 from nicos.clients.gui.main import main
+
+from PyQt5 import QtWidgets, QtCore, QtGui #pyqt stuff
+
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
 sys.exit(main(sys.argv))

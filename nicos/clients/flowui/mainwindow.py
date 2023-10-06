@@ -78,7 +78,6 @@ class MainWindow(DefaultMainWindow):
         self.dropdown = dropdown
         self.actionExpert.setEnabled(self.client.isconnected)
         self.actionEmergencyStop.setEnabled(self.client.isconnected)
-
         self._init_instrument_name()
         self._init_experiment_name()
         self.on_client_disconnected()

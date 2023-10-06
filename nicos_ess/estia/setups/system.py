@@ -6,7 +6,7 @@ sysconfig = dict(
     cache='localhost',
     instrument='ESTIA',
     experiment='Exp',
-    datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl'],
+    datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl', 'local_filesink'],
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands']
@@ -66,6 +66,11 @@ devices = dict(
         status='FileWriterStatus',
         nexus='NexusStructure',
         use_instrument_directory=True,
+    ),
+    local_filesink=device(
+        'nicos.devices.datasinks.AsciiScanfileSink',
+        subdir='scans',
+        filenametemplate=['estia_commissioning_%(scancounter)08d.dat'],
     ),
     SciChat=device(
         'nicos_ess.devices.scichat.ScichatBot',

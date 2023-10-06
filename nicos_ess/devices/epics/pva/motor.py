@@ -50,6 +50,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     Another optional PV is the errormsgpv, which contains an error message that
     may originate from the motor controller or the IOC. If it is present,
     doStatus uses it for some of the status messages.
+
+    If the motor provides a temperature sensor, that can be defined using
+    temppv.
     """
     valuetype = float
 
@@ -91,6 +94,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
                   settable=False,
                   userparam=False,
                   mandatory=False),
+        'temp':   Param('Motor internal temperature sensor.', type=float,
+                        mandatory=False, settable=False, userparam=True, unit='°C', fmtstr='%.2f'),
+        'temppv': Param('Optional PV with temperature sensor value.', type=pvname,
+                        mandatory=False, settable=False, userparam=False),
         'position_deadband':
             Param('Acceptable distance between target and final position.',
                   type=float,
@@ -119,6 +126,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         # Units are set by EPICS, so cannot be changed
         'unit': Override(mandatory=False, settable=False, volatile=True),
+        'description': Override(mandatory=False, settable=False, volatile=True),
     }
 
     _motor_status = (status.OK, '')
@@ -149,17 +157,27 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'alarm_severity': 'SEVR',
         'position_deadband': 'RDBD',
         'description': 'DESC',
+        'pvdesc': 'DESC',
     }
 
     _cache_relations = {
         'readpv': 'value',
         'units': 'unit',
         'writepv': 'target',
+        'temppv': 'temp',
+        'pvdesc': 'pvdesc',
     }
 
     def doInit(self, mode):
         self._lock = threading.Lock()
         EpicsMoveable.doInit(self, mode)
+
+    def doReadPvdesc(self):
+        return self._get_pv('pvdesc')
+
+    def doReadDescription(self):
+        # overwrite description field with EPICS motor name and .DESC
+        return f'{self.pvdesc} (PV: {self.motorpv})'
 
     def _get_pv_parameters(self):
         """
@@ -181,6 +199,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         if self.reseterrorpv:
             pvs.add('reseterrorpv')
+
+        if self.temppv:
+            pvs.add('temppv')
 
         return pvs
 
@@ -277,6 +298,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
     def doReadTarget(self):
         return self._get_pv('writepv')
+
+    def doReadTemp(self):
+        if self.temppv:
+            return self._get_pv('temppv')
+        else:
+            return 0.
 
     def doStatus(self, maxage=0):
         with self._lock:
