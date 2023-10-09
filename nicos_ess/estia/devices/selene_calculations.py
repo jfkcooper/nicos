@@ -21,9 +21,9 @@ class SeleneCalculator:
     _screw_mirror_dist = 42.5
 
     # these attributes will be overwritten in device
-    eta_v = 14.92
-    delta_v = 120.
-    delta_x = -15.
+    inter_to_retro_horiz_angle = 14.92
+    xz_to_retro_horiz_dist = 120.
+    x_dist_to_cart_centre = -15.
 
     inter_to_retro_1_angle = 16.39
     xz_to_retro_1_dist = 70.0
@@ -78,11 +78,11 @@ class SeleneCalculator:
 
         # In the optimal configuration the retro reflector receives the beam with
         # half of the nominal angle plus 2x the surface inclination.
-        alpha = (self.eta_v * np.pi / 360.) - (self._ellipse_gradient(abs(xpos)) / 2.)
+        alpha = (self.inter_to_retro_horiz_angle * np.pi / 360.) - (self._ellipse_gradient(abs(xpos)) / 2.)
 
         # distance of that reflection is the nominal distance at center minus ellipse height
-        h = self.delta_v + self._ellipse(xpos)
-        div = self.delta_x + np.tan(alpha) * h
+        h = self.xz_to_retro_horiz_dist + self._ellipse(xpos)
+        div = self.x_dist_to_cart_centre + np.tan(alpha) * h
         direction = np.sign(xpos)  # select if up-stream or down-stream collimators are used
         return xpos - direction * div
 
@@ -127,9 +127,9 @@ class SeleneCalculator:
         # vertical mirrors
         dalpha = self._ellipse_gradient(abs(xpos)) / 2.
         ye = self._ellipse(xpos)
-        h = self.delta_v + ye
-        v_l1 = h/np.cos(self.eta_v/2*np.pi/180.+dalpha) # reflector angle gets larger
-        v_l2 = h/np.cos(self.eta_v/2*np.pi/180.-dalpha) # collimator angle gets smaller
+        h = self.xz_to_retro_horiz_dist + ye
+        v_l1 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. + dalpha) # reflector angle gets larger
+        v_l2 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. - dalpha) # collimator angle gets smaller
 
         # for diagnoal paths, 3d has to be considered and two reflections
         # horizontal w/ short path
@@ -167,7 +167,7 @@ class SeleneCalculator:
         """
         # approximate offset based on reflection angle at center
         # maximum deviation is <1% over full ellipse range
-        fac = 1./np.cos(self.eta_v/2*np.pi/180.)
+        fac = 1./np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180.)
         dpos_v1 = dv1/2*fac
         dpos_v2 = dv2/2*fac
         # The diagonal beam path is dominated by the 45° angle in vertical
