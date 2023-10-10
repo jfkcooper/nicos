@@ -39,81 +39,102 @@ class SeleneCalculator:
     collimator_2_pos = (44.5, -132.4, 201.5)
     retro_2_pos = (-15., -80., 17)
 
-    def _ellipse(self, xpos):
+    def _ellipse(self, x_pos):
         """
         Gives the ellipse height at distance xpos from center
         Parameters:
-            xpos: float, position along ellipse in mm
+            x_pos: float, position along ellipse in mm
 
         Returns:
              float, height at that position in mm
         """
-        return self._ellipse_eccentricity * np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2)
+        return self._ellipse_eccentricity * np.sqrt(self._ellipse_semi_major_axis ** 2 - x_pos ** 2)
 
-    def _ellipse_gradient(self, xpos):
+    def _ellipse_gradient(self, x_pos):
         """
         Gives the ellipse tangent at distance xpos from center
         Parameters:
-            xpos: float, position along ellipse in mm
+            x_pos: float, position along ellipse in mm
 
         Returns:
              float, gradient of the tangent to the ellipse at given position
         """
-        return -self._ellipse_eccentricity * xpos / np.sqrt(self._ellipse_semi_major_axis ** 2 - xpos ** 2)
+        return -self._ellipse_eccentricity * x_pos / np.sqrt(self._ellipse_semi_major_axis ** 2 - x_pos ** 2)
 
-    def _cart_pos_correction(self, xpos, zero_range=True):
+    def _cart_pos_correction(self, x_pos, zero_range=True):
         """
         Calculate the cart position necessary to measure at a certain x-position on the ellipse.
         This has to take into account the location of the correct interferometer heads
         and the change in reflection spot location due to ellipse surface changing distance to cart.
         Parameters:
-            xpos: float, position along the ellipse in mm
+            x_pos: float, position along the ellipse in mm
             zero_range: bool, flag to apply no correction when within the central 100 mm, defaults to True
         Returns:
             float, correct position to move the cart to in mm
         """
-        if zero_range and abs(xpos) < 100.:
+        if zero_range and abs(x_pos) < 100.:
             # if around center of guide, don't perform any correction
-            return xpos
+            return x_pos
 
         # In the optimal configuration the retro reflector receives the beam with
         # half of the nominal angle plus 2x the surface inclination.
-        alpha = (self.inter_to_retro_horiz_angle * np.pi / 360.) - (self._ellipse_gradient(abs(xpos)) / 2.)
+        alpha_angle = (self.inter_to_retro_horiz_angle * np.pi / 360.) - (self._ellipse_gradient(abs(x_pos)) / 2.)
 
         # distance of that reflection is the nominal distance at center minus ellipse height
-        h = self.xz_to_retro_horiz_dist + self._ellipse(xpos)
-        div = self.x_dist_to_cart_centre + np.tan(alpha) * h
-        direction = np.sign(xpos)  # select if up-stream or down-stream collimators are used
-        return xpos - direction * div
+        h = self.xz_to_retro_horiz_dist + self._ellipse(x_pos)
+        div = self.x_dist_to_cart_centre + np.tan(alpha_angle) * h
+        direction = np.sign(x_pos)  # select if up-stream or down-stream collimators are used
+        return x_pos - direction * div
 
-    def _laser_pos_from_cart(self, xpos):
+    def _laser_pos_from_cart(self, initial_cart_pos):
         """
         Calculate the approximate position the laser hits the mirror
-        for a given cart position
+        for a given cart position (to within 1 mm)
         Parameters:
-            xpos: float, cart position along the ellipse in mm
+            initial_cart_pos: float, cart position along the ellipse in mm
 
         Returns:
             float, laser position along the ellipse in mm
         """
-        delta=100.
-        xout = xpos
+        delta = 100.0
+        laser_pos = initial_cart_pos
         while delta > 1.:
-            dpos = self._cart_pos_correction(xout, zero_range=False) - xpos
-            xout -= dpos
-            delta = abs(dpos)
-        return xout
+            pos_correction = self._cart_pos_correction(laser_pos, zero_range=False) - initial_cart_pos
+            laser_pos -= pos_correction
+            delta = abs(pos_correction)
+        return laser_pos
 
-    def _diagnoal_paths(self, xpos, col, ret):
-        ye = self._ellipse(xpos)
+    def _diagonal_paths(self, x_pos, collimator_pos, retro_pos):
+        """
+        Calculate the coordinates of the points at which the laser will strike
+        the mirrors
+        Parameters:
+            x_pos: float, cart position along the ellipse in mm
+            collimator_pos: list[float], coordinates of the collimator
+            retro_pos: list[float], coordinates of the retro-reflector
+        Returns:
+            tuple[list[float]] coordinates of the two reflection positions
+        """
+        ellipse_height = self._ellipse(x_pos)
         # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
-        x_total = col[0]-ret[0]
-        z_total = (ye-col[1])+(ye-ret[1])
-        rel_1 = (ye-col[1])/z_total
-        rel_2 = (ye-ret[1])/z_total
-        p1 = np.array([ret[0]+rel_1*x_total, ye, col[2]-(ye-col[1])])
-        p2 = np.array([ret[0]+rel_2*x_total, -p1[2],-ye])
-        return p1, p2
+        x_total = collimator_pos[0] - retro_pos[0]
+
+        # Path length from collimator to retro-reflector in z
+        z_total = (ellipse_height - collimator_pos[1]) + (ellipse_height - retro_pos[1])
+
+        # Relatve path lengths to the collimator and retro-reflector
+        relative_coll_pos = (ellipse_height - collimator_pos[1]) / z_total
+        relative_retro_pos = (ellipse_height - retro_pos[1]) / z_total
+
+        reflection_coord_1 = np.array([retro_pos[0] + relative_coll_pos * x_total,
+                                       ellipse_height,
+                                       collimator_pos[2] - (ellipse_height - collimator_pos[1])])
+
+        reflection_coord_2 = np.array([retro_pos[0] + relative_retro_pos * x_total,
+                                       -reflection_coord_1[2],
+                                       -ellipse_height])
+
+        return reflection_coord_1, reflection_coord_2
 
     def _nominal_path_lengths(self, pos_motor=None):
         """
@@ -121,24 +142,24 @@ class SeleneCalculator:
         if the mirrors are perfectly aligned.
         """
         if pos_motor is None:
-            pos_motor = self._attached_m_cart()-self.cart_center
-        xpos = self._laser_pos_from_cart(pos_motor)
+            pos_motor = self._attached_m_cart()-self.cart_center  #TODO: These do not exist, remove logic? Ask Artur
+        x_pos = self._laser_pos_from_cart(pos_motor)
         # length of laser is distance reflector-mirror + collimator-mirror
-        # vertical mirrors
-        dalpha = self._ellipse_gradient(abs(xpos)) / 2.
-        ye = self._ellipse(xpos)
+        # Calculation for vertical mirrors:
+        dalpha = self._ellipse_gradient(abs(x_pos)) / 2.
+        ye = self._ellipse(x_pos)
         h = self.xz_to_retro_horiz_dist + ye
-        v_l1 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. + dalpha) # reflector angle gets larger
-        v_l2 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. - dalpha) # collimator angle gets smaller
+        v_l1 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. + dalpha)  # reflector angle gets larger
+        v_l2 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. - dalpha)  # collimator angle gets smaller
 
-        # for diagnoal paths, 3d has to be considered and two reflections
+        # for diagonal paths, 3d has to be considered and two reflections
         # horizontal w/ short path
         # h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
         # h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1/2*np.pi/180.),
         #                    -self.delta_h1, self.zcol_h1])
         h1_ret = np.array(self.retro_1_pos)
         h1_col = np.array(self.collimator_1_pos)
-        h1_p1, h1_p2 = self._diagnoal_paths(xpos, h1_col, h1_ret)
+        h1_p1, h1_p2 = self._diagonal_paths(x_pos, h1_col, h1_ret)
         if hasattr(self, 'log'):
             self.log.debug(f'Calculated path: {h1_col}->{h1_p1}->{h1_p2}->{h1_ret}')
         h1_l1 = np.sqrt(((h1_col-h1_p1)**2).sum())
@@ -151,7 +172,7 @@ class SeleneCalculator:
         #                    -self.delta_h2, self.zcol_h2])
         h2_ret = np.array(self.retro_2_pos)
         h2_col = np.array(self.collimator_2_pos)
-        h2_p1, h2_p2 = self._diagnoal_paths(xpos, h2_col, h2_ret)
+        h2_p1, h2_p2 = self._diagonal_paths(x_pos, h2_col, h2_ret)
         if hasattr(self, 'log'):
             self.log.debug(f'Calculated path: {h2_col}->{h2_p1}->{h2_p2}->{h2_ret}')
         h2_l1 = np.sqrt(((h2_col-h2_p1)**2).sum())
@@ -220,3 +241,9 @@ class CalcTester(TestCase):
         log = Bla()
         self.calc.log=log
         self.calc._nominal_path_lengths(0.)
+
+    def test_laser_pos_from_cart(self):
+        pos1 = self.calc._laser_pos_from_cart(1.0)
+        self.assertAlmostEqual(pos1, 15.42782082100291)
+        pos2 = self.calc._laser_pos_from_cart(1500.6)
+        self.assertAlmostEqual(pos2, 1515.0911359578206)
