@@ -106,14 +106,14 @@ class SeleneCalculator:
 
     def _diagonal_paths(self, x_pos, collimator_pos, retro_pos):
         """
-        Calculate the coordinates of the points at which the laser will strike
-        the mirrors
+        Calculate the relative coordinates of the points at which the laser will strike
+        the mirrors in the frame of the metrology cart (e.g. without x_pos translation)
         Parameters:
             x_pos: float, cart position along the ellipse in mm
             collimator_pos: list[float], coordinates of the collimator
             retro_pos: list[float], coordinates of the retro-reflector
         Returns:
-            tuple[list[float]] coordinates of the two reflection positions
+            tuple[list[float]] relative coordinates of the two reflection positions
         """
         ellipse_height = self._ellipse(x_pos)
         # both beams should come under ~45°, so y/z-positions are equal to z/y-distance
@@ -122,7 +122,7 @@ class SeleneCalculator:
         # Path length from collimator to retro-reflector in z
         z_total = (ellipse_height - collimator_pos[1]) + (ellipse_height - retro_pos[1])
 
-        # Relatve path lengths to the collimator and retro-reflector
+        # Relative path lengths to the collimator and retro-reflector
         relative_coll_pos = (ellipse_height - collimator_pos[1]) / z_total
         relative_retro_pos = (ellipse_height - retro_pos[1]) / z_total
 
@@ -138,48 +138,54 @@ class SeleneCalculator:
 
     def _nominal_path_lengths(self, pos_motor=None):
         """
-        Calculate the individual laser path lengths that would be excepted
-        if the mirrors are perfectly aligned.
+        Calculate the laser path lengths for each of the collimator/retro-reflector pairs which would
+        be excepted if the mirrors are perfectly aligned.
+        Parameters:
+            pos_motor: float, position of the cart
+        Returns:
+            tuple[float, float, float] path lengths for vert_mirror, horiz_mirror_beam_1, horiz_mirror_beam_2
         """
         if pos_motor is None:
             pos_motor = self._attached_m_cart()-self.cart_center  #TODO: These do not exist, remove logic? Ask Artur
         x_pos = self._laser_pos_from_cart(pos_motor)
-        # length of laser is distance reflector-mirror + collimator-mirror
+        # length of laser path is: reflector->mirror + collimator->mirror distances
         # Calculation for vertical mirrors:
-        dalpha = self._ellipse_gradient(abs(x_pos)) / 2.
-        ye = self._ellipse(x_pos)
-        h = self.xz_to_retro_horiz_dist + ye
-        v_l1 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. + dalpha)  # reflector angle gets larger
-        v_l2 = h/np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180. - dalpha)  # collimator angle gets smaller
+        ellipse_half_angle = self._ellipse_gradient(abs(x_pos)) / 2.  # Small angle approximation, angle in radians
+        ellipse_height = self._ellipse(x_pos)
+        triangle_height = self.xz_to_retro_horiz_dist + ellipse_height
 
-        # for diagonal paths, 3d has to be considered and two reflections
-        # horizontal w/ short path
-        # h1_ret = np.array([self.delta_x, -self.delta_h1, self.zret_h1])
-        # h1_col = np.array([self.delta_x+2*(self.delta_h1+self._sb)*np.tan(self.eta_h1/2*np.pi/180.),
-        #                    -self.delta_h1, self.zcol_h1])
-        h1_ret = np.array(self.retro_1_pos)
-        h1_col = np.array(self.collimator_1_pos)
-        h1_p1, h1_p2 = self._diagonal_paths(x_pos, h1_col, h1_ret)
+        # One angle will get larger, the other smaller as you move along the ellipse. They are summed
+        # so it doesn't matter which is the collimator-> mirror distance or the retro-reflector->mirror
+        vert_mirror_length_1 = triangle_height/ \
+                               np.cos(np.radians(self.inter_to_retro_horiz_angle) / 2. + ellipse_half_angle)
+        vert_mirror_length_2 = triangle_height/ \
+                               np.cos(np.radians(self.inter_to_retro_horiz_angle) / 2. - ellipse_half_angle)
+        vert_mirror_distance = vert_mirror_length_1 + vert_mirror_length_2
+
+        # For the horizontal mirrors we have to consider the 3D path and two mirror reflections
+        # horizontal mirror shorter path
+        retro_1_pos_array = np.array(self.retro_1_pos)
+        collimator_1_pos_array = np.array(self.collimator_1_pos)
+        mirror_reflect_1, mirror_reflect_2 = self._diagonal_paths(x_pos, collimator_1_pos_array, retro_1_pos_array)
         if hasattr(self, 'log'):
-            self.log.debug(f'Calculated path: {h1_col}->{h1_p1}->{h1_p2}->{h1_ret}')
-        h1_l1 = np.sqrt(((h1_col-h1_p1)**2).sum())
-        h1_l2 = np.sqrt(((h1_p1-h1_p2)**2).sum())
-        h1_l3 = np.sqrt(((h1_p2-h1_ret)**2).sum())
+            self.log.debug(f'\nCalculated path: {collimator_1_pos_array}->{mirror_reflect_1}->{mirror_reflect_2}->{retro_1_pos_array}')
+        horiz_mirror_path_1 = np.sqrt(((collimator_1_pos_array-mirror_reflect_1)**2).sum())
+        horiz_mirror_path_2 = np.sqrt(((mirror_reflect_1-mirror_reflect_2)**2).sum())
+        horiz_mirror_path_3 = np.sqrt(((mirror_reflect_2-retro_1_pos_array)**2).sum())
+        horiz_mirror_short_path_length = horiz_mirror_path_1 + horiz_mirror_path_2 + horiz_mirror_path_3
 
-        # horizontal w/ long path
-        # h2_ret = np.array([self.delta_x, -self.delta_h2, self.zret_h2])
-        # h2_col = np.array([self.delta_x+2*(self.delta_h2+self._sb)*np.tan(self.eta_h2/2*np.pi/180.),
-        #                    -self.delta_h2, self.zcol_h2])
+        # horizontal mirror longer path
         h2_ret = np.array(self.retro_2_pos)
         h2_col = np.array(self.collimator_2_pos)
         h2_p1, h2_p2 = self._diagonal_paths(x_pos, h2_col, h2_ret)
         if hasattr(self, 'log'):
             self.log.debug(f'Calculated path: {h2_col}->{h2_p1}->{h2_p2}->{h2_ret}')
-        h2_l1 = np.sqrt(((h2_col-h2_p1)**2).sum())
-        h2_l2 = np.sqrt(((h2_p1-h2_p2)**2).sum())
-        h2_l3 = np.sqrt(((h2_p2-h2_ret)**2).sum())
+        horiz_mirror_path_4 = np.sqrt(((h2_col-h2_p1)**2).sum())
+        horiz_mirror_path_5 = np.sqrt(((h2_p1-h2_p2)**2).sum())
+        horiz_mirror_path_6 = np.sqrt(((h2_p2-h2_ret)**2).sum())
+        horiz_mirror_long_path_length = horiz_mirror_path_4 + horiz_mirror_path_5 + horiz_mirror_path_6
 
-        return (v_l1+v_l2, h1_l1+h1_l2+h1_l3, h2_l1+h2_l2+h2_l3)
+        return vert_mirror_distance, horiz_mirror_short_path_length, horiz_mirror_long_path_length
 
     def _path_delta_to_screw_delta(self, dv1, dv2, dh1, dh2):
         """
@@ -207,8 +213,9 @@ class SeleneCalculator:
         spos_v2 = (s2_z-c1_z)*dd_v+dpos_v1
         return spos_v1, spos_v2, dpos_h1, dpos_h2
 
+
 class CalcTester(TestCase):
-    calc:SeleneCalculator
+    calc: SeleneCalculator
 
     def setUp(self):
         self.calc = SeleneCalculator()
@@ -240,7 +247,10 @@ class CalcTester(TestCase):
             debug = print
         log = Bla()
         self.calc.log=log
-        self.calc._nominal_path_lengths(0.)
+        length_0 = self.calc._nominal_path_lengths(0.)
+        testing.assert_allclose(length_0, np.array([453.23630804, 592.47373481, 604.18396285]))
+        length_5000 = self.calc._nominal_path_lengths(5000.)
+        testing.assert_allclose(length_5000, np.array([358.29303101, 461.63617516, 472.40071283]))
 
     def test_laser_pos_from_cart(self):
         pos1 = self.calc._laser_pos_from_cart(1.0)
