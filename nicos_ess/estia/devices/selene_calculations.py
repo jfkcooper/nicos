@@ -146,7 +146,8 @@ class SeleneCalculator:
             tuple[float, float, float] path lengths for vert_mirror, horiz_mirror_beam_1, horiz_mirror_beam_2
         """
         if pos_motor is None:
-            pos_motor = self._attached_m_cart()-self.cart_center  #TODO: These do not exist, remove logic? Ask Artur
+            pos_motor = self._attached_m_cart() - self.cart_centre
+            # I'm not a fan ^ these attributes only exist in a class which inherits this one
         x_pos = self._laser_pos_from_cart(pos_motor)
         # length of laser path is: reflector->mirror + collimator->mirror distances
         # Calculation for vertical mirrors:
@@ -191,16 +192,23 @@ class SeleneCalculator:
         """
         Calculate the expected mirror offset at the screw locations
         that lead to the measured path length difference.
+        Parameters:
+            dv1: float
+            dv2: float
+            dh1: float
+            dh2: float
+        Returns:
+            tuple[float, float, float, float]
         """
         # approximate offset based on reflection angle at center
         # maximum deviation is <1% over full ellipse range
-        fac = 1./np.cos(self.inter_to_retro_horiz_angle / 2 * np.pi / 180.)
+        fac = 1./np.cos(np.radians(self.inter_to_retro_horiz_angle))
         dpos_v1 = dv1/2*fac
         dpos_v2 = dv2/2*fac
         # The diagonal beam path is dominated by the 45° angle in vertical
         # plane, horionzontal deviation is thus ignored. But both mirrors
         # have influence on measured length.
-        fac = 1./np.cos(np.pi/4.)
+        fac = 1./np.cos(np.pi/4.)  # ==sqrt(2)
         dpos_h1 = dh1/2*fac-(dpos_v1+dpos_v2)/2
         dpos_h2 = dh2/2*fac-(dpos_v1+dpos_v2)/2
         # TODO: include the location of the screws in the horizontal calculation
@@ -257,3 +265,10 @@ class CalcTester(TestCase):
         self.assertAlmostEqual(pos1, 15.42782082100291)
         pos2 = self.calc._laser_pos_from_cart(1500.6)
         self.assertAlmostEqual(pos2, 1515.0911359578206)
+
+    def test_path_delta_to_screw_delta(self):
+        screw1 = self.calc._path_delta_to_screw_delta(1, 2, 3, 4)
+        testing.assert_allclose(screw1, [-0.04412347,  1.2921874 ,  1.36491796,  2.07202474])
+
+        screw2 = self.calc._path_delta_to_screw_delta(18, 0, 30, 45)
+        testing.assert_allclose(screw2, [18.9478797 , -5.10571609, 16.67478914, 27.28139085])
