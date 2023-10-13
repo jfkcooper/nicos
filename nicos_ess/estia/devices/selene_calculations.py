@@ -188,38 +188,50 @@ class SeleneCalculator:
 
         return vert_mirror_distance, horiz_mirror_short_path_length, horiz_mirror_long_path_length
 
-    def _path_delta_to_screw_delta(self, dv1, dv2, dh1, dh2):
+    def _path_delta_to_screw_delta(self, path_delta_vert_1, path_delta_vert_2, path_delta_horiz_1, path_delta_horiz_2):
         """
         Calculate the expected mirror offset at the screw locations
         that lead to the measured path length difference.
+
+        From the measured path differences, calculate the required change to the screw positions which would bring the
+        mirrors back into the nominal aligned position.
         Parameters:
-            dv1: float
-            dv2: float
-            dh1: float
-            dh2: float
+            path_delta_vert_1: float, measured difference between the path measured and the 'nominal' path for the
+                               vertical mirror and collimator/retro-reflector set 1
+            path_delta_vert_2: float, measured difference between the path measured and the 'nominal' path for the
+                               vertical mirror and collimator/retro-reflector set 2
+            path_delta_horiz_1: float, measured difference between the path measured and the 'nominal' path for the
+                                horizontal mirror and collimator/retro-reflector set 1
+            path_delta_horiz_2: float, measured difference between the path measured and the 'nominal' path for the
+                                horizontal mirror and collimator/retro-reflector set 2
         Returns:
-            tuple[float, float, float, float]
+            tuple[float, float, float, float], the required adjustments for each of the four
+            screws (vert_1, vert_2, horiz_1, horiz_2) to align the mirror
         """
+        # The path can be approximated by the hypotenuse of a right triangle, which is equal to the adjacent length
+        # divided by the cosine of the angle. Since the laser hits the mirror and is reflected back, this is twice
+        # the path, so to get the correction we just divide this by two.
+
         # approximate offset based on reflection angle at center
         # maximum deviation is <1% over full ellipse range
-        fac = 1./np.cos(np.radians(self.inter_to_retro_horiz_angle))
-        dpos_v1 = dv1/2*fac
-        dpos_v2 = dv2/2*fac
+        horiz_cosine = np.cos(np.radians(self.inter_to_retro_horiz_angle) / 2.0)
+        dpos_v1 = path_delta_vert_1 / (2 * horiz_cosine)
+        dpos_v2 = path_delta_vert_2 / (2 * horiz_cosine)
         # The diagonal beam path is dominated by the 45° angle in vertical
-        # plane, horionzontal deviation is thus ignored. But both mirrors
+        # plane, horizontal deviation is thus ignored. But both mirrors
         # have influence on measured length.
-        fac = 1./np.cos(np.pi/4.)  # ==sqrt(2)
-        dpos_h1 = dh1/2*fac-(dpos_v1+dpos_v2)/2
-        dpos_h2 = dh2/2*fac-(dpos_v1+dpos_v2)/2
+        vert_cosine = np.sqrt(2) / 2.0  # The angle is 45 degrees, so use exact value, rather than calculated cosine
+        screw_adjustment_horiz_1 = path_delta_horiz_1 / (2 * vert_cosine) - (dpos_v1 + dpos_v2) / 2
+        screw_adjustment_horiz_2 = path_delta_horiz_2 / (2 * vert_cosine) - (dpos_v1 + dpos_v2) / 2
         # TODO: include the location of the screws in the horizontal calculation
         c2_z=40.
         c1_z=80.
         s2_z=17.5
         s1_z=123.5
         dd_v = (dpos_v2-dpos_v1)/(c2_z - c1_z)
-        spos_v1 = (s1_z-c1_z)*dd_v+dpos_v1
-        spos_v2 = (s2_z-c1_z)*dd_v+dpos_v1
-        return spos_v1, spos_v2, dpos_h1, dpos_h2
+        screw_adjustment_vert_1 = (s1_z-c1_z)*dd_v+dpos_v1
+        screw_adjustment_vert_2 = (s2_z-c1_z)*dd_v+dpos_v1
+        return screw_adjustment_vert_1, screw_adjustment_vert_2, screw_adjustment_horiz_1, screw_adjustment_horiz_2
 
 
 class CalcTester(TestCase):
@@ -268,7 +280,7 @@ class CalcTester(TestCase):
 
     def test_path_delta_to_screw_delta(self):
         screw1 = self.calc._path_delta_to_screw_delta(1, 2, 3, 4)
-        testing.assert_allclose(screw1, [-0.04412347,  1.2921874 ,  1.36491796,  2.07202474])
+        testing.assert_allclose(screw1, [-0.04412347,  1.2921874,  1.36491796,  2.07202474])
 
         screw2 = self.calc._path_delta_to_screw_delta(18, 0, 30, 45)
-        testing.assert_allclose(screw2, [18.9478797 , -5.10571609, 16.67478914, 27.28139085])
+        testing.assert_allclose(screw2, [18.9478797, -5.10571609, 16.67478914, 27.28139085])

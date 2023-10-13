@@ -63,7 +63,7 @@ class SeleneRobot(Moveable):
                                     mandatory=True, userparam=False, unit='mm', ),
         'position_data':      Param('YAML file that contins the positioning data', type=str,
                                     mandatory=True, userparam=False, unit='mm', ),
-        'rotation':      Param('Rotation angle of selected driver0', type=float,
+        'rotation':      Param('Rotation angle of selected driver', type=float,
                                     mandatory=False, userparam=True, unit='deg', ),
         'driver':      Param('Selected screw driver (1/2)', type=oneof(0, 1, 2), default=1,
                                     settable=True, internal=True, unit=''),
@@ -89,12 +89,12 @@ class SeleneRobot(Moveable):
 
     attached_devices = {
         'move_x':     Attach('Device for rotation', EpicsMotor),
-        'move_z':     Attach('Device for approache', EpicsMotor),
+        'move_z':     Attach('Device for approach', EpicsMotor),
         'adjust1':    Attach('Device for rotation', EpicsMotor),
-        'approach1':  Attach('Device for approache', EpicsMotor),
+        'approach1':  Attach('Device for approach', EpicsMotor),
         'hex_state1': Attach('Device reporting the hex status', EpicsMappedReadable),
         'adjust2':    Attach('Device for rotation', EpicsMotor),
-        'approach2':  Attach('Device for approache', EpicsMotor),
+        'approach2':  Attach('Device for approach', EpicsMotor),
         'hex_state2': Attach('Device reporting the hex status', EpicsMappedReadable),
         }
 
@@ -147,13 +147,10 @@ class SeleneRobot(Moveable):
 
     def _get_driver(self, xpos):
         # Return which driver is best suited for a certain x-position of the cart
-        if abs(xpos%480-self._xpos_zero1)>abs(xpos%480-self._xpos_zero2):
-            return 2
-        else:
-            return 1
+        return 2 if abs(xpos%480-self._xpos_zero1) > abs(xpos%480-self._xpos_zero2) else 1
 
     def _select_driver(self, driver=None):
-        # use x-position to find the right screw driver to use
+        # use x-position to find and assign the right screwdriver to use
         xpos = self._attached_move_x.read()
 
         if driver is None:
@@ -168,9 +165,9 @@ class SeleneRobot(Moveable):
 
     @property
     def _adjust(self):
-        if self.driver==1:
+        if self.driver == 1:
             return self._attached_adjust1
-        elif self.driver==2:
+        elif self.driver == 2:
             return self._attached_adjust2
         else:
             raise ValueError('No valid screw driver selected')
@@ -194,7 +191,7 @@ class SeleneRobot(Moveable):
             raise ValueError('No valid screw driver selected')
 
     def _engage(self):
-        self.log.debug("Engaing driver")
+        self.log.debug("Engaging driver")
         self._select_driver()
         self._adjust.wait() # make sure the driver is not rotating while moving stage
         self._approach.maw(self.engaged)
@@ -209,7 +206,7 @@ class SeleneRobot(Moveable):
     def engage(self):
         """
         User version to engage a screw if already positioned.
-        Has some additional checkes and usability improvements.
+        Has some additional checks and usability improvements.
         """
         self.doRead()
         if self.current_position==(-1, -1):
@@ -238,7 +235,7 @@ class SeleneRobot(Moveable):
 
     def disengage(self):
         """
-        User version to disengage a screw driver.
+        User version to disengage a screwdriver.
         Makes sure it is not accidentally retracted without storing rotation position.
         """
         if self._hex_state()!="HexScrewInserted":
