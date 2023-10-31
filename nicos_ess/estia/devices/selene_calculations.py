@@ -195,6 +195,9 @@ class SeleneCalculator:
 
         From the measured path differences, calculate the required change to the screw positions which would bring the
         mirrors back into the nominal aligned position.
+        This returns four values, two for each of the horizontal and vertical mirrors. There are three screws on each
+        of the mirrors, so the single screw position should use the average value of the two corrections from this
+        function.
         Parameters:
             path_delta_vert_1: float, measured difference between the path measured and the 'nominal' path for the
                                vertical mirror and collimator/retro-reflector set 1
@@ -205,8 +208,8 @@ class SeleneCalculator:
             path_delta_horiz_2: float, measured difference between the path measured and the 'nominal' path for the
                                 horizontal mirror and collimator/retro-reflector set 2
         Returns:
-            tuple[float, float, float, float], the required adjustments for each of the four
-            screws (vert_1, vert_2, horiz_1, horiz_2) to align the mirror
+            tuple[float, float, float, float], the required adjustments for the mirrors, two for the vertical and two
+            for the horizontal mirrors (vert_1, vert_2, horiz_1, horiz_2) to align the mirror
         """
         # The path can be approximated by the hypotenuse of a right triangle, which is equal to the adjacent length
         # divided by the cosine of the angle. Since the laser hits the mirror and is reflected back, this is twice
@@ -215,14 +218,14 @@ class SeleneCalculator:
         # approximate offset based on reflection angle at center
         # maximum deviation is <1% over full ellipse range
         horiz_cosine = np.cos(np.radians(self.inter_to_retro_horiz_angle) / 2.0)
-        dpos_v1 = path_delta_vert_1 / (2 * horiz_cosine)
-        dpos_v2 = path_delta_vert_2 / (2 * horiz_cosine)
+        dpos_v1 = path_delta_vert_1 / (2.0 * horiz_cosine)
+        dpos_v2 = path_delta_vert_2 / (2.0 * horiz_cosine)
         # The diagonal beam path is dominated by the 45° angle in vertical
         # plane, horizontal deviation is thus ignored. But both mirrors
         # have influence on measured length.
         vert_cosine = np.sqrt(2) / 2.0  # The angle is 45 degrees, so use exact value, rather than calculated cosine
-        screw_adjustment_horiz_1 = path_delta_horiz_1 / (2 * vert_cosine) - (dpos_v1 + dpos_v2) / 2
-        screw_adjustment_horiz_2 = path_delta_horiz_2 / (2 * vert_cosine) - (dpos_v1 + dpos_v2) / 2
+        screw_adjustment_horiz_1 = path_delta_horiz_1 / (2.0 * vert_cosine) - (dpos_v1 + dpos_v2) / 2.0
+        screw_adjustment_horiz_2 = path_delta_horiz_2 / (2.0 * vert_cosine) - (dpos_v1 + dpos_v2) / 2.0
         # TODO: include the location of the screws in the horizontal calculation
         c2_z=40.
         c1_z=80.
