@@ -75,11 +75,19 @@ devices = dict(
         unit = 'cts',
         pollinterval = None,
     ),
-    det = device('nicos.devices.generic.Detector',
+    rate = device('nicos.devices.generic.RateChannel',
+        description = 'Full detector cts and rate',
+    ),
+    det = device('nicos.devices.mcstas.Detector',
         description = 'QMesyDAQ Image type Detector1',
+        mcstas = 'mcstas',
         timers = ['timer'],
         monitors = ['mon1', 'mon2'],
         images = ['image'],
+        counters = ['rate'],
+        postprocess = [
+            ('rate', 'image', 'timer'),
+        ],
     ),
 )
 

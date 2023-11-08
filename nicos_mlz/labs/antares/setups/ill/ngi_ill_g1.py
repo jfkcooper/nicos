@@ -1,29 +1,14 @@
-description = 'Neutron Grating Interferometer at ICON'
+description = 'Neutron Grating Interferometer'
 
 group = 'optional'
 
-excludes = ['ngi']
+excludes = ['ngi', 'ngi_ill', 'neutrosense', 'ngi_icon']
 
-# Local private subnet
-tango_host = '192.168.20.64'
+tango_host = 'phytron3.antareslab'
 
-# At PSI -> needs to be in ICON network
-# Phytron3 MAC: b8:27:eb:f3:31:b0
-# tango_host = '172.28.77.82'
-
-tango_base = 'tango://%s:10000/box/' % tango_host
+tango_base = f'tango://{tango_host}:10000/box/'
 
 devices = dict(
-    G0rz = device('nicos.devices.entangle.Motor',
-        speed = 2.5,
-        unit = 'deg',
-        description = 'Rotation of G0 grating around beam direction',
-        tangodevice = tango_base + 'phytron1/mot',
-        abslimits = (-20, 20),
-        maxage = 5,
-        pollinterval = 3,
-        precision = 0.001,
-    ),
     G1tx = device('nicos.devices.entangle.Motor',
         speed = 100,
         unit = 'um',
@@ -36,18 +21,18 @@ devices = dict(
         precision = 0.1,
     ),
     G1tz = device('nicos.devices.entangle.Motor',
-        speed = 5,
+        speed = 1.5,
         unit = 'mm',
         description = 'Translation of G1 parallel to the beam direction',
         tangodevice = tango_base + 'phytron3/mot',
-        abslimits = (-80, 80),
-        userlimits = (-80, 80),
+        abslimits = (-10, 10),
+        userlimits = (-10, 10),
         maxage = 5,
         pollinterval = 3,
         precision = 0.001,
     ),
     G1rz = device('nicos.devices.entangle.Motor',
-        speed = 5,
+        speed = 0.2,
         unit = 'deg',
         description = 'Rotation of G1 around the beam axis',
         tangodevice = tango_base + 'phytron2/mot',
