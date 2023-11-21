@@ -41,7 +41,7 @@ builders = pipeline_builder.createBuilders { container ->
     def conan_remote = "ess-dmsc-local"
     // Install test related stuff separately as we don't need all the other dev stuff
     // Also need to install some dependencies relating to other facilities.
-    // Some of the tests require pyepics even though it isn't used at the ESS
+    // Some of the tests require pyepics and pyfits even though it isn't used at the ESS
     container.sh """
       which python
       python -m venv venv
@@ -52,6 +52,7 @@ builders = pipeline_builder.createBuilders { container ->
       python -m pip install pytest pytest-timeout mock lxml Pillow
       python -m pip install 'requests<2.30.0'
       python -m pip install pyepics
+      python -m pip install pyfits
     """
   } // stage
 
