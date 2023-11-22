@@ -17,28 +17,31 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
+"""ESS datamanager device."""
+import os
 
-from nicos.core.params import Param, tupleof
-from nicos.devices.vendor.qmesydaq.tango import \
-    ImageChannel as BaseImageChannel
+from nicos import session
+from nicos.core.data.manager import DataManager as BaseDataManager
+from nicos.utils import readFileCounter, updateFileCounter
 
 
-class ImageChannel(BaseImageChannel):
+class DataManager(BaseDataManager):
+    def incrementCounters(self, countertype):
+        """Increment the counters for the given *countertype*.
 
-    parameters = {
-        'pixel_size': Param('Size of a single pixel (in mm)',
-                            type=tupleof(float, float), volatile=False,
-                            settable=False, default=(0.85, 0.85), unit='mm',
-                            category='instrument'),
-        'pixel_count': Param('Number of detector pixels',
-                             type=int, volatile=True, settable=False,
-                             category='instrument'),
-    }
+        This should update the counter files accordingly.
 
-    def doReadPixel_Count(self):
-        if self.arraydesc:
-            return self.arraydesc.shape[0]
-        return self._dev.detectorSize[0]
+        Returns a list of (counterattribute, value) tuples to set on the
+        dataset.
+        """
+        exp = session.experiment
+        filepath = os.path.join(exp.dataroot, exp.counterfile)
+        if not os.path.isfile(filepath):
+            session.log.warning('creating new empty file counter file at %s',
+                                filepath)
+        nextnum = readFileCounter(filepath, countertype) + 1
+        updateFileCounter(filepath, countertype, nextnum)
+        return [('counter', nextnum)]

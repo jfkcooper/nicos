@@ -23,80 +23,151 @@
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pika
 
 from nicos import session
-from nicos.core import DataSink, DataSinkHandler, Param
-from nicos.core.constants import MASTER, SCAN
+from nicos.core import Override, Param
+from nicos.core.constants import BLOCK, MASTER, POINT, SCAN, SUBSCAN
+from nicos.core.data import BaseDataset, BlockDataset, DataSink, \
+    DataSinkHandler, ScanDataset
+
+
+def metainfo_to_json(metainfo):
+    metadata = {}
+    for (dev, parm), (value, _str_value, unit, _) in metainfo.items():
+        metadata.setdefault(dev, {})
+        metadata[dev][parm] = value if not unit else (value, unit)
+    return metadata
 
 
 class Message:
     id: str  # pylint: disable=redefined-builtin
     type: str  # pylint: disable=redefined-builtin
-    attributes: dict
+    metadata: dict
 
     def __init__(
             self,
             id: uuid.UUID,  # pylint: disable=redefined-builtin
+            scanid: uuid.UUID,
+            blockid: uuid.UUID,
             type: str,  # pylint: disable=redefined-builtin
-            attributes: dict):
+            started: str,
+            filepaths: list,
+            mapping: dict,
+            metainfo: dict,
+            statistics: dict,
+    ):
         self.id = str(id)
+        self.blockid = str(blockid) or None
+        self.scanid = str(scanid) or None
         self.type = type
-        self.creation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.attributes = attributes
+        self.creation_timestamp = started
+        self.filepaths = filepaths
+        self.mapping = mapping
+        self.metadata = metainfo
+        self.statistics = statistics
 
     def __str__(self):
         return json.dumps({**self.__dict__})
 
-    def publish(self, exchange, channel, routing_key):
-        channel.basic_publish(
-            exchange=exchange,
-            routing_key=routing_key,
-            body=str(self),
-            properties=pika.BasicProperties(content_type='application/json'))
-
 
 class RabbitSinkHandler(DataSinkHandler):
-    dataset_id = uuid.uuid4()
 
-    @property
-    def metainfo(self):
-        """Returns the metainfo of its dataset as json"""
-        metadata = {}
-        experiment = {
-            'experiment_id': session.experiment.proposal,
-            'samples': session.experiment.sample.samples,
-            'samplenumber': session.experiment.sample.samplenumber
-        }
-        try:
-            for (dev, parm), (_, value, _, _) in self.dataset.metainfo.items():
-                if dev in metadata:
-                    metadata[dev][parm] = value
-                else:
-                    metadata.update({dev: {parm: value}})
-        finally:
-            return {'experiment': experiment, 'metadata': metadata}  # pylint: disable=lost-exception
-
-    def _sendMessage(self, type: str):  # pylint: disable=redefined-builtin
+    def _sendMessage(self, type: str, dataset: BaseDataset,  # pylint: disable=redefined-builtin
+                     scands: ScanDataset = None, blockds: BlockDataset = None):
         """Sends the metainfo, if available, and other information to the
         Queue"""
+        started = (datetime.fromtimestamp(dataset.started, tz=timezone.utc)
+                   .isoformat())
+
+        def publish(message: Message):
+            self.sink._channel.basic_publish(
+                exchange=self.sink._exchange,
+                routing_key=session.instrument.instrument,
+                body=str(message),
+                properties=pika.BasicProperties(
+                    content_type='application/json'))
+
+        metadata = {}
+        statistics = {}
+        if dataset.settype != BLOCK:
+            metadata = metainfo_to_json(dataset.metainfo)
+            if dataset.settype == POINT:
+                statistics = dataset.valuestats
         msg = Message(
-            self.dataset_id,
+            dataset.uid,
+            scands.uid if scands else None,
+            blockds.uid if blockds else None,
             type,
-            attributes=self.metainfo)
-        msg.publish(
-            self.sink._exchange,
-            self.sink._channel,
-            session.instrument.instrument)
+            started,
+            dataset.filepaths,
+            # DEVICE_INFO_MAPPING,
+            {
+                'experiment': session.experiment.name,
+                'sample': session.experiment.sample.name,
+                'instrument': session.instrument.name,
+            },
+            metainfo=metadata,
+            statistics=statistics,
+        )
+        for retry in range(3):
+            try:
+                if retry > 0:  # reconnect
+                    self.sink._connect()
+                publish(msg)
+                break
+            except (pika.exceptions.AMQPChannelError,
+                    pika.exceptions.AMQPConnectionError) as e:
+                self.log.debug('reconnect #%d due to %r', retry + 1, e)
+                exc = e
+        else:
+            raise exc
+
+    def _getScanDatasetParents(self, dataset):
+        """Returns a tuple of `BlockDataset`, `ScanDataset` if available.
+
+        get parent `ScanDataset` (subscan) and `BlockDataset` for this
+        `ScanDataset` if available
+        """
+        scands, blockds = None, None
+        for ds in self.manager.iterParents(dataset, settypes=(BLOCK, SCAN)):
+            if ds.settype == BLOCK:
+                blockds = ds
+            elif ds.settype == SCAN:
+                scands = ds
+        return blockds, scands
 
     def addSubset(self, subset):
-        self._sendMessage(self.dataset.settype)
+        # do not take into account addSubset of scans to blocks
+        # this is handled in `end()`.
+        if subset.settype != POINT:
+            return
+        blockds, scands = self._getScanDatasetParents(self.dataset)
+        if subset.number == 1:  # begin of ScanDataset including metainfo
+            self._sendMessage(self.dataset.settype, self.dataset, scands,
+                              blockds)
+        self._sendMessage(subset.settype, subset, self.dataset, blockds)
+
+    def begin(self):
+        self.log.debug("begin: dataset.settype = %s", self.dataset.settype)
+        # need to skip begin of ScanDataset as metainfo is not available
+        # before the first point. This is handled on the first point in
+        # `addSubset`.
+        if self.dataset.settype not in (SCAN, SUBSCAN):
+            self._sendMessage(self.dataset.settype, self.dataset)
 
     def end(self):
-        if self.dataset.settype == SCAN:
-            self._sendMessage(f'{SCAN}.end')
+        self.log.debug("end: dataset.settype = %s", self.dataset.settype)
+        blockds, scands = None, None
+        if self.dataset.settype in (SCAN, SUBSCAN):
+            # the `ScanDataset` has been popped from DataManager's stack before
+            # dispatching `finish`. Parents are left on the stack, using
+            # `iter(self.manager._stack)` though.
+            blockds, scands = self._getScanDatasetParents(None)
+        self._sendMessage(f'{self.dataset.settype}.end', self.dataset,
+                          scands, blockds)
 
 
 class RabbitSink(DataSink):
@@ -105,6 +176,10 @@ class RabbitSink(DataSink):
     """
     parameters = {
         'rabbit_url': Param('RabitMQ server url', type=str, mandatory=True)
+    }
+
+    parameter_overrides = {
+        'settypes': Override(default=[SCAN, SUBSCAN, BLOCK])
     }
 
     handlerclass = RabbitSinkHandler
