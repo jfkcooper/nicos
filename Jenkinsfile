@@ -41,7 +41,6 @@ builders = pipeline_builder.createBuilders { container ->
     def conan_remote = "ess-dmsc-local"
     // Install test related stuff separately as we don't need all the other dev stuff
     // Also need to install some dependencies relating to other facilities.
-    // Some of the tests require extra packages even though not used at the ESS
     container.sh """
       which python
       python -m venv venv
@@ -51,7 +50,6 @@ builders = pipeline_builder.createBuilders { container ->
       python -m pip install -r ${project}/nicos_ess/requirements.txt
       python -m pip install pytest pytest-timeout mock lxml Pillow
       python -m pip install 'requests<2.30.0'
-      python -m pip install -r ${project}/requirements-opt.txt
     """
   } // stage
 
