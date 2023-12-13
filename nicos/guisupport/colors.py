@@ -63,6 +63,8 @@ class ColorStorage:
         self.dev_bg_busy = sw(Qt.GlobalColor.yellow, '#c2cc00')
         self.dev_bg_error = sw('#ff6655', '#c72514')
         self.dev_bg_disabled = sw('#bbbbbb', self.base.lighter(130))
+        self.dev_text = self.palette.color(QPalette.ColorGroup.Active,
+                                           QPalette.ColorRole.Base)
 
         # value expired and  fixed
         self.value_fixed = sw(Qt.GlobalColor.blue, '#305eb3')
