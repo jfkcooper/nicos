@@ -201,7 +201,7 @@ class DevicesPanel(Panel):
             }
 
             cls.lowlevelBrush = {
-                False:      QBrush(colors.dev_text),
+                False:      QBrush(colors.text),
                 True:       QBrush(colors.lowlevel),
             }
 
