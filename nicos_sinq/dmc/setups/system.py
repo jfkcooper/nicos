@@ -9,7 +9,10 @@ sysconfig = dict(
     datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink', 'quiecksink'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_sinq.commands.sics']
+modules = [
+    'nicos.commands.standard', 'nicos_sinq.commands.sics',
+    'nicos_sinq.commands.epicscommands'
+]
 
 devices = dict(
     DMC = device('nicos.devices.instrument.Instrument',
@@ -26,7 +29,6 @@ devices = dict(
     Exp = device('nicos_sinq.devices.experiment.SinqExperiment',
         description = 'experiment object',
         dataroot = configdata('config.DATA_PATH'),
-        sendmail = False,
         serviceexp = 'Service',
         sample = 'Sample',
         forcescandata = True,

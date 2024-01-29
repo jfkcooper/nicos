@@ -1,8 +1,8 @@
-description = 'Kompass setup for longitudinal polarisation analysis mode'
+description = 'Kompass setup for spherical polarisation analysis mode'
 
 group = 'optional'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 devices = dict(
     radial_coil1 = device('nicos.devices.entangle.PowerSupply',

@@ -2,14 +2,13 @@ description = 'Kompass setup for longitudinal polarisation analysis mode'
 
 group = 'optional'
 
-tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
+tango_base = 'tango://kompasshw.kompass.frm2.tum.de:10000/kompass/'
 
 devices = dict(
     coil_1 = device('nicos_mlz.panda.devices.guidefield.VectorCoil',
         description = 'Powersupply for horizontal field 1 at sample',
         tangodevice = tango_base + 'kepco/current5',
         abslimits = (-20, 20),
-        # orientation = (0.53, 0.53, 0),  # mT - calibrated 08/04/2021 at KOMPASS
         orientation = (0.53, 0.53, 0),    # mT - calibrated 30/04/2021 at KOMPASS
         calibrationcurrent = 10,          # A
     ),
@@ -17,7 +16,6 @@ devices = dict(
         description = 'Powersupply for horizontal field 2 at sample',
         tangodevice = tango_base + 'kepco/current6',
         abslimits = (-20, 20),
-        # orientation = (0.53, -0.53, 0),  # mT - calibrated 08/04/2021 at KOMPASS
         orientation = (0.53, -0.53, 0),    # mT - calibrated 30/04/2021 at KOMPASS
         calibrationcurrent = 10,           # A
     ),
@@ -25,7 +23,6 @@ devices = dict(
         description = 'Powersupply for vertical field at sample',
         tangodevice = tango_base + 'kepco/current7',
         abslimits = (-20, 20),
-        # orientation = (0, 0, 2.33),   # mT - calibrated 08/04/2021 at KOMPASS
         orientation = (0, 0, 2.33),     # mT - calibrated 30/04/2021 at KOMPASS
         calibrationcurrent = 2,         # A  only 2A at KOMPASS, at PANDA was 10 A
     ),

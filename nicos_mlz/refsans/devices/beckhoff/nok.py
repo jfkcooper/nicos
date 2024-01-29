@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -905,7 +905,7 @@ class DoubleMotorBeckhoff(PseudoNOK, BeckhoffMotorBase):
         self.log.debug('Status: %s', akt)
         msg = [st[1] for st in akt]
         self.log.debug('Status: %s', msg)
-        return (max([st[0] for st in akt]),
+        return (max(st[0] for st in akt),
                 ', '.join(msg) if msg.count(msg[0]) == 1 else msg[0])
 
     def _generateSequence(self, target, indexes, code):

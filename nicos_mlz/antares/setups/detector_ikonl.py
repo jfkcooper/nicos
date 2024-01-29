@@ -3,7 +3,7 @@ group = 'optional'
 
 includes = ['shutters', 'filesavers']
 
-tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
 
 devices = dict(
     timer_ikonl = device('nicos.devices.vendor.lima.LimaCCDTimer',
@@ -11,12 +11,12 @@ devices = dict(
         tangodevice = tango_base + 'detector/limaccd',
     ),
     det_ikonl = device('nicos.devices.generic.Detector',
-        description = 'The Andor Neo sCMOS camera detector',
+        description = 'The Andor IKON L CCD camera detector',
         images = ['ikonl'],
         timers = ['timer_ikonl'],
     ),
     ikonl = device('nicos_mlz.antares.devices.detector.IkonLCCD',
-        description = 'The Andor Ikon L CCD camera detector',
+        description = 'The Andor Ikon L CCD camera',
         tangodevice = tango_base + 'detector/limaccd',
         hwdevice = tango_base + 'detector/ikonl',
         fastshutter = 'fastshutter',

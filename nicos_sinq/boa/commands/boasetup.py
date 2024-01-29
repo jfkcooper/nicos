@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -99,7 +99,7 @@ def boadiscover():
     table_config = {2: [], 3: [], 4: [], 5: [], 6: []}
     for comp in table_presence:
         idx = epics.caget(comp[0], False)
-        if idx < 2:
+        if idx in [0, 1]:
             if comp[1] in loaded_setups:
                 to_remove.append(comp[1])
         else:

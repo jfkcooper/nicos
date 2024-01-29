@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -74,11 +74,11 @@ class Andor3LimaCCD(GenericLimaCCD):
     def _specialInit(self):
         # set some dummy roi to avoid strange lima rotation behaviour
         # (not at 0, 0 to avoid possible problems with strides)
-        self._writeRawRoi((8, 8, 8, 8))
+        self._dev.image_roi = (8, 8, 8, 8)
         # ensure NO rotation
         self._dev.image_rotation = 'NONE'
         # set full detector size as roi
-        self._writeRawRoi((0, 0, 0, 0))
+        self._dev.image_roi = (0, 0, 0, 0)
 
 
 class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,

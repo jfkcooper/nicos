@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,8 +32,8 @@ from PIL import Image
 
 from nicos import session
 from nicos.core.constants import FINAL, MASTER
-from nicos.core.params import ArrayDesc, Param, Value, absolute_path, host, \
-    intrange, tupleof
+from nicos.core.params import ArrayDesc, Param, Value, absolute_path, \
+    floatrange, host, intrange, oneof, tupleof
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin
 from nicos.utils import parseHostPort
 
@@ -56,6 +56,14 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
                       type=tupleof(intrange(1, 2048),
                                    intrange(1, 2048)),
                       settable=False, default=(2048, 2048)),
+        'rotation': Param('Rotation of the original read out image',
+                          type=oneof(0, 90, 180, 270), settable=True,
+                          default=0, category='general'),
+        'pixel_size': Param('Size of a single pixel (in mm)',
+                            type=tupleof(floatrange(0), floatrange(0)),
+                            volatile=False, settable=False, unit='mm',
+                            default=(75 / 2048, 75 / 2028),
+                            category='instrument'),
     }
 
     def doInit(self, mode):
@@ -78,8 +86,8 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
         return Value(self.name, unit='a.u.', type='other', fmtstr=self.fmtstr),
 
     def doStart(self):
+        self._deleteLastImage()
         self._trigger()
-        session.delay(2)
 
     def _trigger(self):
         #  Send cmd to send the trigger
@@ -93,6 +101,7 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
                     'Wrong reply from Keyence was received: %s', msg)
         except socket.error:
             self.log.error('Failed to send data!')
+        session.delay(2)
 
     def doReadArray(self, quality):
         if quality != FINAL:
@@ -100,10 +109,16 @@ class KeyenceImage(ImageChannelMixin, ActiveChannel):
         with urllib.request.urlopen(
            f'ftp://{self.image_server}/{self.image_path}/{self.image_name}'
            ) as r:
-            arr = np.asarray(Image.open(io.BytesIO(r.read())))
+            arr = np.rot90(np.asarray(Image.open(
+                io.BytesIO(r.read()))), self.rotation // 90)
         self.readresult = [arr.sum()]
-        host, _port = parseHostPort(self.image_server, ftplib.FTP_PORT)
-        with ftplib.FTP(host, 'anonymous') as ftp:
-            ftp.delete(f'{self.image_path}/{self.image_name}')
-            ftp.close()
         return arr
+
+    def _deleteLastImage(self):
+        host, _port = parseHostPort(self.image_server, ftplib.FTP_PORT)
+        try:
+            with ftplib.FTP(host, 'anonymous') as ftp:
+                ftp.delete(f'{self.image_path}/{self.image_name}')
+                ftp.close()
+        except Exception:
+            pass

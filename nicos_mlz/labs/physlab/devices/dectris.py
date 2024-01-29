@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -21,8 +21,8 @@
 #
 # *****************************************************************************
 
-from nicos.core.params import Attach, Param, floatrange, intrange, oneof, \
-    tupleof
+from nicos.core.params import Attach, Param, Value, floatrange, intrange, \
+    oneof, tupleof
 from nicos.devices.entangle import ImageChannel
 from nicos.devices.tango import PyTangoDevice
 
@@ -60,6 +60,10 @@ class Detector(ImageChannel):
                       volatile=False, default=False,
                       category='general'),
     }
+
+    def valueInfo(self):
+        return Value(self.name + '.sum', unit='cts', type='counter',
+                     errors='sqrt', fmtstr='%d'),
 
     def doReadArray(self, quality):
         narray = ImageChannel.doReadArray(self, quality)

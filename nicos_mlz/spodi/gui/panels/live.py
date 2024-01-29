@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2018-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2018-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -69,7 +69,7 @@ class FullScreen1DWidget(LiveWidget1D):
     def getYMax(self):
         minupperedge = 1
         if self._arrays is not None:
-            minupperedge = max([array.max() for array in self._arrays])
+            minupperedge = max(array.max() for array in self._arrays)
             minupperedge *= 2.15 if self._logscale else 1.05
         return minupperedge
 

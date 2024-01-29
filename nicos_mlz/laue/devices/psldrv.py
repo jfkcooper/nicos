@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,7 +31,7 @@ import zlib
 
 
 class PSLdrv:
-    def __init__(self, address='lauedet.laue.frm2', port=50000):
+    def __init__(self, address='lauedet.laue.frm2.tum.de', port=50000):
         self.address = address
         self.port = port
 

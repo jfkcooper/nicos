@@ -8,14 +8,14 @@ devices = dict(
         sender = 'kompass@frm2.tum.de',
         copies = [
             ('dmitry.gorkov@frm2.tum.de', 'all'),
-            ('georg.waldherr@frm2.tum.de', 'important')
+            ('manuel.mueller@frm2.tum.de', 'important'),
         ],
         subject = 'NICOS',
     ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
-        server = 'triton.admin.frm2',
+        server = 'triton.admin.frm2.tum.de',
         receivers = [],
     ),
 )

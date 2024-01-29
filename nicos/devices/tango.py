@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -70,7 +70,7 @@ FATAL_REASONS = {
     'API_DeviceNotExported',
 }
 
-if not tango.constants.NUMPY_SUPPORT:
+if not getattr(tango.constants, 'NUMPY_SUPPORT', True):
     raise NicosError('Tango does not have numpy support, but it is required '
                      'by NICOS')
 

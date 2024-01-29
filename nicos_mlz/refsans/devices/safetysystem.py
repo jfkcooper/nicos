@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -48,8 +48,6 @@ class Shs(PyTangoDevice, Readable):
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        # if mode != SIMULATION:
-        #    self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
         pass
 
     def _readBuffer(self):

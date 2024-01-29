@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -163,7 +163,7 @@ class BoundedOrderedDict(OrderedDict):
 
     def getlast(self):
         (key, value) = self.popitem(last=True)
-        self.__setitem__(key, value)
+        self[key] = value
         return value
 
 
@@ -845,6 +845,7 @@ T_END = '}}'
 T_SPLITTER = f'({T_BEGIN}|{T_END})'
 T_expr_re = re.compile('(?P<key>[^!:#]+)(?:!(?P<replace>[^:#]*))?(?::(?P<default>[^#]*))?'
                       '(?:#(?P<description>.*))?')
+
 
 def _evaluate_template_expression(expr, keywords, expr_re=T_expr_re):
     """evaluate a single template expression match

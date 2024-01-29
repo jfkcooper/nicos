@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'spodictrl.spodi.frm2',
+    cache = 'spodictrl.spodi.frm2.tum.de',
     instrument = 'Spodi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'spodilivesink',
@@ -35,7 +35,6 @@ devices = dict(
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = '/data',
-        sendmail = False,
         serviceexp = 'p0',
         sample = 'Sample',
         mailsender = 'spodi@frm2.tum.de',

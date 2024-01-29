@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -21,8 +21,10 @@
 #
 # *****************************************************************************
 
+from math import radians
+
 import pytest
-from numpy import allclose, dot, pi, sqrt
+from numpy import allclose, dot, sqrt
 
 from nicos.commands.measure import count
 from nicos.commands.tas import Q, _resmat_args, acc_bragg, alu, calpos, \
@@ -264,6 +266,13 @@ def test_tas_commands(session, log, tas):
     assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
 
 
+def test_qmodulus(session, log):
+    qmod = session.getDevice('Qmod')
+    assert qmod.unit == 'A-1'
+    assert qmod.status(0) == (status.OK, '')
+    assert qmod.read(0) == approx(10.8822, abs=1e-4)
+
+
 def test_setalign(session, tas):
     pos(.5, .5, .5)
     setalign((-.5, .5, .5))
@@ -360,17 +369,16 @@ def test_virtualgonios(session, tas):
     assert raises(LimitError, v2.maw, 3)
 
     # make sure the calculations match intent
-    D2R = pi / 180
     tas._attached_cell.psi0 = 64
     v1.maw(1.5)
     v2.maw(-2)
 
     # extract angles in radians
-    psi = 64 * D2R
-    x1 = 1.5 * D2R
-    y1 = -2 * D2R
-    x2 = gx.read(0) * D2R
-    y2 = gy.read(0) * D2R
+    psi = radians(64)
+    x1 = radians(1.5)
+    y1 = radians(-2)
+    x2 = radians(gx.read(0))
+    y2 = radians(gy.read(0))
 
     # these two matrices should deliver the same rotation
     m1 = dot(Xrot(x1), Yrot(y1))

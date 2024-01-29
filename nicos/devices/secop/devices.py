@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -927,7 +927,7 @@ class SecopDevice(Device):
             if parameter == 'status':
                 return self.status(0)
             return getattr(self, parameter)  # trigger doRead<param>
-        except Exception as e:
+        except Exception:
             try:
                 if self._attached_secnode._secnode.cache[
                         self.secop_module, parameter].readerror:

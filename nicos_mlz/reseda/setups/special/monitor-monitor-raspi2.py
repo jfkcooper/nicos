@@ -54,7 +54,7 @@ _column1 = Column(
             Field(name='Power Divider', dev='cbox_0a_power_divider'),
         ),
         ],
-        setups='static_flippers and resonance_flippers and cbox_0a and arm_0',
+        setups='static_flippers and resonance_flippers and cbox_0a and arm_1',
     ),
 )
 
@@ -88,7 +88,7 @@ _column2 = Column(
             Field(name='Power Divider', dev='cbox_0b_power_divider'),
         ),
         ],
-        setups='static_flippers and resonance_flippers and cbox_0b and arm_0',
+        setups='static_flippers and resonance_flippers and cbox_0b and arm_1',
     ),
 )
 
@@ -151,7 +151,7 @@ devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         title = 'RESEDA Technical',
         loglevel = 'info',
-        cache = 'resedactrl.reseda.frm2',
+        cache = 'resedactrl.reseda.frm2.tum.de',
         prefix = 'nicos/',
         font = 'Droid Sans',
         valuefont = 'Consolas',

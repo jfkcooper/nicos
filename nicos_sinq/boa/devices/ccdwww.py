@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -56,7 +56,7 @@ class CCDWWWConnector(HttpConnector):
         else:
             data = 'Image data'
         session.log.debug('URL %s returned code %d, data: %s',
-                         result.request.url, response, data)
+                          result.request.url, response, data)
         if response in self.status_code_msg:
             session.log.warning('CCDWWW Communication problem %s with %s',
                                 self.status_code_msg.get(response),

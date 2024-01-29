@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,8 +32,8 @@ from nicos.nexus.nexussink import NexusTemplateProvider
 from nicos_sinq.camea.nexus.camea_elements import BoundaryArrayParam, \
     CameaAzimuthalAngle
 from nicos_sinq.nexus.specialelements import AbsoluteTime, ArrayParam, \
-    CellArray, EnvDeviceDataset, OptionalDeviceDataset,\
-    Reflection, ScanCommand, ScanVars, SaveSampleEnv
+    CellArray, EnvDeviceDataset, OptionalDeviceDataset, Reflection, \
+    SaveSampleEnv, ScanCommand, ScanVars
 
 
 class CameaTemplateProvider(NexusTemplateProvider):
@@ -129,12 +129,12 @@ class CameaTemplateProvider(NexusTemplateProvider):
             'mm', 'string')),
         "y": OptionalDeviceDataset('tl', dtype='float32', units=NXAttribute(
             'mm', 'string')),
-        "qh": EnvDeviceDataset('h', dtype='float32',
-                               units=NXAttribute('rlu', 'string')),
-        "qk": EnvDeviceDataset('k', dtype='float32',
-                               units=NXAttribute('rlu', 'string')),
-        "ql": EnvDeviceDataset('l', dtype='float32',
-                               units=NXAttribute('rlu', 'string')),
+        "qh": DeviceDataset('h', dtype='float32',
+                            units=NXAttribute('rlu', 'string')),
+        "qk": DeviceDataset('k', dtype='float32',
+                            units=NXAttribute('rlu', 'string')),
+        "ql": DeviceDataset('l', dtype='float32',
+                            units=NXAttribute('rlu', 'string')),
         "unit_cell": CellArray(),
         "lieselotte": SaveSampleEnv(blocklist=_camea_blocklist),
     }

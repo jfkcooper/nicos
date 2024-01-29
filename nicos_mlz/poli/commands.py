@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -525,7 +525,7 @@ def omscan(hkl, width=None, speed=None, timedelta=None, **kwds):
 
     Examples:
 
-    >>> omscan((1, 0, 0))     # with default with, speed and timedelta
+    >>> omscan((1, 0, 0))     # with default width, speed and timedelta
     >>> omscan((1, 0, 0), 5)  # with a width of 5 degrees
     >>> omscan((1, 0, 0), 5, 0.1, 1)   # with width, speed and timedelta
     """

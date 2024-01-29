@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -73,7 +73,7 @@ class VoltageSwitcher(Switcher):
 
 
 class VoltageSupply(PowerSupply):
-    """work around a bug either in the taco server or in the hv supply itself
+    """work around a bug either in the Tango server or in the hv supply itself
 
     basically the idle status is returned at the end of the ramp,
     even if the output voltage is nowhere near the target value

@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -1792,7 +1792,7 @@ class Moveable(Waitable):
             return True
 
     def doFix(self, reason):
-        for name, attinfo, dev in self._iterAdevDefinitions():
+        for _name, attinfo, dev in self._iterAdevDefinitions():
             if not attinfo.dontfix:
                 if isinstance(dev, Moveable):
                     dev.fix(reason)
@@ -1822,7 +1822,7 @@ class Moveable(Waitable):
             return True
 
     def doRelease(self):
-        for name, attinfo, dev in self._iterAdevDefinitions():
+        for _name, attinfo, dev in self._iterAdevDefinitions():
             if not attinfo.dontfix:
                 if isinstance(dev, Moveable):
                     dev.release()

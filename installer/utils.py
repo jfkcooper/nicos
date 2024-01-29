@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -56,7 +56,7 @@ def find_custom():
 # find resource files
 def find_resources():
     res = []
-    for root, dirs, files in os.walk(path.join(rootdir,  'resources')):
+    for root, _dirs, files in os.walk(path.join(rootdir,  'resources')):
         targetdir = root[len(rootdir) + 1:]
         for fn in files:
             res.append((path.join(root, fn), targetdir))

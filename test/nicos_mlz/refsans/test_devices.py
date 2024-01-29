@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -86,6 +86,7 @@ def test_beamstop(session):
 
 def test_skewmotor(session):
     bg = session.getDevice('backguard')
+    assert bg.isAtTarget()  # test, if target is still 'None'
     assert bg.skew == 2
     assert bg.precision == 0.1
     assert bg.read(0) == 0
@@ -290,3 +291,28 @@ class TestAccuracy:
 
     def test_status(self, session):
         assert session.getDevice('table_acc').status() == (status.OK, '')
+
+
+class TestDoubleSlitSequence:
+
+    @pytest.fixture(scope='function', autouse=True)
+    def slit(self, session):
+        slit = session.getDevice('b3')
+        slit.maw([0, 12])
+
+        yield slit
+
+    def test_read(self, slit, session):
+        assert slit.read(0) == [0, 12]
+
+    def test_status(self, slit, session):
+        assert slit.status() == (status.OK, 'b3')
+
+    def test_move(self, slit, session):
+        assert slit.center.read(0) == 0
+        slit.maw([2, 0])
+        assert slit.read(0) == [2, 0]
+        assert slit.center.read(0) == 2
+        slit.maw([0, 0])
+        assert slit.read(0) == [0, 0]
+        assert slit.center.read(0) == 0

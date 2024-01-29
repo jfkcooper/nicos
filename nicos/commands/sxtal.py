@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -92,11 +92,24 @@ def ScanDataset(dmin, dmax, preset=1., scanmode=None):
 
 
 @usercommand
-@helparglist('hkl')
+@helparglist('hkl, [preset], [subscan]')
 def ScanOmega(hkl, preset=1., subscan=False):
+    """Perform a centered omega scan at the specified Q point.
+
+    The default scan width is calculated from the instrumental resolution.  The
+    number of steps is taken from the instrument parameter ``scansteps``.
+
+    Examples:
+
+    >>> ScanOmega((1, 0, 0))     # with default preset and no subscan
+    >>> ScanOmega((1, 0, 0), 1)  # with 1 second counting time and no subscan
+    >>> ScanOmega((1, 0, 0), 1, True)   # with 1 s count and subscan
+    """
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
         raise NicosError('your instrument device is not a SXTAL device')
+    if not hasattr(instr, '_attached_omega'):
+        raise NicosError('your instrument device has no attached "omega"')
     width = instr.getScanWidthFor(hkl)
     sps = instr.scansteps
     sw = width / sps
@@ -106,11 +119,26 @@ def ScanOmega(hkl, preset=1., subscan=False):
 
 
 @usercommand
-@helparglist('hkl')
+@helparglist('hkl, [preset], [subscan]')
 def ScanT2T(hkl, preset=1., subscan=False):
+    """Perform a centered 'omega/two theta' scan at the specified Q point.
+
+    The default scan width is calculated from the instrumental resolution.  The
+    number of steps is taken from the instrument parameter ``scansteps``.
+
+    Examples:
+
+    >>> ScanT2T((1, 0, 0))     # with default preset and no subscan
+    >>> ScanT2T((1, 0, 0), 1)  # with 1 second counting time and no subscan
+    >>> ScanT2T((1, 0, 0), 1, True)   # with 1 s count and subscan
+    """
     instr = session.instrument
     if not isinstance(instr, SXTalBase):
         raise NicosError('your instrument device is not a SXTAL device')
+    if not hasattr(instr, '_attached_omega'):
+        raise NicosError('your instrument device has no attached "omega"')
+    if not hasattr(instr, '_attached_ttheta'):
+        raise NicosError('your instrument device has no attached "ttheta"')
     width = instr.getScanWidthFor(hkl)
     sps = instr.scansteps
     sw = width / sps

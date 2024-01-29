@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -74,6 +74,8 @@ class Message:
 
 
 class RabbitSinkHandler(DataSinkHandler):
+
+    ordering = 80
 
     def _sendMessage(self, type: str, dataset: BaseDataset,  # pylint: disable=redefined-builtin
                      scands: ScanDataset = None, blockds: BlockDataset = None):

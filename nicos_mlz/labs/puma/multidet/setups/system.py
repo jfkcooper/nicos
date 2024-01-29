@@ -2,7 +2,7 @@ description = 'system setup for PUMA'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'pumadma.puma.frm2',
+    cache = 'pumadma.puma.frm2.tum.de',
     instrument = 'puma',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -42,7 +42,6 @@ devices = dict(
         zipdata = True,
         mailserver = 'mailhost.frm2.tum.de',
         mailsender = 'puma@frm2.tum.de',
-        serviceexp = 'service',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'Currently used sample',

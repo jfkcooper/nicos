@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,6 +25,8 @@
 
 import sys
 from os import path
+
+from html2text import HTML2Text
 
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.clients.gui.panels import Panel, showPanel
@@ -87,6 +89,8 @@ class ConsolePanel(Panel):
         self.menu.addSeparator()
         self.menu.addAction(self.actionSave)
         self.menu.addAction(self.actionPrint)
+        self.menu.addSeparator()
+        self.menu.addAction(self.actionAttachElog)
         self.menu.addSeparator()
         self.menu.addAction(self.actionAllowLineWrap)
         self.on_actionAllowLineWrap_triggered(
@@ -220,6 +224,15 @@ class ConsolePanel(Panel):
     @pyqtSlot()
     def on_actionCopy_triggered(self):
         self.outView.copy()
+
+    @pyqtSlot()
+    def on_actionAttachElog_triggered(self):
+        html = self.outView.textCursor().selection().toHtml()
+        if html:
+            htmlconv = HTML2Text()
+            htmlconv.ignore_links = True
+            text = '<br>'.join(s for s in htmlconv.handle(html).split('\n') if s)
+            self.client.eval(f'LogEntry({text!r})')
 
     @pyqtSlot()
     def on_actionGrep_triggered(self):

@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -793,12 +793,12 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         self.arraydesc = ArrayDesc(self.name, self.size[::-1], '<u4')
 
     def doPrepare(self):
-        self.readresult = [0]
         if self._mythread and self._mythread.is_alive():
             self._stopflag = True
             self._mythread.join()
-            self._mythread = None
+        self._mythread = None
         self._buf = self._generate(0).astype('<u4')
+        self.readresult = [self._buf.sum()]
 
     def doStart(self):
         self._last_update = 0

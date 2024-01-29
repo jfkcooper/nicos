@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -90,7 +90,7 @@ class NOKPosition(PolynomFit, Coder):
     """Device to read the current Position of a NOK.
 
     The Position is determined by a ratiometric measurement between two
-    analogue voltages measured with i7000 modules via taco.
+    analogue voltages measured with i7000 modules via Tango.
 
     As safety measure, the reference voltage obtained is checked to be in some
     configurable limits.

@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,7 +26,6 @@ Utilities for serializing a hs00 flatbuffer
 """
 
 import time
-from unittest.mock import patch
 
 import pytest
 
@@ -157,4 +156,3 @@ def create_hs00(data=None, timestamp=None, source='test_device'):
                                       labels=labels,
                                       dtype=data.dtype.type)
     return encoder.encode(ts, arraydesc, data, source)
-

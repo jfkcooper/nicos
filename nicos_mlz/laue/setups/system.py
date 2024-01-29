@@ -2,7 +2,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'lauectrl.laue.frm2',
+    cache = 'lauectrl.laue.frm2.tum.de',
     instrument = 'Laue',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'dmnsink'],
@@ -26,9 +26,7 @@ devices = dict(
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = '/data',
-        sendmail = False,
         zipdata = False,
-        serviceexp = 'service',
         strictservice = True,
         # We do not have a dedicated responsible
         sample = 'Sample',

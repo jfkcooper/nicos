@@ -1,6 +1,6 @@
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2023 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2024 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,7 +26,7 @@
 import pytest
 
 from nicos.core import status
-from nicos.core.errors import ConfigurationError, InvalidValueError
+from nicos.core.errors import InvalidValueError
 
 from test.utils import approx, raises
 
@@ -44,7 +44,7 @@ def test_basic(session):
     assert wav.plane == '551'  # pylint: disable=compare-to-empty-string
     assert wav.read(0) == approx(1.548, abs=0.001)
     assert wav.status(0)[0] == status.OK
-    assert wav.crystal is 'Ge'
+    assert wav.crystal == 'Ge'
     assert raises(ValueError, setattr, wav, 'plane', '311')
     assert raises(InvalidValueError, wav.maw, 1)
 
@@ -56,7 +56,7 @@ def test_basic(session):
 
     # plane setting
     assert wav.plane == '551'
-    assert wav.crystal is 'Ge'
+    assert wav.crystal == 'Ge'
     wav.plane = '771'
     assert wav.read(0) == approx(1.111, abs=0.001)
     wav.plane = '551'
