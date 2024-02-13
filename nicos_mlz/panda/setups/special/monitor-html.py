@@ -171,64 +171,12 @@ for cryo in cryonames:
 
 # generic CCR-stuff
 ccrs = []
-ccrsupps = []
 ccrplots = []
-for i in range(10, 22 + 1):
-    ccrs.append(
-        Block('CCR%d-Pulse tube' % i, [
-            BlockRow(
-                Field(dev='t_ccr%d_c' % i, name='Coldhead'),
-                Field(dev='t_ccr%d_d' % i, name='Regulation'),
-                Field(dev='t_ccr%d_b' % i, name='Sample'),
-            ),
-            BlockRow(
-                Field(key='t_ccr%d/setpoint' % i, name='Setpoint'),
-                Field(key='t_ccr%d/p' % i, name='P', width=7),
-                Field(key='t_ccr%d/i' % i, name='I', width=7),
-                Field(key='t_ccr%d/d' % i, name='D', width=6),
-            ),
-            ],
-            setups='ccr%d and not cci3he0*' % i,
-        )
-    )
-    ccrsupps.append(
-        Block('CCR%d' % i, [
-            BlockRow(
-                Field(dev='T_ccr%d_A' % i, name='A'),
-                Field(dev='T_ccr%d_B' % i, name='B'),
-            ),
-            BlockRow(
-                Field(dev='T_ccr%d_C' % i, name='C'),
-                Field(dev='T_ccr%d_D' % i, name='D'),
-            ),
-            BlockRow(
-                Field(dev='ccr%d_p1' % i, name='P1'),
-                Field(dev='ccr%d_p2' % i, name='P2'),
-            ),
-            BlockRow(
-                Field(key='t_ccr%d/setpoint' % i, name='SetP.', width=6),
-                Field(key='t_ccr%d/p' % i, name='P', width=4),
-                Field(key='t_ccr%d/i' % i, name='I', width=4),
-                Field(key='t_ccr%d/d' % i, name='D', width=3),
-            ),
-            ],
-            setups='ccr%d' % i,
-        )
-    )
-    ccrplots.append(
-        Block('CCR%d' % i, [
-            BlockRow(
-                Field(widget='nicos.guisupport.plots.TrendPlot',
-                      plotwindow=300, width=25, height=25,
-                      devices=['t_ccr%d/setpoint' % i, 't_ccr%d_c' % i,
-                               't_ccr%d_d' % i, 't_ccr%d_b' % i],
-                      names=['Setpoint', 'Coldhead', 'Regulation', 'Sample'],
-                ),
-            ),
-            ],
-            setups='ccr%d' % i,
-        )
-    )
+for i in range(10, 25 + 1):
+    if i == 13:
+        continue
+    ccrs.append(SetupBlock(f'ccr{i}'))
+    ccrplots.append(SetupBlock(f'ccr{i}', 'plots'))
 
 # for setup magnet frm2-setup
 ccm5v5 = SetupBlock('ccm5v5')
@@ -266,27 +214,6 @@ wm5vsupp = Block('Magnet', [
 )
 
 
-vti = Block('VTI', [
-#    BlockRow(
-#        Field(dev='sTs'),
-#        Field(dev='vti'),
-#        Field(key='vti/setpoint',name='Setpoint',min=1,max=200),
-#        Field(key='vti/heater',name='Heater (%)'),
-#    ),
-    BlockRow(
-        Field(dev='LHe'),
-        Field(dev='LN2'),
-    ),
-    BlockRow(
-        Field(dev='NV'),
-        Field(dev='vti_pressure', name='p(UP)'),
-        Field(dev='pressure_ls', name='p(DOWN)'),
-        Field(key='vti_pressure/setpoint', name='setpoint'),
-    ),
-    ],
-    setups='variox',
-)
-
 ccm12v = Block('12T Magnet', [
     BlockRow(
         Field(dev='B_ccm12v'),
@@ -311,19 +238,6 @@ ccm12vplots = Block('12T Magnet', [
     setups='ccm12v',
 )
 
-
-kelvinox = Block('Kelvinox', [
-    BlockRow(Field(dev='mc')),
-    BlockRow(Field(key='mc/setpoint',name='Setpoint',unit='K')),
-    BlockRow(Field(dev='sorb')),
-    BlockRow(Field(dev='onekpot')),
-    BlockRow(Field(dev='igh_p1')),
-    BlockRow(Field(dev='igh_g1')),
-    BlockRow(Field(dev='igh_g2')),
-    ],
-    setups='kelvinox',
-)
-
 foki = Block('Foki', [
     BlockRow(
         Field(dev='mfh'),
@@ -335,17 +249,16 @@ foki = Block('Foki', [
 
 memograph = Block('Water Flow', [
     BlockRow(
-        Field(dev='flow_in_panda', name='In'),
-        Field(dev='flow_out_panda', name='Out'),
+        Field(dev='cooling_flow_in', name='In'),
+        Field(dev='cooling_flow_out', name='Out'),
     ),
     BlockRow(
-        Field(dev='t_in_panda', name='T In'),
-        Field(dev='t_out_panda', name='T Out'),
+        Field(dev='cooling_t_in', name='T In'),
+        Field(dev='cooling_t_out', name='T Out'),
     ),
-    BlockRow(Field(dev='leak_panda', name='leak')),
+    BlockRow(Field(dev='cooling_leak', name='leak')),
     ],
 )
-
 
 tas = Block('TAS', [
         BlockRow(Field(name='H', key='panda/value[0]', format='%.3f', unit=''),
@@ -359,10 +272,10 @@ tas = Block('TAS', [
 )
 
 column2 = Column(collimation, detector, ccm12v) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, lakeshore_hts, ccm5v5, wm5v, vti)
+          Column(lakeshore, lakeshore_hts, ccm5v5, wm5v)
 
-column3 = Column(tas) + Column(ccm5v5supp, wm5vsupp, kelvinox, foki,  memograph) + \
-          Column(*cryosupps) + Column(*ccrsupps)
+column3 = Column(tas) + Column(ccm5v5supp, wm5vsupp, foki, memograph) + \
+          Column(*cryosupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)
 

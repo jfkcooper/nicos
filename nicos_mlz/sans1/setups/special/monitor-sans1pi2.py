@@ -276,71 +276,11 @@ _ccm5h = SetupBlock('ccm5h')
 _ccm5h_temperature = SetupBlock('ccm5h', 'temperatures')
 _ccm5h_plot = SetupBlock('ccm5h', 'plot')
 
-_miramagnet = Block('MIRA 0.5T Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_miramagnet', width=12),
-        Field(name='Target', key='B_miramagnet/target', width=12),
-    ),
-    BlockRow(
-        Field(name='Current', dev='I_miramagnet', width=12),
-    ),
-    ],
-    setups='miramagnet',
-)
+_miramagnet = SetupBlock('miramagnet')
+_miramagnet_plot = SetupBlock('miramagnet', 'plot')
 
-_miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=1800,
-              devices=['B_miramagnet', 'B_miramagnet/target'],
-              names=['30min', 'Target'],
-              legend=True),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=24*3600,
-              devices=['B_miramagnet', 'B_miramagnet/target'],
-              names=['24h', 'Target'],
-              legend=True),
-    ),
-    ],
-    setups='miramagnet',
-)
-
-_amagnet = Block('Antares Magnet', [
-    BlockRow(
-        Field(name='Field', dev='B_amagnet', width=12),
-        Field(name='Target', key='B_amagnet/target', width=12),
-    ),
-    BlockRow(
-        Field(name='Current', dev='amagnet_current', width=12),
-        Field(name='ON/OFF', dev='amagnet_onoff', width=12),
-    ),
-    BlockRow(
-        Field(name='Polarity', dev='amagnet_polarity', width=12),
-        Field(name='Connection', dev='amagnet_connection', width=12),
-    ),
-    BlockRow(
-        Field(name='Lambda out', dev='l_out', width=12),
-    ),
-    ],
-    setups='amagnet',
-)
-
-_amagnet_plot = Block('Antares Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=1800,
-              devices=['B_amagnet', 'b_amagnet/target'],
-              names=['30min', 'Target'],
-              legend=True),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotwindow=12*3600,
-              devices=['B_amagnet', 'b_amagnet/target'],
-              names=['12h', 'Target'],
-              legend=True),
-    ),
-    ],
-    setups='amagnet',
-)
+_amagnet = SetupBlock('amagnet')
+_amagnet_plot = SetupBlock('amagnet', 'plot')
 
 _spinflipper = Block('Spin Flipper', [
     BlockRow(
@@ -375,38 +315,11 @@ for k in [1,2,3,10,11,12]:
     ))
 
 ccrs = []
-for i in range(10, 22 + 1):
-    ccrs.append(Block('CCR%d' % i, [
-        BlockRow(
-            Field(name='Setpoint', key='t_ccr%d/setpoint' % i,
-                  unitkey='t/unit'),
-            Field(name='Target', key='t_ccr%d/target' % i,
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power Stick',
-                  key='t_ccr%d_stick/heaterpower' % i, format='%.3f',
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power Tube',
-                  key='t_ccr%d_tube/heaterpower' % i, format='%.3f',
-                  unitkey='t/unit'),
-        ),
-        BlockRow(
-             Field(name='A', dev='T_ccr%d_A' % i),
-             Field(name='B', dev='T_ccr%d_B' % i),
-        ),
-        BlockRow(
-             Field(name='C', dev='T_ccr%d_C' % i),
-             Field(name='D', dev='T_ccr%d_D' % i),
-        ),
-        ],
-        setups='ccr%d' % i,
-    ))
-
 T_Ts_plot = []
-for k in range(10, 22 + 1):
+for i in range(10, 25 + 1):
+    if i == 13:
+        continue
+    ccrs.append(SetupBlock(f'ccr{i}'))
     T_Ts_plot.append(Block('30min T and Ts plot', [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
@@ -416,8 +329,10 @@ for k in range(10, 22 + 1):
                   legend=True),
         ),
         ],
-        setups='ccr%d' %k,
+        setups=f'ccr{i}',
     ))
+
+_ccrs = Column(*tuple(ccrs))
 
 cryos = []
 for cryo in ['cci3he01', 'cci3he02', 'cci3he03', 'cci3he10', 'cci3he11',
